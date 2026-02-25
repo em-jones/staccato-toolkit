@@ -1,0 +1,112 @@
+{
+  "name": "@op/platform",
+  "version": "0.0.0",
+  "description": "A starter for creating a TypeScript package.",
+  "homepage": "https://github.com/author/library#readme",
+  "bugs": {
+    "url": "https://github.com/author/library/issues"
+  },
+  "license": "MIT",
+  "author": "Author Name <author.name@mail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/author/library.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./auth": "./dist/auth/index.mjs",
+    "./catalog": "./dist/catalog/index.mjs",
+    "./config": "./dist/config/index.mjs",
+    "./data-store": "./dist/data-store/index.mjs",
+    "./data-store/types": "./dist/data-store/types.mjs",
+    "./db-sqlite": "./dist/db-sqlite/index.mjs",
+    "./events": "./dist/events.mjs",
+    "./features/client": "./dist/features/client.mjs",
+    "./features/client-plugin": "./dist/features/client-plugin.mjs",
+    "./features/server": "./dist/features/server.mjs",
+    "./features/types": "./dist/features/types.mjs",
+    "./i18n": "./dist/i18n/index.mjs",
+    "./i18n/types": "./dist/i18n/types.mjs",
+    "./o11y/server": "./dist/o11y/server.mjs",
+    "./o11y/types": "./dist/o11y/types.mjs",
+    "./plugins/types": "./dist/plugins/types.mjs",
+    "./search": "./dist/search.mjs",
+    "./search/proxy": "./dist/search/proxy.mjs",
+    "./search/types": "./dist/search/types.mjs",
+    "./services/server": "./dist/services/server.mjs",
+    "./services/types": "./dist/services/types.mjs",
+    "./testing": "./dist/testing/index.mjs",
+    "./vite": "./dist/vite/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "vp run build"
+  },
+  "dependencies": {
+    "@op-plugin/workflows-core": "workspace:*",
+    "@openfeature/core": "catalog:",
+    "@openfeature/server-sdk": "catalog:",
+    "@openfeature/web-sdk": "catalog:",
+    "@opentelemetry/api": "catalog:",
+    "@opentelemetry/api-logs": "catalog:",
+    "@opentelemetry/exporter-logs-otlp-http": "catalog:",
+    "@opentelemetry/exporter-metrics-otlp-http": "catalog:",
+    "@opentelemetry/exporter-metrics-otlp-proto": "catalog:",
+    "@opentelemetry/exporter-prometheus": "catalog:",
+    "@opentelemetry/exporter-trace-otlp-http": "catalog:",
+    "@opentelemetry/exporter-trace-otlp-proto": "catalog:",
+    "@opentelemetry/resources": "catalog:",
+    "@opentelemetry/sdk-logs": "catalog:",
+    "@opentelemetry/sdk-metrics": "catalog:",
+    "@opentelemetry/semantic-conventions": "catalog:",
+    "@standard-community/standard-openapi": "catalog:",
+    "@standard-schema/spec": "catalog:",
+    "awilix": "catalog:",
+    "effect": "catalog:",
+    "fp-ts": "^2.16.9",
+    "pino": "catalog:",
+    "testcontainers": "catalog:",
+    "valibot": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "7.0.0-dev.20260328.1",
+    "bumpp": "^11.0.1",
+    "typescript": "^6.0.2",
+    "vite-plus": "^0.1.14"
+  },
+  "peerDependencies": {
+    "drizzle-orm": "*",
+    "pino": "catalog:"
+  },
+  "optionalDependencies": {
+    "@opentelemetry/auto-instrumentations-node": "catalog:",
+    "@opentelemetry/sdk-node": "catalog:",
+    "@opentelemetry/sdk-trace-node": "catalog:"
+  },
+  "inlinedDependencies": {
+    "@oxc-project/types": "0.123.0",
+    "@vitest/expect": "3.2.4",
+    "@voidzero-dev/vite-plus-core": "0.1.16",
+    "@voidzero-dev/vite-plus-test": [
+      "0.1.15",
+      "0.1.16"
+    ],
+    "esbuild": "0.27.5",
+    "oxfmt": "0.43.0",
+    "oxlint": "1.58.0",
+    "vite-plus": "0.1.16",
+    "yaml": "2.8.3"
+  }
+}

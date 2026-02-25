@@ -1,0 +1,67 @@
+---
+title: Carousel
+description: Scrollable content with snap points
+---
+
+## Usage
+
+Apply `.carousel` with `.carousel-item` elements to create a horizontally scrollable container.
+
+```html
+<div class="carousel" style="width:100%;overflow-x:auto">
+  <div
+    class="carousel-item"
+    style="min-width:200px;height:100px;background:var(--color-primary);color:var(--color-bg);display:flex;align-items:center;justify-content:center;border-radius:var(--variant-radius)"
+  >
+    Slide 1
+  </div>
+  <div
+    class="carousel-item"
+    style="min-width:200px;height:100px;background:var(--color-secondary);color:var(--color-bg);display:flex;align-items:center;justify-content:center;border-radius:var(--variant-radius)"
+  >
+    Slide 2
+  </div>
+  <div
+    class="carousel-item"
+    style="min-width:200px;height:100px;background:var(--color-accent);color:var(--color-bg);display:flex;align-items:center;justify-content:center;border-radius:var(--variant-radius)"
+  >
+    Slide 3
+  </div>
+</div>
+```
+
+## Snap alignment
+
+| Class              | Description             |
+| ------------------ | ----------------------- |
+| `.carousel-center` | Snap to center of items |
+| `.carousel-end`    | Snap to end of items    |
+
+## Orientation
+
+| Class                | Description                 |
+| -------------------- | --------------------------- |
+| `.carousel-vertical` | Vertical scrolling carousel |
+
+```html
+<div class="carousel carousel-vertical" style="height:180px;overflow-y:auto">
+  <div
+    class="carousel-item"
+    style="height:80px;background:var(--color-primary);color:var(--color-bg);display:flex;align-items:center;justify-content:center;border-radius:var(--variant-radius)"
+  >
+    Slide 1
+  </div>
+  <div
+    class="carousel-item"
+    style="height:80px;background:var(--color-secondary);color:var(--color-bg);display:flex;align-items:center;justify-content:center;border-radius:var(--variant-radius)"
+  >
+    Slide 2
+  </div>
+  <div
+    class="carousel-item"
+    style="height:80px;background:var(--color-accent);color:var(--color-bg);display:flex;align-items:center;justify-content:center;border-radius:var(--variant-radius)"
+  >
+    Slide 3
+  </div>
+</div>
+```

@@ -1,0 +1,56 @@
+# Development Containerfile for Staccato TUI
+# Enables hot-reloading during development with wgo, with optional delve debugger support.
+# Build context MUST be the repo root so go.work is accessible.
+#
+# Usage (from repo root):
+#   docker build -f src/staccato-toolkit/tui/Containerfile.dev -t staccato-tui:dev .
+#
+#   Run with hot-reloading:
+#   docker run -it -v $(pwd)/src/staccato-toolkit/tui:/workspace/src/staccato-toolkit/tui:Z staccato-tui:dev
+#
+#   Run with delve debugger (port 2345):
+#   docker run -it -v $(pwd)/src/staccato-toolkit/tui:/workspace/src/staccato-toolkit/tui:Z -p 2345:2345 -e DEBUG=1 staccato-tui:dev
+
+FROM golang:1.25-alpine
+
+WORKDIR /workspace
+
+# Install development tools and delve debugger
+RUN apk add --no-cache git make bash curl ca-certificates && \
+    go install github.com/go-delve/delve/cmd/dlv@latest && \
+    go install github.com/bokwoon95/wgo@latest
+
+# Copy Go workspace files (go.work references all modules)
+COPY go.work go.work.sum ./
+
+# Copy all module sources referenced by go.work
+COPY src/ops/workloads/ ./src/ops/workloads/
+COPY src/staccato-toolkit/core/ ./src/staccato-toolkit/core/
+COPY src/staccato-toolkit/tui/ ./src/staccato-toolkit/tui/
+
+# Download dependencies for the tui module
+WORKDIR /workspace/src/staccato-toolkit/tui
+
+# Pre-download dependencies
+RUN go mod download
+
+# Expose delve debugger port
+EXPOSE 2345
+
+# Entrypoint script to handle DEBUG mode
+COPY <<EOF /docker-entrypoint.sh
+#!/bin/sh
+if [ "$DEBUG" = "1" ]; then
+  echo "Starting with Delve debugger on port 2345..."
+  go build -gcflags="all=-N -l" -o ./tmp/staccato-tui-debug . && \
+  dlv exec ./tmp/staccato-tui-debug --headless --listen=:2345 --api-version=2
+else
+  echo "Starting with wgo hot-reloading..."
+  wgo run -config .wgo.yaml ./tmp/staccato-tui
+fi
+EOF
+
+RUN chmod +x /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD []

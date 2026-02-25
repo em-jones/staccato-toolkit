@@ -1,0 +1,77 @@
+---
+title: Alert
+description: Display important messages to users
+---
+
+## Usage
+
+Apply `.alert` to display contextual feedback messages.
+
+```html
+<div class="alert">
+  <div class="alert-icon">...</div>
+  <div class="alert-content">
+    <div class="alert-title">Title</div>
+    <div class="alert-message">Message content</div>
+  </div>
+</div>
+```
+
+## Color variants
+
+| Class            | Description                   |
+| ---------------- | ----------------------------- |
+| `.alert-info`    | Info alert with blue tint     |
+| `.alert-success` | Success alert with green tint |
+| `.alert-warning` | Warning alert with amber tint |
+| `.alert-error`   | Error alert with red tint     |
+
+### Color Examples
+
+```html
+<div class="alert alert-info">
+  <div class="alert-icon">ℹ️</div>
+  <div class="alert-content">
+    <div class="alert-title">Info</div>
+    <div class="alert-message">This is an informational message</div>
+  </div>
+</div>
+
+<div class="alert alert-success">
+  <div class="alert-icon">✓</div>
+  <div class="alert-content">
+    <div class="alert-title">Success</div>
+    <div class="alert-message">Operation completed successfully</div>
+  </div>
+</div>
+
+<div class="alert alert-warning">
+  <div class="alert-icon">⚠️</div>
+  <div class="alert-content">
+    <div class="alert-title">Warning</div>
+    <div class="alert-message">Please review before proceeding</div>
+  </div>
+</div>
+
+<div class="alert alert-error">
+  <div class="alert-icon">✕</div>
+  <div class="alert-content">
+    <div class="alert-title">Error</div>
+    <div class="alert-message">Something went wrong</div>
+  </div>
+</div>
+```
+
+## Style modifiers
+
+| Class            | Description                                |
+| ---------------- | ------------------------------------------ |
+| `.alert-outline` | Transparent background with colored border |
+| `.alertghost`    | No background or border                    |
+
+### Style Examples
+
+```html
+<div class="alert alert-outline alert-info">Outline info alert</div>
+<div class="alert alertghost">Ghost alert</div>
+```

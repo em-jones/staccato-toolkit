@@ -1,0 +1,23 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: auth-core
+  title: Auth Core
+  description: Core authentication framework and interfaces for the developer portal
+  annotations:
+    backstage.io/techdocs-ref: dir:../../src/dev-portal/open-portal/plugins/auth-core
+    backstage.io/adr-location: ../../src/dev-portal/open-portal/plugins/auth-core/docs/adrs
+  tags:
+    - authentication
+    - auth
+    - plugin
+    - core
+  links:
+    - url: https://github.com/staccato-toolkit/staccato-toolkit
+      title: Repository
+      icon: github
+spec:
+  type: library
+  lifecycle: production
+  owner: platform-team
+  system: developer-platform

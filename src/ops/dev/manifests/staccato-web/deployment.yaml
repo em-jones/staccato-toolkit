@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: staccato-web
+  namespace: staccato
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: staccato-web
+  template:
+    metadata:
+      labels:
+        app: staccato-web
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: staccato-web
+          image: staccato-web:dev
+          imagePullPolicy: Never  # use locally loaded image in kind
+          ports:
+            - containerPort: 8081
+              name: http
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: "staccato-web"
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8081
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+            requests:
+              memory: "64Mi"
+              cpu: "50m"

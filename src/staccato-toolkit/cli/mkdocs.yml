@@ -1,0 +1,17 @@
+site_name: Staccato CLI
+site_description: User-facing command-line interface for the Staccato Toolkit
+
+docs_dir: docs
+site_dir: site
+
+nav:
+  - Home: index.md
+
+theme:
+  name: material
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true

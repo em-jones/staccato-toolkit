@@ -1,0 +1,69 @@
+---
+title: Stat
+description: Statistics display components
+---
+
+## Usage
+
+Apply `.stat` with `.stat-title`, `.stat-value`, and `.stat-desc`.
+
+```html
+<div class="stat">
+  <div class="stat-title">Total Users</div>
+  <div class="stat-value">1,234</div>
+  <div class="stat-desc">Active users this month</div>
+</div>
+```
+
+## With figure
+
+```html
+<div class="stat">
+  <div class="stat-figure">📊</div>
+  <div class="stat-title">Downloads</div>
+  <div class="stat-value">2.5M</div>
+  <div class="stat-desc">Last 30 days</div>
+</div>
+```
+
+## Multiple stats
+
+```html
+<div style="display:flex;gap:1rem;flex-wrap:wrap">
+  <div class="stat">
+    <div class="stat-title">Revenue</div>
+    <div class="stat-value">$48.3K</div>
+    <div class="stat-desc">↑ 12% from last month</div>
+  </div>
+  <div class="stat">
+    <div class="stat-title">Orders</div>
+    <div class="stat-value">834</div>
+    <div class="stat-desc">↓ 3% from last month</div>
+  </div>
+  <div class="stat">
+    <div class="stat-title">Uptime</div>
+    <div class="stat-value">99.9%</div>
+    <div class="stat-desc">Last 90 days</div>
+  </div>
+</div>
+```
+
+## With actions
+
+```html
+<div class="stat">
+  <div class="stat-title">Revenue</div>
+  <div class="stat-value">$12,345</div>
+  <div class="stat-actions">
+    <button class="btn btn-sm btn-primary">View</button>
+  </div>
+</div>
+```
+
+## Layout variants
+
+| Class              | Description               |
+| ------------------ | ------------------------- |
+| `.stat-horizontal` | Horizontal layout         |
+| `.stat-vertical`   | Vertical layout (default) |
+| `.stat-compact`    | Compact spacing           |

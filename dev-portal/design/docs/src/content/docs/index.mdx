@@ -1,0 +1,38 @@
+---
+title: Welcome to Staccato UI
+description: A design system built on Tailwind CSS v4 with themeable, DaisyUI-style utility classes.
+hero:
+  tagline: A design system built on Tailwind CSS v4 with themeable, DaisyUI-style utility classes.
+  image:
+    file: ../../assets/houston.webp
+  actions:
+    - text: Get Started
+      link: /getting-started/overview/
+      icon: right-arrow
+    - text: View Components
+      link: /components/button/
+      icon: right-arrow
+      variant: minimal
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+## Next steps
+
+<CardGrid stagger>
+  <Card title="Getting Started" icon="pencil">
+    Learn how to install and configure Staccato UI in your project. [Read the
+    guide](/getting-started/overview/)
+  </Card>
+  <Card title="Components" icon="document">
+    Explore the component library including buttons, cards, inputs, and more. [View
+    components](/components/button/)
+  </Card>
+  <Card title="Themes" icon="seti:json">
+    Customize the look and feel with built-in themes or create your own. [Explore
+    themes](/getting-started/themes/)
+  </Card>
+  <Card title="Visualizations" icon="graph">
+    Charts, tables, and types for observability dashboards. [View visualizations](/visualizations/)
+  </Card>
+</CardGrid>

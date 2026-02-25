@@ -1,0 +1,246 @@
+---
+title: Table
+description: Themed data tables with striped, bordered, hover, and compact variants
+---
+
+## Usage
+
+Wrap a `<table>` with `.table` for baseline typography and borders. Wrap in `.table-wrapper` for rounded corners and horizontal scroll on narrow viewports.
+
+```html
+<div class="table-wrapper">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Alice</td>
+        <td>Engineer</td>
+        <td>Active</td>
+      </tr>
+      <tr>
+        <td>Bob</td>
+        <td>Designer</td>
+        <td>Away</td>
+      </tr>
+      <tr>
+        <td>Charlie</td>
+        <td>Manager</td>
+        <td>Offline</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+## Modifiers
+
+| Class            | Description                                                       |
+| ---------------- | ----------------------------------------------------------------- |
+| `table-striped`  | Alternating `surface0` background on even rows                    |
+| `table-bordered` | 1 px border on every cell                                         |
+| `table-hover`    | Tinted primary highlight on row hover                             |
+| `table-compact`  | Reduced cell padding for dense layouts                            |
+| `table-fixed`    | `table-layout: fixed` — column widths set by `<col>` or first row |
+
+### Striped
+
+```html
+<div class="table-wrapper">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Alice</td>
+        <td>Engineer</td>
+        <td>Active</td>
+      </tr>
+      <tr>
+        <td>Bob</td>
+        <td>Designer</td>
+        <td>Away</td>
+      </tr>
+      <tr>
+        <td>Charlie</td>
+        <td>Manager</td>
+        <td>Offline</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+### Bordered
+
+```html
+<div class="table-wrapper">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Alice</td>
+        <td>Engineer</td>
+        <td>Active</td>
+      </tr>
+      <tr>
+        <td>Bob</td>
+        <td>Designer</td>
+        <td>Away</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+### Hover
+
+```html
+<div class="table-wrapper">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Alice</td>
+        <td>Engineer</td>
+        <td>Active</td>
+      </tr>
+      <tr>
+        <td>Bob</td>
+        <td>Designer</td>
+        <td>Away</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+### Compact
+
+```html
+<div class="table-wrapper">
+  <table class="table table-compact">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Alice</td>
+        <td>Engineer</td>
+        <td>Active</td>
+      </tr>
+      <tr>
+        <td>Bob</td>
+        <td>Designer</td>
+        <td>Away</td>
+      </tr>
+      <tr>
+        <td>Charlie</td>
+        <td>Manager</td>
+        <td>Offline</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+### Combined
+
+```html
+<div class="table-wrapper">
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Alice</td>
+        <td>Engineer</td>
+        <td>Active</td>
+      </tr>
+      <tr>
+        <td>Bob</td>
+        <td>Designer</td>
+        <td>Away</td>
+      </tr>
+      <tr>
+        <td>Charlie</td>
+        <td>Manager</td>
+        <td>Offline</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+## Column alignment
+
+Use Tailwind utilities on `<th>` / `<td>`:
+
+```html
+<th class="text-right">Amount</th>
+<td class="text-right font-mono">$1,234.00</td>
+```
+
+## With a footer
+
+`<tfoot>` receives the same header background and a top separator.
+
+```html
+<div class="table-wrapper">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th class="text-right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Widget A</td>
+        <td class="text-right">$4,999.00</td>
+      </tr>
+      <tr>
+        <td>Widget B</td>
+        <td class="text-right">$5,000.00</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td>Total</td>
+        <td class="text-right">$9,999.00</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+```

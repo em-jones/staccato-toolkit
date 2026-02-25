@@ -1,0 +1,12 @@
+version: "3"
+
+tasks:
+  cluster:start:
+    desc: Start the podman container or kind cluster (staccato-dev)
+    cmds:
+      - |
+        if command -v podman &> /dev/null && podman ps -a | grep -q "control-plane"; then
+          podman ps -a | grep "control-plane" | awk '{print $NF}' | xargs -r podman start
+        else
+          kind create cluster --config .st/kind.yaml 2>/dev/null || kind get clusters | grep -q control-plane && echo "Cluster already exists"
+        fi

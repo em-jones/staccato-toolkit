@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: jq
+  title: jq
+  description: Lightweight command-line JSON processor for parsing, filtering, and transforming JSON data with a powerful query language.
+  tags:
+    - utility
+    - cli
+    - json
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

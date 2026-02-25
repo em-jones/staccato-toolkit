@@ -1,0 +1,27 @@
+# src/staccato-toolkit/core/pkg/servicedefaults
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: staccato-toolkit-servicedefaults
+  title: Service Defaults Package
+  description: >
+    Unified initialization layer for Go services, analogous to .NET Aspire's AddServiceDefaults().
+    Provides a single Configure() call that sets up all observability signals (traces, metrics, logs)
+    with non-blocking OTLP dial, env-aware behavior, and HTTP client defaults.
+  annotations:
+    backstage.io/techdocs-ref: dir:../../../../src/staccato-toolkit/core/pkg/servicedefaults
+  tags:
+    - go
+    - library
+    - observability
+    - opentelemetry
+    - staccato-toolkit
+  links:
+    - url: https://github.com/org/openspec-td/tree/main/src/staccato-toolkit/core/pkg/servicedefaults
+      title: Source
+      icon: github
+spec:
+  type: library
+  lifecycle: experimental
+  owner: platform-architects
+  system: staccato-toolkit

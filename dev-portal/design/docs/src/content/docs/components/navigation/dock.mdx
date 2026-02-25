@@ -1,0 +1,85 @@
+---
+title: Dock
+description: Fixed bottom navigation bar for mobile layouts
+---
+
+## Usage
+
+Add `.dock` to a `<nav>` fixed at the bottom of the viewport. Each `.dock-item` is a
+`<button>` or `<a>`. Mark the active item with `.dock-active`.
+
+```html
+<nav class="dock">
+  <button class="dock-item dock-active">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+    </svg>
+    <span class="dock-label">Home</span>
+  </button>
+  <button class="dock-item">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.35-4.35" />
+    </svg>
+    <span class="dock-label">Search</span>
+  </button>
+  <button class="dock-item">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+    <span class="dock-label">Profile</span>
+  </button>
+</nav>
+```
+
+## Active color variants
+
+| Class                 | Description             |
+| --------------------- | ----------------------- |
+| `.dock-active`        | Primary color (default) |
+| `.dock-active-accent` | Accent color            |
+| `.dock-active-error`  | Error color             |
+
+```html
+<nav class="dock" style="position: static; border-top: 1px solid var(--color-surface1);">
+  <button class="dock-item dock-active">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+    </svg>
+    <span class="dock-label">Primary</span>
+  </button>
+  <button class="dock-item dock-active dock-active-accent">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+    </svg>
+    <span class="dock-label">Accent</span>
+  </button>
+  <button class="dock-item dock-active dock-active-error">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+    </svg>
+    <span class="dock-label">Error</span>
+  </button>
+</nav>
+```
+
+## Notes
+
+- The dock uses `position: fixed` by default. For preview/demo use, override with
+  `style="position: static"`.
+- `padding-bottom: env(safe-area-inset-bottom)` handles iOS home indicator padding automatically.

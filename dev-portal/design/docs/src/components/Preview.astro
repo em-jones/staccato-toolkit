@@ -1,0 +1,81 @@
+---
+interface Props {
+  inline?: boolean;
+  code?: string;
+}
+
+const { inline = false, code } = Astro.props;
+---
+
+<div class:list={["preview-wrapper", { "preview-inline": inline }]}>
+  <div class="preview-content">
+    <slot />
+  </div>
+  {code && (
+    <details class="preview-code">
+      <summary>Show code</summary>
+      <pre><code set:text={code}></code></pre>
+    </details>
+  )}
+</div>
+
+<style>
+  .preview-wrapper {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+
+  .preview-inline {
+    display: inline-block;
+  }
+
+  .preview-content {
+    padding: 1.5rem;
+    background: var(--sl-color-gray-6);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .preview-inline .preview-content {
+    padding: 0.5rem;
+    display: inline-flex;
+  }
+
+  .preview-code {
+    background: var(--sl-color-black);
+    border-top: 1px solid var(--sl-color-gray-5);
+    cursor: pointer;
+  }
+
+  .preview-code summary {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: var(--sl-color-gray-3);
+    user-select: none;
+  }
+
+  .preview-code summary:hover {
+    color: var(--sl-color-gray-2);
+  }
+
+  .preview-code pre {
+    margin: 0;
+    padding: 1rem;
+    overflow-x: auto;
+    font-size: 0.875rem;
+    border-top: 1px solid var(--sl-color-gray-5);
+  }
+
+  .preview-code[open] summary {
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+
+  /* Ensure content within preview renders correctly */
+  .preview-content :global(*) {
+    max-width: 100%;
+  }
+</style>

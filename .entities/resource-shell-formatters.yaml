@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: shell-formatters
+  title: Shell Formatters
+  description: Collection of shell script quality tools including shellcheck for linting and shfmt for formatting bash scripts.
+  tags:
+    - code-quality
+    - utility
+    - linting
+    - formatting
+    - shell
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

@@ -1,0 +1,37 @@
+{
+  "devDependencies": {
+    "@varlock/pass-plugin": "^0.0.5",
+    "commitizen": "latest",
+    "cz-conventional-changelog": "latest",
+    "conventional-changelog-cli": "latest",
+    "vite-plus": "catalog:",
+    "storybook": "^10.3.3",
+    "storybook-solidjs-vite": "^10.0.11",
+    "@chromatic-com/storybook": "^5.1.1",
+    "@storybook/addon-vitest": "^10.3.3",
+    "@storybook/addon-a11y": "^10.3.3",
+    "@storybook/addon-docs": "^10.3.3",
+    "vitest": "^4.1.2",
+    "playwright": "^1.58.2",
+    "@vitest/browser-playwright": "^4.1.2",
+    "@vitest/coverage-v8": "^4.1.2"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "overrides": {
+      "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+      "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
+    }
+  },
+  "scripts": {
+    "prepare": "vp config",
+    "dev": "vp run dev",
+    "build": "vp run build",
+    "check": "vp run check",
+    "test": "vp run test",
+    "lint": "vp lint",
+    "fmt": "vp fmt",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  }
+}

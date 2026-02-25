@@ -1,0 +1,10 @@
+{
+  "name": "@op-plugin/gitops-flux",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Flux GitOps plugin (Phase 1 stub)",
+  "type": "module",
+  "dependencies": {
+    "@op-plugin/gitops-core": "workspace:*"
+  }
+}

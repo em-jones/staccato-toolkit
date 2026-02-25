@@ -1,0 +1,67 @@
+---
+title: Menu
+description: Navigation and context menus
+---
+
+## Usage
+
+Apply `.menu` with `.menu-item` for navigation menus.
+
+```html
+<ul class="menu" style="width:200px">
+  <li><span class="menu-title">Navigation</span></li>
+  <li><a href="#" class="menu-item">Home</a></li>
+  <li><a href="#" class="menu-item">About</a></li>
+  <li><a href="#" class="menu-item">Contact</a></li>
+</ul>
+```
+
+## Orientation
+
+| Class              | Description             |
+| ------------------ | ----------------------- |
+| `.menu-vertical`   | Vertical menu (default) |
+| `.menu-horizontal` | Horizontal menu         |
+
+```html
+<ul class="menu menu-horizontal">
+  <li><a href="#" class="menu-item">Home</a></li>
+  <li><a href="#" class="menu-item">About</a></li>
+  <li><a href="#" class="menu-item">Contact</a></li>
+</ul>
+```
+
+## Sizes
+
+| Class      | Description      |
+| ---------- | ---------------- |
+| `.menu-xs` | Extra small      |
+| `.menu-sm` | Small            |
+| `.menu-md` | Medium (default) |
+| `.menu-lg` | Large            |
+
+```html
+<ul class="menu menu-sm" style="width:180px">
+  <li><a href="#" class="menu-item">Small Item</a></li>
+  <li><a href="#" class="menu-item">Small Item</a></li>
+</ul>
+<ul class="menu menu-lg" style="width:180px">
+  <li><a href="#" class="menu-item">Large Item</a></li>
+  <li><a href="#" class="menu-item">Large Item</a></li>
+</ul>
+```
+
+## Item states
+
+| Class                 | Description   |
+| --------------------- | ------------- |
+| `.menu-item-disabled` | Disabled item |
+| `.menu-item-bordered` | Bordered item |
+
+```html
+<ul class="menu" style="width:180px">
+  <li><a href="#" class="menu-item">Normal</a></li>
+  <li><a href="#" class="menu-item menu-item-bordered">Bordered</a></li>
+  <li><a href="#" class="menu-item menu-item-disabled" aria-disabled="true">Disabled</a></li>
+</ul>
+```

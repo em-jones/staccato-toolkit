@@ -1,0 +1,12 @@
+go 1.25.4
+
+use (
+	./src/ops/workloads
+	./src/staccato-toolkit/cli
+	./src/staccato-toolkit/core
+	./src/staccato-toolkit/server
+	./src/staccato-toolkit/tui
+	./src/staccato-toolkit/web
+)
+
+replace github.com/staccato-toolkit/core v0.0.0 => ./src/staccato-toolkit/core

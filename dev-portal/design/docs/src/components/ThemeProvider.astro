@@ -1,0 +1,28 @@
+---
+---
+
+<script is:inline>
+  (function () {
+    function getCookie(n) {
+      var m = document.cookie.match(new RegExp("(^| )" + n + "=([^;]+)"));
+      return m ? decodeURIComponent(m[2]) : null;
+    }
+    var theme = getCookie("staccato-theme") || "catppuccin";
+    var variant = getCookie("staccato-variant") || "modern";
+    var storedMode = getCookie("staccato-mode");
+    var mode;
+    if (storedMode) {
+      mode = storedMode;
+    } else {
+      mode = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    }
+    var el = document.documentElement;
+    el.setAttribute("data-color-theme", theme);
+    el.setAttribute("data-mode", mode);
+    el.setAttribute("data-variant", variant);
+    // Keep Starlight's shell in sync (its props.css uses data-theme="light")
+    el.setAttribute("data-theme", mode);
+  })();
+</script>

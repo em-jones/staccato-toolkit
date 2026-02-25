@@ -1,0 +1,56 @@
+{
+  "name": "@op-plugin/i18n-tanstack-paraglide",
+  "version": "0.0.0",
+  "description": "Paraglide JS i18n plugin for the OpenPort platform — compile-time typed message generation with TanStack Start integration.",
+  "homepage": "https://github.com/staccato-io/staccato-toolkit#readme",
+  "bugs": {
+    "url": "https://github.com/staccato-io/staccato-toolkit/issues"
+  },
+  "license": "MIT",
+  "author": "Staccato",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/staccato-io/staccato-toolkit.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./vite-plugin": "./dist/vite-plugin.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "vp run build"
+  },
+  "dependencies": {
+    "@inlang/paraglide-js": "^2.0.0",
+    "@op/platform": "workspace:*",
+    "valibot": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@typescript/native-preview": "7.0.0-dev.20260328.1",
+    "bumpp": "^11.0.1",
+    "typescript": "^6.0.2",
+    "vite-plus": "^0.1.14"
+  },
+  "inlinedDependencies": {
+    "@oxc-project/types": "0.122.0",
+    "@vitest/expect": "3.2.4",
+    "@voidzero-dev/vite-plus-core": "0.1.15",
+    "@voidzero-dev/vite-plus-test": "0.1.15",
+    "esbuild": "0.27.5",
+    "oxfmt": "0.43.0",
+    "oxlint": "1.58.0",
+    "vite-plus": "0.1.15"
+  }
+}

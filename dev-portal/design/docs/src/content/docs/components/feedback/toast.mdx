@@ -1,0 +1,61 @@
+---
+title: Toast
+description: Notification messages
+---
+
+## Usage
+
+Apply `.toast` with `.toast-icon`, `.toast-content`, `.toast-title`, and `.toast-message`.
+
+```html
+<div class="toast">
+  <div class="toast-icon">✓</div>
+  <div class="toast-content">
+    <div class="toast-title">Success</div>
+    <div class="toast-message">Operation completed successfully</div>
+  </div>
+  <button class="toast-close" aria-label="Close">✕</button>
+</div>
+```
+
+## With alert colors
+
+```html
+<div class="toast alert alert-info">
+  <div class="toast-icon">ℹ️</div>
+  <div class="toast-content">
+    <div class="toast-title">Info</div>
+    <div class="toast-message">New update available</div>
+  </div>
+</div>
+<div class="toast alert alert-success">
+  <div class="toast-icon">✓</div>
+  <div class="toast-content">
+    <div class="toast-title">Saved</div>
+    <div class="toast-message">Your changes were saved</div>
+  </div>
+</div>
+<div class="toast alert alert-error">
+  <div class="toast-icon">✕</div>
+  <div class="toast-content">
+    <div class="toast-title">Error</div>
+    <div class="toast-message">Failed to save changes</div>
+  </div>
+</div>
+```
+
+## Positions
+
+Toast position classes are used for fixed-position stacking in real applications. In normal document flow, they control alignment:
+
+| Class                 | Description         |
+| --------------------- | ------------------- |
+| `.toast-start`        | Left aligned        |
+| `.toast-center`       | Center aligned      |
+| `.toast-end`          | Right aligned       |
+| `.toast-top`          | Fixed top center    |
+| `.toast-bottom`       | Fixed bottom center |
+| `.toast-top-left`     | Fixed top left      |
+| `.toast-top-right`    | Fixed top right     |
+| `.toast-bottom-left`  | Fixed bottom left   |
+| `.toast-bottom-right` | Fixed bottom right  |

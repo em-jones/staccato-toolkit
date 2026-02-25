@@ -1,0 +1,64 @@
+{
+  "name": "@op-plugin/tech-docs",
+  "version": "0.0.0",
+  "description": "Rich documentation rendering plugin using remark/rehype pipeline for OpenPort",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "solid": "./src/index.ts",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
+    },
+    "./server": {
+      "solid": "./src/server/index.ts",
+      "import": "./dist/server/index.mjs",
+      "default": "./dist/server/index.mjs"
+    },
+    "./client": {
+      "solid": "./src/client/index.ts",
+      "import": "./dist/client/index.mjs",
+      "default": "./dist/client/index.mjs"
+    },
+    "./styles.css": {
+      "import": "./dist/styles.css",
+      "default": "./dist/styles.css"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "check": "vp check",
+    "test": "bun test",
+    "prepublishOnly": "vp run build"
+  },
+  "dependencies": {
+    "@op/platform": "workspace:*",
+    "unified": "catalog:",
+    "remark-parse": "catalog:",
+    "remark-gfm": "catalog:",
+    "remark-frontmatter": "catalog:",
+    "remark-rehype": "catalog:",
+    "rehype-stringify": "catalog:",
+    "rehype-slug": "catalog:",
+    "rehype-autolink-headings": "catalog:",
+    "rehype-pretty-code": "catalog:",
+    "shiki": "catalog:",
+    "gray-matter": "catalog:",
+    "vfile": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^5.9.3",
+    "vite-plus": "^0.1.11"
+  },
+  "peerDependencies": {
+    "solid-js": "^1.9.0"
+  }
+}

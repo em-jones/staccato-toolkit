@@ -1,0 +1,76 @@
+import type { CssInJs } from "../plugin-types.ts";
+
+export function fileInputComponents(): Record<string, CssInJs> {
+  return {
+    ".file-input": {
+      display: "flex",
+      alignItems: "center",
+      width: "100%",
+      fontSize: "var(--input-font-size, 0.875rem)",
+      lineHeight: "var(--input-line-height, 1.25rem)",
+      paddingLeft: "var(--input-px, 0.75rem)",
+      paddingRight: "var(--input-px, 0.75rem)",
+      paddingTop: "var(--input-py, 0.5rem)",
+      paddingBottom: "var(--input-py, 0.5rem)",
+      height: "var(--input-h, 2.5rem)",
+      minHeight: "var(--input-h, 2.5rem)",
+      borderRadius: "var(--input-radius, 0.5rem)",
+      border: "1px solid var(--color-surface2, #cbd5e1)",
+      backgroundColor: "var(--color-bg)",
+      color: "var(--color-text)",
+      cursor: "pointer",
+      transitionProperty: "border-color, box-shadow",
+      transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+      transitionDuration: "150ms",
+      "&::file-selector-button": {
+        marginRight: "0.75rem",
+        padding: "0.25rem 0.75rem",
+        borderRadius: "0.375rem",
+        border: "none",
+        backgroundColor: "var(--color-surface1, #e2e8f0)",
+        color: "var(--color-text)",
+        fontSize: "0.875rem",
+        fontWeight: "500",
+        cursor: "pointer",
+        transition: "background-color 150ms ease",
+      },
+      "&:focus, &:focus-visible": {
+        outline: "none",
+        borderColor: "var(--color-primary)",
+        boxShadow: "0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent)",
+      },
+      "&:disabled": {
+        opacity: "0.5",
+        cursor: "not-allowed",
+      },
+    },
+    ".file-input-xs": {
+      "--input-font-size": "0.75rem",
+      "--input-line-height": "1rem",
+      "--input-px": "0.5rem",
+      "--input-py": "0.125rem",
+      "--input-h": "1.5rem",
+    },
+    ".file-input-sm": {
+      "--input-font-size": "0.8125rem",
+      "--input-line-height": "1.125rem",
+      "--input-px": "0.625rem",
+      "--input-py": "0.25rem",
+      "--input-h": "2rem",
+    },
+    ".file-input-md": {
+      "--input-font-size": "0.875rem",
+      "--input-line-height": "1.25rem",
+      "--input-px": "0.75rem",
+      "--input-py": "0.5rem",
+      "--input-h": "2.5rem",
+    },
+    ".file-input-lg": {
+      "--input-font-size": "1rem",
+      "--input-line-height": "1.5rem",
+      "--input-px": "1rem",
+      "--input-py": "0.75rem",
+      "--input-h": "3rem",
+    },
+  };
+}

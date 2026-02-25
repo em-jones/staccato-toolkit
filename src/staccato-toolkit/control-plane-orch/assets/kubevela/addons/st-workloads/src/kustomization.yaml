@@ -1,0 +1,59 @@
+# Renders flux-operator, Harbor, and Reflector manifests from upstream Helm charts, then splices
+# them into template.yaml as the flux-operator-manifests objects array.
+# Run via the pre-commit hook or manually:
+#
+#   bash src/render.sh
+#
+# Manifests are spliced directly into template.yaml at commit time — they are
+# not stored in a resources/ directory.
+#
+# To upgrade flux-operator: bump the version below and run bash src/render.sh.
+# To upgrade Harbor:        bump the version below and run bash src/render.sh.
+# To upgrade Reflector:     bump the version below and run bash src/render.sh.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - harbor-oci-credentials.yaml
+helmCharts:
+  - name: flux-operator
+    repo: oci://ghcr.io/controlplaneio-fluxcd/charts
+    namespace: flux-system
+    version: 0.43.0
+  - name: reflector
+    repo: oci://ghcr.io/emberstack/helm-charts
+    namespace: reflector
+    version: 10.0.16
+    releaseName: reflector
+  # Harbor is deployed alongside flux-operator in the same OAM workflow phase so that
+  # the harbor-core Service (harbor-core.harbor.svc.cluster.local) is available before
+  # the FluxInstance is applied in Phase 2.
+  #
+  # Dev values:
+  #   expose.type=clusterIP     — Harbor is only accessed from within the kind cluster.
+  #   externalURL               — Must match the OCI URL used by Flux's OCIRepository.
+  #   harborAdminPassword       — Fixed dev password; must match the declarative
+  #                               harbor-oci-credentials source secret and the startup
+  #                               helper that creates Harbor admin credentials.
+  #   persistence.enabled=false — Ephemeral storage for local dev; data is lost on pod
+  #                               restart. Set to true and configure PVCs for persistence.
+  - name: harbor
+    repo: https://helm.goharbor.io
+    namespace: harbor
+    version: 1.18.2
+    releaseName: harbor
+    valuesInline:
+      expose:
+        type: clusterIP
+        clusterIP:
+          name: harbor
+          ports:
+            httpPort: 80
+            httpsPort: 443
+        tls:
+          enabled: false
+      externalURL: "http://harbor-core.harbor.svc.cluster.local"
+      harborAdminPassword: "Harbor12345"
+      persistence:
+        enabled: false
+      notary:
+        enabled: false

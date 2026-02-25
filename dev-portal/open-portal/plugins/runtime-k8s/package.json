@@ -1,0 +1,19 @@
+{
+  "name": "@op-plugin/runtime-k8s",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^5.9.3",
+    "vite-plus": "^0.1.11"
+  }
+}

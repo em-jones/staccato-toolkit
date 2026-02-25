@@ -1,0 +1,7 @@
+version: "3"
+tasks:
+  dev:open-portal:
+    desc: "Start the open-portal dev server using vp"
+    dir: open-portal/apps/web
+    cmds:
+      - vp dev --filter "@op/web"

@@ -1,0 +1,306 @@
+name: spec-td
+version: 1
+description: Default OpenSpec workflow - proposal → specs → design
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: Initial proposal document outlining the change
+    template: proposal.md
+    instruction: >
+      Create the proposal document that establishes WHY this change is needed.
+
+
+      Sections:
+
+      - **Why**: 1-2 sentences on the problem or opportunity. What problem does
+      this solve? Why now?
+
+      - **What Changes**: Bullet list of changes. Be specific about new
+      capabilities, modifications, or removals. Mark breaking changes with
+      **BREAKING**.
+
+      - **Capabilities**: Identify which specs will be created or modified:
+        - **New Capabilities**: List capabilities being introduced. Each becomes a new `specs/<name>/spec.md`. Use kebab-case names (e.g., `user-auth`, `data-export`).
+        - **Modified Capabilities**: List existing capabilities whose REQUIREMENTS are changing. Only include if spec-level behavior changes (not just implementation details). Each needs a delta spec file. Check `openspec/specs/` for existing spec names. Leave empty if no requirement changes.
+      - **Impact**: Affected code, APIs, dependencies, or systems.
+
+
+      IMPORTANT: The Capabilities section is critical. It creates the contract
+      between
+
+      proposal and specs phases. Research existing specs before filling this in.
+
+      Each capability listed here will need a corresponding spec file.
+
+
+      Keep it concise (1-2 pages). Focus on the "why" not the "how" -
+
+      implementation details belong in design.md.
+
+
+      This is the foundation - specs, design, and tasks all build on this.
+
+
+      After writing proposal.md, create the change root td issue:
+
+      1. Check td is initialized: run a td command (e.g., `td list`). If you get
+      a "database not found" error, run `td init` first.
+
+      2. Create the change root feature issue:
+         `td create "<change-name>" --type feature [--parent <epic-id>]`
+         (include --parent only if an epic id was provided by the user)
+
+      3. Capture the returned issue id.
+
+      4. Create the change-level board:
+         `td board create "<change-name>" "descendant_of(<change-id>)"`
+
+      5. Add frontmatter to proposal.md:
+         ```
+         ---
+         td-board: <change-name>
+         td-issue: <change-id>
+         ---
+         ```
+    requires: []
+  - id: specs
+    generates: specs/**/*.md
+    description: Detailed specifications for the change
+    template: spec.md
+    instruction: >
+      Create specification files that define WHAT the system should do.
+
+
+      Create one spec file per capability listed in the proposal's Capabilities
+      section.
+
+      - New capabilities: use the exact kebab-case name from the proposal
+      (specs/<capability>/spec.md).
+
+      - Modified capabilities: use the existing spec folder name from
+      openspec/specs/<capability>/ when creating the delta spec at
+      specs/<capability>/spec.md.
+
+
+      Delta operations (use ## headers):
+
+      - **ADDED Requirements**: New capabilities
+
+      - **MODIFIED Requirements**: Changed behavior - MUST include full updated
+      content
+
+      - **REMOVED Requirements**: Deprecated features - MUST include **Reason**
+      and **Migration**
+
+      - **RENAMED Requirements**: Name changes only - use FROM:/TO: format
+
+
+      Format requirements:
+
+      - Each requirement: `### Requirement: <name>` followed by description
+
+      - Use SHALL/MUST for normative requirements (avoid should/may)
+
+      - Each scenario: `#### Scenario: <name>` with WHEN/THEN format
+
+      - **CRITICAL**: Scenarios MUST use exactly 4 hashtags (`####`). Using 3
+      hashtags or bullets will fail silently.
+
+      - Every requirement MUST have at least one scenario.
+
+
+      MODIFIED requirements workflow:
+
+      1. Locate the existing requirement in openspec/specs/<capability>/spec.md
+
+      2. Copy the ENTIRE requirement block (from `### Requirement:` through all
+      scenarios)
+
+      3. Paste under `## MODIFIED Requirements` and edit to reflect new behavior
+
+      4. Ensure header text matches exactly (whitespace-insensitive)
+
+
+      Common pitfall: Using MODIFIED with partial content loses detail at
+      archive time.
+
+      If adding new concerns without changing existing behavior, use ADDED
+      instead.
+
+
+      Example:
+
+      ```
+
+      ## ADDED Requirements
+
+
+      ### Requirement: User can export data
+
+      The system SHALL allow users to export their data in CSV format.
+
+
+      #### Scenario: Successful export
+
+      - **WHEN** user clicks "Export" button
+
+      - **THEN** system downloads a CSV file with all user data
+
+
+      ## REMOVED Requirements
+
+
+      ### Requirement: Legacy export
+
+      **Reason**: Replaced by new export system
+
+      **Migration**: Use new export endpoint at /api/v2/export
+
+      ```
+
+
+      Specs should be testable - each scenario is a potential test case.
+
+
+      After writing each spec file, create td issues for it:
+
+      1. Read proposal.md frontmatter to get the change-id (td-issue field).
+
+      2. Create a spec feature issue:
+         `td create "<capability-name>" --type feature --parent <change-id>`
+         Capture the returned spec-id.
+
+      3. Create the spec-level board:
+         `td board create "<change-name>-<capability>" "descendant_of(<spec-id>)"`
+
+      4. For each `### Requirement:` written in the spec, create a task issue:
+         `td create "Implement: <requirement-name>" --type task --parent <spec-id>`
+
+      5. Link the spec feature and all requirement tasks to the spec file:
+         `td link <id> specs/<capability>/spec.md --role reference`
+
+      6. Add frontmatter to spec.md:
+         ```
+         ---
+         td-board: <change-name>-<capability>
+         td-issue: <spec-id>
+         ---
+         ```
+    requires:
+      - proposal
+  - id: design
+    generates: design.md
+    description: Technical design document with implementation details
+    template: design.md
+    instruction: >
+      Create the design document that explains HOW to implement the change.
+
+
+      When to include design.md (create only if any apply):
+
+      - Cross-cutting change (multiple services/modules) or new architectural
+      pattern
+
+      - New external dependency or significant data model changes
+
+      - Security, performance, or migration complexity
+
+      - Ambiguity that benefits from technical decisions before coding
+
+
+      Sections:
+
+      - **Context**: Background, current state, constraints, stakeholders
+
+      - **Goals / Non-Goals**: What this design achieves and explicitly excludes
+
+      - **Decisions**: Key technical choices with rationale (why X over Y?).
+      Include alternatives considered for each decision.
+
+      - **Risks / Trade-offs**: Known limitations, things that could go wrong.
+      Format: [Risk] → Mitigation
+
+      - **Migration Plan**: Steps to deploy, rollback strategy (if applicable)
+
+      - **Open Questions**: Outstanding decisions or unknowns to resolve
+
+
+      Focus on architecture and approach, not line-by-line implementation.
+
+      Reference the proposal for motivation and specs for requirements.
+
+
+      Good design docs explain the "why" behind technical decisions.
+
+
+      After writing design.md, create td issues for cross-cutting tasks — work
+      that does not belong to any single spec requirement:
+
+      1. Read proposal.md frontmatter to get the change-id (td-issue field).
+
+      2. For each cross-cutting implementation task identified in the design:
+         `td create "<task description>" --type task --parent <change-id>`
+         `td link <task-id> design.md --role reference`
+
+      3. Add frontmatter to design.md:
+         ```
+         ---
+         td-board: <change-name>
+         td-issue: <change-id>
+         ---
+         ```
+
+      4. Complete the `## Agent Skills` table in design.md. For each technology
+         or process introduced by this change, evaluate:
+         - Does this change how agents behave or what tools/workflows they use?
+         - If yes: does a skill already exist at `.opencode/skills/<name>/SKILL.md`?
+           - Existing skill: does it accurately describe the new behaviour? If not, mark `update`.
+           - No skill: mark `create` and create a task for it.
+         - If no agent-facing workflow change: mark `none`.
+
+         For each row with action `create` or `update`, create a td task:
+         `td create "Skill: <action> <skill-name>" --type task --parent <change-id>`
+         `td link <task-id> design.md --role reference`
+
+         This ensures skill authoring is tracked as first-class implementation
+         work alongside code tasks.
+
+      5. Complete the `## TecDocs & ADRs` table in design.md. For each Component
+         in the `## Catalog Entities` table (action `create` or `existing`):
+         - Fill in the mkdocs.yml path (e.g. `src/myservice/mkdocs.yml`)
+         - Fill in the docs/adrs/ path (e.g. `src/myservice/docs/adrs/`)
+         - List any new documentation pages this change warrants
+         If Catalog Entities is `n/a`, set TecDocs & ADRs to `n/a`.
+
+       6. Complete the `tech-radar` frontmatter block AND the `## Technology Adoption & Usage Rules` table in design.md.
+          - For each technology in `## Technology Adoption & Usage Rules` (non-n/a rows):
+            add an entry to the `tech-radar` frontmatter block with name, quadrant, ring, and description (rationale).
+          - The `tech-radar` frontmatter block is the source of truth for `docs/tech-radar.json`.
+          - Do NOT add a `## Tech Radar` table to the body — the frontmatter block has replaced it.
+          - If no new technologies are adopted: omit the `tech-radar` key or set it to an empty list `[]`.
+          The frontmatter block is consumed by the sync script during the Catalog Entity Audit.
+    requires:
+      - proposal
+apply:
+  requires:
+    - specs
+    - design
+  instruction: |
+    Read proposal.md frontmatter to get td-board and td-issue (the change root).
+
+    Check the board has issues: `td board show "<td-board>"`.
+    If the board is empty, warn: "No td issues found on board <td-board>.
+    Were td issues created during spec and design authoring?"
+
+    Show remaining work: `td board show "<td-board>"`.
+
+    Work through issues using the td lifecycle:
+    - Pick next task: `td next`
+    - Start work: `td start <id>`
+    - Log progress/decisions/blockers: `td log "<message>" [--decision|--blocker|...]`
+    - On completion: `td review <id>` (or `td close <id>` for minor tasks)
+
+    Continue until all issues on the board are closed or a blocker is hit.
+    Pause on errors, blockers, or unclear requirements - don't guess.
+
+    Completion check: all issues on the board are in `closed` status.

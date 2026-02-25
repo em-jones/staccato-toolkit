@@ -1,0 +1,38 @@
+# Production Containerfile for Staccato Server
+# Multi-stage build producing minimal distroless image
+# Usage: docker build -f Containerfile.prod -t staccato-server:prod .
+#        docker run -p 8080:8080 staccato-server:prod
+
+# Stage 1: Builder
+FROM golang:1.23-alpine AS builder
+WORKDIR /src
+
+# Copy Go module files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build statically-compiled binary for Linux
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /staccato-server .
+
+# Stage 2: Runtime (distroless)
+FROM gcr.io/distroless/static:nonroot
+
+# Copy only the compiled binary from builder
+COPY --from=builder /staccato-server /staccato-server
+
+# Expose HTTP API port
+EXPOSE 8080
+
+# Run as non-root user (nonroot:nonroot)
+USER nonroot:nonroot
+
+# Set entrypoint to the server
+ENTRYPOINT ["/staccato-server"]
+
+# Default command (can be overridden for configuration)
+CMD []

@@ -1,0 +1,134 @@
+---
+title: Accordion
+description: Collapsible content panels
+---
+
+## Usage
+
+Use the collapse classes to build collapsible panels. Only one item can stay open at a time. Use radio inputs to control which item is open.
+
+### Radio-based (recommended)
+
+Use hidden radio inputs with the same `name` attribute to ensure only one item is open at a time.
+
+```html
+<div class="collapse bg-base-100 border border-base-300">
+  <input type="radio" name="accordion-1" checked />
+  <div class="collapse-title">
+    Section 1
+    <svg class="collapse-arrow w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+  <div class="collapse-content">Content for section 1</div>
+</div>
+<div class="collapse bg-base-100 border border-base-300">
+  <input type="radio" name="accordion-1" />
+  <div class="collapse-title">
+    Section 2
+    <svg class="collapse-arrow w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+  <div class="collapse-content">Content for section 2</div>
+</div>
+```
+
+### Checkbox-based (multiple open)
+
+Use checkboxes to allow multiple items to be open simultaneously.
+
+```html
+<div class="collapse bg-base-100 border border-base-300">
+  <input type="checkbox" checked />
+  <div class="collapse-title">
+    Section 1
+    <svg class="collapse-arrow w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+  <div class="collapse-content">Content for section 1</div>
+</div>
+<div class="collapse bg-base-100 border border-base-300">
+  <input type="checkbox" />
+  <div class="collapse-title">
+    Section 2
+    <svg class="collapse-arrow w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+  <div class="collapse-content">Content for section 2</div>
+</div>
+```
+
+### Details element
+
+Alternatively, use `<details>` with the `name` attribute for native browser behavior.
+
+```html
+<details class="collapse bg-base-100 border border-base-300" name="accordion-det-1" open>
+  <summary class="collapse-title">Section 1</summary>
+  <div class="collapse-content">Content for section 1</div>
+</details>
+<details class="collapse bg-base-100 border border-base-300" name="accordion-det-1">
+  <summary class="collapse-title">Section 2</summary>
+  <div class="collapse-content">Content for section 2</div>
+</details>
+```
+
+## Modifiers
+
+| Class                | Description                       |
+| -------------------- | --------------------------------- |
+| `.collapse-arrow`    | Arrow icon that rotates when open |
+| `.collapse-plus`     | Plus/minus icon                   |
+| `.collapse-open`     | Force open state                  |
+| `.collapse-focus`    | Open on focus-within              |
+| `.collapse-hover`    | Open on hover                     |
+| `.collapse-bordered` | Add border                        |
+| `.collapse-glass`    | Glass effect background           |
+
+### With arrow icon
+
+```html
+<div class="collapse collapse-arrow bg-base-100 border border-base-300">
+  <input type="radio" name="accordion-2" checked />
+  <div class="collapse-title">Section 1</div>
+  <div class="collapse-content">Content</div>
+</div>
+<div class="collapse collapse-arrow bg-base-100 border border-base-300">
+  <input type="radio" name="accordion-2" />
+  <div class="collapse-title">Section 2</div>
+  <div class="collapse-content">Content</div>
+</div>
+```
+
+### With plus/minus icon
+
+```html
+<div class="collapse collapse-plus bg-base-100 border border-base-300">
+  <input type="radio" name="accordion-3" checked />
+  <div class="collapse-title">Section 1</div>
+  <div class="collapse-content">Content</div>
+</div>
+<div class="collapse collapse-plus bg-base-100 border border-base-300">
+  <input type="radio" name="accordion-3" />
+  <div class="collapse-title">Section 2</div>
+  <div class="collapse-content">Content</div>
+</div>
+```
+
+### Bordered variant
+
+```html
+<div class="collapse collapse-bordered bg-base-100">
+  <input type="radio" name="accordion-4" checked />
+  <div class="collapse-title">Section 1</div>
+  <div class="collapse-content">Content</div>
+</div>
+<div class="collapse collapse-bordered bg-base-100">
+  <input type="radio" name="accordion-4" />
+  <div class="collapse-title">Section 2</div>
+  <div class="collapse-content">Content</div>
+</div>
+```

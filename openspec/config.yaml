@@ -1,0 +1,8 @@
+schema: v1
+context: |
+  Domain: Software development and delivery platform
+rules:
+  spec:
+    - Specifications MUST have a corresponding `td` `feature` or `bug`
+  tasks:
+    - Tasks are managed using the `td-task-management` skill

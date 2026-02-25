@@ -1,0 +1,272 @@
+name: Standard CI/CD Pipeline
+# Example workflow demonstrating GitHub Actions workflow design patterns
+# Follow this template for Node.js/JavaScript projects
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+# Define environment variables globally
+env:
+  NODE_VERSION: '18'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # PHASE 1: Code Quality and Build
+  # These jobs can run in parallel
+
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Linting is optional; if it fails, don't block the workflow
+      - name: Run linter
+        continue-on-error: true
+        run: npm run lint
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      # Upload build output for use in subsequent jobs
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-output
+          path: dist/
+          retention-days: 1  # Short-lived artifact, used only within workflow
+
+  # PHASE 2: Testing
+  # Wait for build to complete before testing
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: build  # Wait for build job to complete
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test -- --coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: false  # Don't block workflow if upload fails
+
+  # PHASE 3: Security Scanning
+  # Run security checks in parallel with testing
+
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Scan for vulnerabilities in dependencies
+      - name: Run dependency scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload security findings
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # PHASE 4: Deployment
+  # Only deploy on push to main/develop, not on PRs
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, test, security-scan]  # All quality checks must pass
+    # Only deploy on push events to specific branches (not PRs)
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    environment:
+      name: staging
+      url: https://staging.example.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Download build artifacts from build job
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-output
+          path: dist/
+
+      - name: Configure credentials
+        env:
+          DEPLOY_TOKEN: ${{ secrets.STAGING_DEPLOY_TOKEN }}
+        run: |
+          # Configure deployment credentials (token is automatically masked in logs)
+          echo "Configured credentials for staging deployment"
+
+      - name: Deploy to staging
+        run: ./scripts/deploy.sh staging
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: deploy-staging  # Production deployment requires successful staging
+    # Only deploy to production on push to main (not on develop or PRs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://example.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Download build artifacts
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-output
+          path: dist/
+
+      - name: Configure credentials
+        env:
+          DEPLOY_TOKEN: ${{ secrets.PRODUCTION_DEPLOY_TOKEN }}
+        run: |
+          echo "Configured credentials for production deployment"
+
+      - name: Deploy to production
+        run: ./scripts/deploy.sh production
+
+      - name: Verify deployment
+        run: curl -f https://example.com/health || exit 1
+
+  # PHASE 5: Notifications
+  # Always runs to report status, even if other jobs failed
+
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    if: always()  # Run even if previous jobs failed
+    needs: [lint, build, test, security-scan, deploy-staging]
+    steps:
+      - name: Determine status
+        id: status
+        run: |
+          if [ "${{ needs.build.result }}" = "failure" ]; then
+            echo "status=Build failed"
+            echo "color=danger"
+          elif [ "${{ needs.test.result }}" = "failure" ]; then
+            echo "status=Tests failed"
+            echo "color=warning"
+          else
+            echo "status=All checks passed"
+            echo "color=good"
+          fi >> $GITHUB_OUTPUT
+
+      - name: Notify Slack
+        # Only send notification if webhook is configured
+        if: secrets.SLACK_WEBHOOK != ''
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          payload: |
+            {
+              "text": "Workflow: ${{ github.workflow }}",
+              "attachments": [
+                {
+                  "color": "${{ steps.status.outputs.color }}",
+                  "title": "${{ steps.status.outputs.status }}",
+                  "text": "Branch: ${{ github.ref }}\nCommit: ${{ github.sha }}\nAuthor: ${{ github.actor }}"
+                }
+              ]
+            }
+
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Workflow failed: ${context.workflow}`,
+              body: `Workflow run #${context.runNumber} failed\n\nView: ${context.server_url}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            })
+
+---
+
+# PATTERN CHECKLIST
+# Use this checklist when adapting this template:
+# ✓ Naming: Workflow file is descriptive (standard-*.yml)
+# ✓ Naming: Job names are clear (Build Application, Run Tests, etc.)
+# ✓ Naming: Step names explain purpose
+# ✓ Organization: Related steps grouped logically
+# ✓ Organization: Jobs organized by phase (build, test, deploy)
+# ✓ Conditions: Conditional logic uses 'if:' statements
+# ✓ Conditions: Deployments gated on branch and event type
+# ✓ Secrets: Sensitive values use ${{ secrets.NAME }}
+# ✓ Secrets: Secrets are automatically masked in logs
+# ✓ Performance: npm cache enabled via setup-node
+# ✓ Performance: Artifacts used for multi-job builds
+# ✓ Error handling: continue-on-error for non-blocking steps
+# ✓ Error handling: Different strategies for different job types
+# ✓ Documentation: Comments explain non-obvious decisions
+# ✓ Documentation: Sections marked clearly (PHASE 1, PHASE 2, etc.)
+# ✓ Permissions: Minimal permissions requested (contents, checks, security-events)
+# ✓ Permissions: Environment approval required for production
+
+---
+
+# REFERENCE
+# Pattern documentation: .opencode/rules/patterns/workflows/design.md
+# Secrets documentation: .opencode/rules/patterns/actions/secrets.md
+# Action curation: .opencode/rules/patterns/actions/curation.md

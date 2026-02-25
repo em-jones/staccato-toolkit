@@ -1,0 +1,52 @@
+---
+title: Range
+description: Range slider input
+---
+
+## Usage
+
+Apply `.range` to a range input element.
+
+```html
+<input type="range" class="range" min="0" max="100" value="50" />
+```
+
+## Colors
+
+| Class              | Description     |
+| ------------------ | --------------- |
+| `.range-primary`   | Primary color   |
+| `.range-secondary` | Secondary color |
+| `.range-accent`    | Accent color    |
+| `.range-warning`   | Warning color   |
+| `.range-error`     | Error color     |
+
+```html
+<input type="range" class="range range-primary" value="60" max="100" />
+<input type="range" class="range range-secondary" value="40" max="100" />
+<input type="range" class="range range-accent" value="75" max="100" />
+<input type="range" class="range range-warning" value="30" max="100" />
+<input type="range" class="range range-error" value="85" max="100" />
+```
+
+## Sizes
+
+| Class       | Height           |
+| ----------- | ---------------- |
+| `.range-xs` | 1rem             |
+| `.range-sm` | 1.25rem          |
+| `.range-md` | 1.5rem (default) |
+| `.range-lg` | 2rem             |
+
+```html
+<input type="range" class="range range-primary range-xs" value="50" max="100" />
+<input type="range" class="range range-primary range-sm" value="50" max="100" />
+<input type="range" class="range range-primary range-md" value="50" max="100" />
+<input type="range" class="range range-primary range-lg" value="50" max="100" />
+```
+
+## Disabled
+
+```html
+<input type="range" class="range range-primary" value="50" max="100" disabled />
+```

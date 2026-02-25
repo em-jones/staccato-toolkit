@@ -1,0 +1,56 @@
+# -- Enable/disable the KubeVela core subchart.
+# Set to false when KubeVela is already installed by another mechanism.
+vela-core:
+  enabled: true
+
+  # -- Override the fully-qualified name of the vela-core deployment so it is
+  # always "kubevela" regardless of the Helm release name. This must match the
+  # value of kubevelaDeploymentName below so the addon-installer Job can poll
+  # the correct Deployment while waiting for KubeVela to become ready.
+  fullnameOverride: kubevela
+
+  # -- Values forwarded verbatim to the vela-core subchart.
+  # Only the most commonly overridden knobs are listed here; see
+  # https://charts.kubevela.net/core for the full schema.
+  includeCRDs: true
+  replicaCount: 1
+  # Metrics / monitoring
+  serviceMonitor:
+    enabled: false
+
+addon:
+  # -- Enable/disable the st-workloads addon installer Job.
+  enabled: true
+
+  job:
+    # -- Container image that provides both `vela` CLI and `kubectl`.
+    # The image is expected to have:
+    #   - vela CLI at /usr/local/bin/vela (version matching appVersion)
+    #   - kubectl at /usr/local/bin/kubectl
+    #   - tar, curl, sh
+    # Using the official kubevela/vela-cli image which ships the vela binary.
+    image: oamdev/vela-cli:v1.10.7
+
+    # -- Image pull policy for the installer Job container.
+    imagePullPolicy: IfNotPresent
+
+    # -- Total wall-clock seconds the installer Job is allowed to run.
+    # Includes the KubeVela readiness wait + vela addon enable (which waits
+    # for Harbor and Flux Operator to reach Running state on a cold cluster).
+    activeDeadlineSeconds: 1800
+
+    # -- How long (seconds) to wait for KubeVela to become ready before
+    # running vela addon enable.
+    velaReadyTimeoutSeconds: 300
+
+    # -- Extra environment variables injected into the installer container.
+    extraEnv: []
+
+  # -- Name of the Secret that holds the packaged st-workloads addon tarball.
+  # Changing this also requires updating the Job volumeMount.
+  bundleSecretName: st-workloads-addon-bundle
+
+# -- Override the name used for chart resources (defaults to chart name).
+# -- Override the fully-qualified app name.
+fullnameOverride: kubevela
+nameOverride: kubevela

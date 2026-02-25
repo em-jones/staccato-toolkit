@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: playwright
+  title: Playwright
+  description: End-to-end testing framework for modern web applications with support for multiple browsers and automated UI testing.
+  tags:
+    - testing
+    - node-library
+    - e2e
+    - automation
+spec:
+  type: node-library
+  owner: platform-team
+  system: developer-platform

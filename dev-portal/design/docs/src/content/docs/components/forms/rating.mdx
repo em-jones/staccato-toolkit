@@ -1,0 +1,52 @@
+---
+title: Rating
+description: Star rating components
+---
+
+## Usage
+
+Apply `.rating` with `.rating-input` radio inputs and `.rating-star` labels.
+
+```html
+<div class="rating">
+  <input type="radio" name="r1" class="rating-input" />
+  <span class="rating-star">★</span>
+  <input type="radio" name="r1" class="rating-input" />
+  <span class="rating-star">★</span>
+  <input type="radio" name="r1" class="rating-input" checked />
+  <span class="rating-star">★</span>
+  <input type="radio" name="r1" class="rating-input" />
+  <span class="rating-star">★</span>
+  <input type="radio" name="r1" class="rating-input" />
+  <span class="rating-star">★</span>
+</div>
+```
+
+## Sizes
+
+| Class        | Size             |
+| ------------ | ---------------- |
+| `.rating-xs` | 1rem             |
+| `.rating-sm` | 1.25rem          |
+| `.rating-md` | 1.5rem (default) |
+| `.rating-lg` | 2rem             |
+| `.rating-xl` | 2.5rem           |
+
+```html
+<div class="rating rating-xs">
+  <input type="radio" name="r2" class="rating-input" checked />
+  <span class="rating-star">★</span>
+  <input type="radio" name="r2" class="rating-input" />
+  <span class="rating-star">★</span>
+  <input type="radio" name="r2" class="rating-input" />
+  <span class="rating-star">★</span>
+</div>
+<div class="rating rating-lg">
+  <input type="radio" name="r3" class="rating-input" checked />
+  <span class="rating-star">★</span>
+  <input type="radio" name="r3" class="rating-input" />
+  <span class="rating-star">★</span>
+  <input type="radio" name="r3" class="rating-input" />
+  <span class="rating-star">★</span>
+</div>
+```

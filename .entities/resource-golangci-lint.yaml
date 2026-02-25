@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: golangci-lint
+  title: golangci-lint
+  description: Fast Go linters aggregator running multiple linters in parallel to identify code quality, style, and security issues.
+  tags:
+    - code-quality
+    - utility
+    - linting
+    - go
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

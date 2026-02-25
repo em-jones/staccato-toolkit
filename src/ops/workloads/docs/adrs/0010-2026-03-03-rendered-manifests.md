@@ -1,0 +1,1 @@
+../../../../../openspec/changes/archive/2026-03-03-rendered-manifests/design.md

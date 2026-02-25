@@ -1,0 +1,58 @@
+client:
+server:
+  # OpenPort configuration — local development defaults.
+  # Reference: openport.schema.json (run `pnpm config:schema` to regenerate)
+  #
+  # Env var interpolation: ${VAR_NAME} or ${VAR_NAME:-fallback}
+
+  app:
+    name: "OpenPort (dev)"
+    # baseUrl: "https://portal.example.com"
+    features:
+      feature-a: true
+      feature-b:
+        enabled: true
+        traffic_percentage: 50
+  auth:
+    # the instance of the datastore to be used for the auth plugin
+    # - must match server.catalog.datastore
+    datastore: "core"
+    # Configuration for auth providers (e.g., GitHub, Google, etc.)
+    providers: []
+    features:
+      feature-a: true
+
+  catalog:
+    datastore: "core"
+    locations: []
+    providers: []
+
+  core_datastore:
+    type: "sqlite-bun" # or postgres, or libsql
+    namme: "core"
+
+  datastores:
+    - name: "core"
+      type: "sqlite-bun"
+      config:
+        db_path: "./openport.db"
+  # signals:
+  #   metrics:
+  #     provider: clickhouse
+  #     endpoint: http://localhost:8123
+  #     database: otel
+  #   logs:
+  #     provider: loki
+  #     endpoint: http://localhost:3100
+  #   traces:
+  #     provider: tempo
+  #     endpoint: http://localhost:3200
+
+  runtimes:
+    # Supports the integration of various platforms for automatic
+    # resource discovery and additional features
+    kubernetes:
+      clusters: []
+      # clusters:
+      #   - name: local
+      #     context: kind-local

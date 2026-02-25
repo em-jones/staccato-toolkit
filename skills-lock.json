@@ -1,0 +1,170 @@
+{
+  "version": 1,
+  "skills": {
+    "better-auth-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "computedHash": "a4c830509e85557b59339d8d93a4e243e9e59c686e7678854d39230e12c2a6dc"
+    },
+    "bubbletea": {
+      "source": "ggprompts/tfe",
+      "sourceType": "github",
+      "computedHash": "a06df850cbd8282da9c362bd5585150119c87032bb07417a141b71b6f0b966ba"
+    },
+    "clickhouse-best-practices": {
+      "source": "clickhouse/agent-skills",
+      "sourceType": "github",
+      "computedHash": "2b8d018f92874e50d28d9c1d18dd3d979e6750c9a322f4f54984da69454292d2"
+    },
+    "clickhouse-query": {
+      "source": "civitai/civitai",
+      "sourceType": "github",
+      "computedHash": "791b13c5a0ebb48e6744f537af2d93bfda1f81947348c7714f191984ed045e36"
+    },
+    "content-collections": {
+      "source": "jackspace/claudeskillz",
+      "sourceType": "github",
+      "computedHash": "b2ac8c9ef02f51209c8e723a1237e0947446629c4bbe04f424955187dfe31ec1"
+    },
+    "digitalocean-containers-images": {
+      "source": "bobmatnyc/claude-mpm-skills",
+      "sourceType": "github",
+      "computedHash": "1ea1dff0f5d7c5a342369adb9acea0afc65a1c46233f802ebe58435443564d6f"
+    },
+    "digitalocean-management": {
+      "source": "bobmatnyc/claude-mpm-skills",
+      "sourceType": "github",
+      "computedHash": "2210fecee7d759787547ea8c6eea69f08afe40424da5aba60535892569d641db"
+    },
+    "dynamic-themes-with-codemirror": {
+      "source": "rodydavis/skills",
+      "sourceType": "github",
+      "computedHash": "cfd4deb4b992d496f8685410cdf2da6c770d089d7a749e5393bba233e735dc80"
+    },
+    "golang-pro": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "computedHash": "c90a0798a12ea2d9191508439ec3191dd96713310615260ebe82ec5a09a4a434"
+    },
+    "golang-testing": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "computedHash": "db6e910031d9c289f91697cf2397b8a3f717c6fdeae7a115e811a32544d99e11"
+    },
+    "kubernetes-specialist": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "computedHash": "0201bb26821bd6de6ea341f45da863ef70bba0b44363da72f26b7bf7c86869e9"
+    },
+    "opentelemetry": {
+      "source": "bobmatnyc/claude-mpm-skills",
+      "sourceType": "github",
+      "computedHash": "0c6bb77303278c9b829e37f6597aeffe44b8bf0cb7dcbdaff382877a6820401c"
+    },
+    "paraglide-js": {
+      "source": "zhuojg/agent-skills",
+      "sourceType": "github",
+      "computedHash": "7a0588040e141fc6a03d2a9b868b7efe614945d6ab6b0db99f07d8ff7900972b"
+    },
+    "penpot-uiux-design": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "cd29e08bb7d2d4b9212582bcd9b70823619fbc6397078b8ba853962054ba4230"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "b122f4d1e91aa1d83027e050b5b37c3156203ee85458d7b1360bc48167c9e02a"
+    },
+    "skill-seekers": {
+      "source": "jakerains/agentskills",
+      "sourceType": "github",
+      "computedHash": "5b108d41efcc58b7a2f6b6855438d65ba1724bead742aa1f3692f69ad091e3ff"
+    },
+    "solid-js-best-practices": {
+      "source": "richardcarls/solid-js-best-practices",
+      "sourceType": "github",
+      "computedHash": "befbba74e954de617a5dde28abd9225bdb243a04755bccc59ad8f521b4a1ef24"
+    },
+    "stenciljs-component-development": {
+      "source": "corlab-tech/skills",
+      "sourceType": "github",
+      "computedHash": "2195842f8a9d800dcfccdc2c7b124f3f741e45b7cb5a8a9760c3858ed349be8b"
+    },
+    "tanstack-form": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "1eb9f9fc43ab2777f586f916b2234c5340ed98f296a98b22c75cbbafcbd29b86"
+    },
+    "tanstack-hotkeys": {
+      "source": "oakoss/agent-skills",
+      "sourceType": "github",
+      "computedHash": "1cea98e2df197a4cd2b317b63b18484f7e8ffebd0772905a07b15de437e472c8"
+    },
+    "tanstack-pacer": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "abc0e5bcf7b80a48b39d3e3aa1d6e67220c34a8a3240c1d6a28eba3fc2b5cfd0"
+    },
+    "tanstack-query": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "b8a0477cd4d7bf8fa54d27f8e64d82388402f0d502591db50a357df5b9995c75"
+    },
+    "tanstack-router-best-practices": {
+      "source": "deckardger/tanstack-agent-skills",
+      "sourceType": "github",
+      "computedHash": "65764bc7b90e47f6023cb7f89b3af93eaaafc517754f10b9382e184d4646a77d"
+    },
+    "tanstack-start": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "e9d8355fe3e47b118e739081f1123c52aa0ecde57da840722177e1ad5caf9908"
+    },
+    "tanstack-start-best-practices": {
+      "source": "deckardger/tanstack-agent-skills",
+      "sourceType": "github",
+      "computedHash": "50c1b6d9b35b05927fa0c81962d560634385c9567b7b1d66396b171965b33105"
+    },
+    "tanstack-store": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "acfc5f1217685253fa9484f8f89dc92aae96a9ae30e42001b07b2ca672c758b2"
+    },
+    "tanstack-table": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "d5ac71bd795696cd3310165c3ea0e435c310a0ac3c4e9dd45b39ed91b8dbcbb1"
+    },
+    "tanstack-virtual": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "computedHash": "987d0fcffeac700cea1303a13a9cecd8a4583985dd675f97ebbca27bfa592b47"
+    },
+    "terraform-search-import": {
+      "source": "hashicorp/agent-skills",
+      "sourceType": "github",
+      "computedHash": "50eef65b0f1808f2471a400dcd1324fb07060253c2ad755bd791bd1cac19628b"
+    },
+    "terraform-style-guide": {
+      "source": "hashicorp/agent-skills",
+      "sourceType": "github",
+      "computedHash": "1fb650e4627c740f024b80947964769f5f5d58efff54870cef2791324d5aa451"
+    },
+    "testcontainers": {
+      "source": "claude-dev-suite/claude-dev-suite",
+      "sourceType": "github",
+      "computedHash": "c921c50ce06cbd21821ea794815568b5088d132c3899b9563e91d0dbc8420418"
+    },
+    "testcontainers-integration-tests": {
+      "source": "aaronontheweb/dotnet-skills",
+      "sourceType": "github",
+      "computedHash": "12064a0fbd71dee63df9843ba24d64ddfd02b5da0d6a430d371bdfd3386f201c"
+    },
+    "typescript-e2e-testing": {
+      "source": "bmad-labs/skills",
+      "sourceType": "github",
+      "computedHash": "7077a0a19bd5625dc3033db4cfa8260a13d882949ce04ca78b10610a6e4f3548"
+    }
+  }
+}

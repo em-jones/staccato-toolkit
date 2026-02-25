@@ -1,0 +1,31 @@
+{
+  "name": "@op-design/docs",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --dir ../tailwind-plugin dev & astro dev",
+    "dev:design": "pnpm --dir ../tailwind-plugin dev & astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/solid-js": "catalog:",
+    "@astrojs/starlight": "^0.38.2",
+    "@astrojs/tailwind": "^6.0.2",
+    "@fontsource/atkinson-hyperlegible": "catalog:",
+    "@op-plugin/solid-ui": "workspace:",
+    "@op/tailwind-config": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
+    "astro": "^6.0.1",
+    "rehype-code-titles": "^1.2.1",
+    "sharp": "^0.34.2",
+    "solid-js": "catalog:",
+    "tailwindcss": "^4.0.0"
+  },
+  "devDependencies": {
+    "acorn": "^8.14.0",
+    "acorn-jsx": "^5.3.2"
+  }
+}

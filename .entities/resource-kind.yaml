@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: kind
+  title: kind
+  description: Kubernetes in Docker - tool for running local Kubernetes clusters using Docker container nodes for testing and development.
+  tags:
+    - kubernetes
+    - utility
+    - local-development
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

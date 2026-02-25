@@ -1,0 +1,23 @@
+# wgo configuration for Staccato CLI
+# Watches for changes and rebuilds the cli binary with optional delve debugging
+
+# Standard build without debugger
+buildDir: ./tmp
+cmd: CGO_ENABLED=0 GOOS=linux go build -o ./tmp/staccato-cli .
+env:
+  - GOOS=linux
+  - GOARCH=amd64
+include:
+  - "**/*.go"
+exclude:
+  - "**/*_test.go"
+  - "**/testdata/**"
+  - "**/vendor/**"
+  - "**/tmp/**"
+  - "**/*.mod"
+  - "**/*.sum"
+delay: 100ms
+
+# Delve debugger configuration (optional, set DEBUG=1 to enable)
+# Build with debug symbols: go build -gcflags="all=-N -l" -o ./tmp/staccato-cli-debug .
+# Run with delve: dlv exec ./tmp/staccato-cli-debug --headless --listen=:2345 --api-version=2

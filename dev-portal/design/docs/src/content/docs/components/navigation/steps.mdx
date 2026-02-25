@@ -1,0 +1,86 @@
+---
+title: Steps
+description: Step indicator components
+---
+
+## Usage
+
+Apply `.steps` with `.step` items. Use `.step-complete` and `.step-active` for state.
+
+```html
+<ul class="steps">
+  <li class="step step-complete">
+    <div class="step-icon">✓</div>
+    <div class="step-title">Register</div>
+  </li>
+  <li class="step step-active">
+    <div class="step-icon">2</div>
+    <div class="step-title">Profile</div>
+  </li>
+  <li class="step">
+    <div class="step-icon">3</div>
+    <div class="step-title">Review</div>
+  </li>
+  <li class="step">
+    <div class="step-icon">4</div>
+    <div class="step-title">Done</div>
+  </li>
+</ul>
+```
+
+## With descriptions
+
+```html
+<ul class="steps">
+  <li class="step step-complete">
+    <div class="step-icon">✓</div>
+    <div class="step-content">
+      <div class="step-title">Register</div>
+      <div class="step-description">Create your account</div>
+    </div>
+  </li>
+  <li class="step step-active">
+    <div class="step-icon">2</div>
+    <div class="step-content">
+      <div class="step-title">Verify</div>
+      <div class="step-description">Confirm your email</div>
+    </div>
+  </li>
+  <li class="step">
+    <div class="step-icon">3</div>
+    <div class="step-content">
+      <div class="step-title">Complete</div>
+      <div class="step-description">Finish setup</div>
+    </div>
+  </li>
+</ul>
+```
+
+## Vertical orientation
+
+```html
+<ul class="steps steps-vertical">
+  <li class="step step-complete">
+    <div class="step-icon">✓</div>
+    <div class="step-title">Step 1</div>
+  </li>
+  <li class="step step-active">
+    <div class="step-icon">2</div>
+    <div class="step-title">Step 2</div>
+  </li>
+  <li class="step">
+    <div class="step-icon">3</div>
+    <div class="step-title">Step 3</div>
+  </li>
+</ul>
+```
+
+## Sizes
+
+| Class       | Description      |
+| ----------- | ---------------- |
+| `.steps-xs` | Extra small      |
+| `.steps-sm` | Small            |
+| `.steps-md` | Medium (default) |
+| `.steps-lg` | Large            |
+| `.steps-xl` | Extra large      |

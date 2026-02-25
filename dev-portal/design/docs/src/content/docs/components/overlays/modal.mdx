@@ -1,0 +1,55 @@
+---
+title: Modal
+description: Dialog and overlay components
+---
+
+## Usage
+
+A modal uses a checkbox toggle, `.modal-backdrop` for the overlay, and `.modal-box` for content. Because modals are overlays, the preview shows the static box layout.
+
+```html
+<!-- Static preview of modal box -->
+<div class="modal-box">
+  <h3 style="font-weight:700;font-size:1.125rem;margin-bottom:0.5rem">Confirm Action</h3>
+  <p>Are you sure you want to delete this item? This cannot be undone.</p>
+  <div class="modal-action">
+    <button class="btn btn-error">Delete</button>
+    <button class="btn btn-ghost">Cancel</button>
+  </div>
+</div>
+```
+
+Full modal markup with toggle:
+
+```html
+<input type="checkbox" id="my-modal" class="modal-toggle" />
+<div class="modal">
+  <label class="modal-backdrop" for="my-modal"></label>
+  <div class="modal-box">
+    <h3>Title</h3>
+    <p>Modal content</p>
+    <div class="modal-action">
+      <label for="my-modal" class="btn">Close</label>
+    </div>
+  </div>
+</div>
+<label for="my-modal" class="btn btn-primary">Open Modal</label>
+```
+
+## Position
+
+| Class           | Description                |
+| --------------- | -------------------------- |
+| `.modal-middle` | Center of screen (default) |
+| `.modal-top`    | Top center                 |
+| `.modal-bottom` | Bottom center              |
+| `.modal-start`  | Left center                |
+| `.modal-end`    | Right center               |
+
+## Sizes
+
+| Class         | Description                   |
+| ------------- | ----------------------------- |
+| `.modal-lg`   | Large (48rem max-width)       |
+| `.modal-xl`   | Extra large (64rem max-width) |
+| `.modal-full` | Full screen                   |

@@ -1,0 +1,21 @@
+apiVersion: garden.io/v2
+kind: Command
+name: core-dev
+description: "Starts hot-reloading development environment for Staccato Toolkit and control plane components. Optional: DEBUG=1 for delve debugger support in CLI and TUI."
+dependencies:
+  # - deploy.staccato-server
+  # - deploy.tui
+  - deploy.backstage
+  # - deploy.cli
+  # - deploy.web
+---
+apiVersion: garden.io/v2
+kind: Command
+name: core-ops
+description: "Starts hot-reloading development environment for Staccato Toolkit and control plane components. Optional: DEBUG=1 for delve debugger support in CLI and TUI."
+dependencies:
+  # - deploy.staccato-server
+  # - deploy.tui
+  - deploy.backstage
+  # - deploy.cli
+  # - deploy.web

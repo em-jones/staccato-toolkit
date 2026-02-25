@@ -1,0 +1,53 @@
+---
+title: Tooltip
+description: Hover hint tooltips
+---
+
+## Usage
+
+Apply `.tooltip` with a `data-tip` attribute to create hover-activated tooltips. `.tooltip-content` is the popup element.
+
+```html
+<div class="tooltip tooltip-bottom" style="position:relative;display:inline-block">
+  <button class="btn">Hover me</button>
+  <div class="tooltip-content" style="display:block">Tooltip text</div>
+</div>
+```
+
+In production, tooltips use `data-tip` and CSS to show on hover:
+
+```html
+<div class="tooltip" data-tip="Tooltip text">
+  <button class="btn">Hover me</button>
+</div>
+```
+
+## Positions
+
+| Class             | Description     |
+| ----------------- | --------------- |
+| `.tooltip-bottom` | Below (default) |
+| `.tooltip-top`    | Above           |
+| `.tooltip-left`   | Left            |
+| `.tooltip-right`  | Right           |
+
+```html
+<div style="display:flex;gap:3rem;flex-wrap:wrap;padding:1rem">
+  <div class="tooltip tooltip-top" style="position:relative;display:inline-block">
+    <button class="btn btn-sm">Top</button>
+    <div class="tooltip-content" style="display:block">Top tooltip</div>
+  </div>
+  <div class="tooltip tooltip-bottom" style="position:relative;display:inline-block">
+    <button class="btn btn-sm">Bottom</button>
+    <div class="tooltip-content" style="display:block">Bottom tooltip</div>
+  </div>
+  <div class="tooltip tooltip-left" style="position:relative;display:inline-block">
+    <button class="btn btn-sm">Left</button>
+    <div class="tooltip-content" style="display:block">Left tooltip</div>
+  </div>
+  <div class="tooltip tooltip-right" style="position:relative;display:inline-block">
+    <button class="btn btn-sm">Right</button>
+    <div class="tooltip-content" style="display:block">Right tooltip</div>
+  </div>
+</div>
+```

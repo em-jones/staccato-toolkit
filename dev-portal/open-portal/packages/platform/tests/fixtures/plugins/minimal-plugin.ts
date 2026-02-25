@@ -1,0 +1,16 @@
+export default {
+  name: "minimal-plugin",
+  type: "custom",
+  serverConfig: {} as any,
+  clientConfig: undefined as any,
+  serverServices: [],
+  clientServices: [],
+  features: {},
+  serverEvents: {},
+  clientEvents: {},
+  meters: {},
+  serverLifecycle: {},
+  clientLifecycle: {},
+  registerClientEventHandler: () => {},
+  registerServerEventHandler: () => {},
+};

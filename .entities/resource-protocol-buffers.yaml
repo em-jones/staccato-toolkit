@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: protocol-buffers
+  title: Protocol Buffers
+  description: Language-neutral data serialization format for structured data with efficient binary encoding and code generation.
+  tags:
+    - api
+    - library
+    - serialization
+spec:
+  type: library
+  owner: platform-team
+  system: developer-platform

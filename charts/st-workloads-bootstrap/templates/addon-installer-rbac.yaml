@@ -1,0 +1,110 @@
+{{- if .Values.addon.enabled }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "st-workloads-bootstrap.fullname" . }}-addon-installer
+  namespace: vela-system
+  labels:
+    {{- include "st-workloads-bootstrap.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "st-workloads-bootstrap.fullname" . }}-addon-installer
+  labels:
+    {{- include "st-workloads-bootstrap.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+rules:
+  # vela addon enable reads/writes KubeVela Application and related CRDs
+  - apiGroups: ["core.oam.dev"]
+    resources: ["*"]
+    verbs: ["*"]
+  # The addon installer Job creates Namespaces and core resources;
+  # endpoints is queried by vela when resolving leaf-node Service topology
+  - apiGroups: [""]
+    resources:
+      - namespaces
+      - secrets
+      - configmaps
+      - serviceaccounts
+      - services
+      - pods
+      - endpoints
+    verbs: ["*"]
+  # KubeVela addon status queries (read-only)
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get", "list"]
+  # PVCs for Harbor
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["*"]
+  # The addon installer Job creates RBAC for reflector and flux-operator
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources:
+      - clusterroles
+      - clusterrolebindings
+      - roles
+      - rolebindings
+    verbs: ["*"]
+  # Required for flux-operator CRDs and reflector CRDs installed by the addon
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["*"]
+  # Apps resources (Deployments, StatefulSets, etc.) for Harbor / reflector
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
+    verbs: ["*"]
+  # Batch resources for the installer itself
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch"]
+  # Flux-operator specific resources
+  - apiGroups: ["fluxcd.controlplane.io"]
+    resources: ["*"]
+    verbs: ["*"]
+  # Ingress / networking for Harbor
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses", "networkpolicies"]
+    verbs: ["*"]
+  # Policy resources
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["*"]
+  # CUE external packages — required by vela addon enable when the cuex
+  # default compiler has external package support enabled
+  - apiGroups: ["cue.oam.dev"]
+    resources: ["packages"]
+    verbs: ["get", "list", "watch"]
+  # EndpointSlices — queried by vela when resolving leaf-node Service topology
+  - apiGroups: ["discovery.k8s.io"]
+    resources: ["endpointslices"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "st-workloads-bootstrap.fullname" . }}-addon-installer
+  labels:
+    {{- include "st-workloads-bootstrap.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "st-workloads-bootstrap.fullname" . }}-addon-installer
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "st-workloads-bootstrap.fullname" . }}-addon-installer
+    namespace: vela-system
+{{- end }}

@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: kubectl
+  title: kubectl
+  description: Command-line tool for interacting with Kubernetes clusters, managing resources, and debugging applications.
+  tags:
+    - kubernetes
+    - utility
+    - cli
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

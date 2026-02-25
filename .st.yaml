@@ -1,0 +1,33 @@
+apiVersion: staccato.io/v0
+kind: Workspace
+metadata:
+  name: Staccato Toolkit
+spec:
+  spec_path: ./.st/
+  target:
+    apiVersion: staccato.io/v1
+    metadata:
+      name:
+    ops_account: 123456789012
+  workloads:
+    - name: server
+      path: ./src/staccato-toolkit/server
+    - name: dev-portal-web
+      path: ./src/dev-portal/backstage
+    - name: cli
+      path: ./src/staccato-toolkit/cli
+      dependencies:
+        - server
+    - name: web
+      path: ./src/staccato-toolkit/web
+      dependencies:
+        - server
+    - name: tui
+      path: ./src/staccato-toolkit/tui
+      dependencies:
+        - server
+  gitops_repo: # Specified if using a centralized mono-repo
+    url: git@github.com:em-jones/staccato-toolkit.git
+    branch: main
+    paths:
+      - "build/{repo_name}/{project_name}/{env}/{artifact_type}/" # need to validate this path with the build pipeline

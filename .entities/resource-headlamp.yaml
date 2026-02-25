@@ -1,0 +1,29 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: headlamp
+  title: Headlamp
+  description: >
+    CNCF sandbox web-based Kubernetes UI. Provides graphical cluster navigation,
+    CRD/KubeVela resource inspection, and developer onboarding tooling.
+    Runs without cluster-side agents; available in the devbox environment.
+  tags:
+    - kubernetes
+    - utility
+    - ui
+    - cncf
+    - web
+  links:
+    - url: https://headlamp.dev
+      title: headlamp.dev
+    - url: https://github.com/headlamp-k8s/headlamp
+      title: GitHub
+    - url: https://headlamp.dev/docs/latest/
+      title: Documentation
+  annotations:
+    backstage.io/adr-location: docs/adr/0024-kubernetes-ui-headlamp.md
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

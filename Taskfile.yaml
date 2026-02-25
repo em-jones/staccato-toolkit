@@ -1,0 +1,103 @@
+version: "3"
+
+tasks:
+  worker:next_task:
+    desc: "Start a worker session. Usage: task worker:in_progress EPIC=td-xxxxx | task worker:review EPIC=td-xxxxx"
+    requires:
+      vars:
+        - EPIC
+    vars:
+      MODE: "{{index .MATCH 0}}"
+    env:
+      WORKER_EPIC_ID: "{{.EPIC}}"
+      MODE: '{{ default .MODE "in_progress" }}'
+    cmds:
+      - |
+        if [ "{{.MODE}}" = "review" ]; then
+          bash .ops/scripts/worker/start.sh --review
+        else
+          bash .ops/scripts/worker/start.sh
+        fi
+
+  dev:up:core:*:
+    desc: "Start Staccato TUI with wgo hot-reloading. Optional: DEBUG=1 for delve debugger"
+    env:
+      DEBUG: '{{.DEBUG | default ""}}'
+    cmds:
+      - garden deploy --sync {{.MATCH 0}}
+
+  dev:up:ops-environment:
+    desc: "Provision the staccato-dev kind cluster and deploy all platform components"
+    cmds:
+      # Step 1 — Create the kind cluster and install the control plane components.
+      - task: cluster:up
+      # Step 2 — Deploy the platform control plane and ops environment.
+      - garden deploy control-plane-sync,ops-environment
+      # Step 3 — Create Harbor and Garden buildkit credentials before dev image builds.
+      - task: dev:ensure-harbor-credentials
+      # Step 4 — Wait for Harbor to accept pushes before starting hot reload.
+      - kubectl wait --for=condition=Available deployment/harbor-core -n harbor --timeout=180s
+      # Step 5 — Start Garden hot reload for the dev services.
+      - garden deploy --sync core-dev
+
+  dev:ensure-harbor-credentials:
+    desc: "Create Harbor and Garden buildkit registry credentials"
+    cmds:
+      - bash .ops/scripts/ensure-harbor-credentials.sh
+
+  dev-sync:
+    desc: "Start Garden hot-reload sync session for inner-loop development"
+    cmds:
+      - garden deploy --sync
+
+  dev-clean:
+    desc: "Remove Garden-managed resources without deleting the cluster"
+    cmds:
+      - garden cleanup
+
+  cluster:up:
+    desc: "Create the staccato-dev kind cluster, install KubeVela + st-workloads addon via Helm"
+    if: "[ $(kind get clusters | grep -c staccato-dev) -eq 0 ] || ! kubectl get job kubevela-vela-core-cluster-gateway-tls-secret-patch -n vela-system -o jsonpath='{.status.succeeded}' 2>/dev/null | grep -q 1"
+    vars:
+      HARBOR_ADMIN_PASSWORD: '{{.HARBOR_ADMIN_PASSWORD | default "Harbor12345"}}'
+    cmds:
+      # Create the kind cluster (bsg shadow dir must exist before mounting)
+      - kind create cluster --config .st/kind.yaml
+      # Install KubeVela core + st-workloads addon (Harbor, flux-operator, Reflector)
+      # via the st-workloads-bootstrap Helm chart. This replaces the old
+      # `vela install && vela addon enable ./st-workloads` manual steps.
+      - |
+        helm upgrade --install st-workloads-bootstrap charts/st-workloads-bootstrap/ \
+          --create-namespace \
+          --namespace vela-system \
+          --set harbor.adminPassword={{.HARBOR_ADMIN_PASSWORD}} \
+          --wait \
+          --timeout 10m
+      # Enable the VelaUX UI addon (not part of the st-workloads chart)
+      - vela addon enable velaux -s
+
+  cluster:down:
+    desc: "Tear down the staccato-dev kind cluster"
+    cmds:
+      - kind delete cluster --name staccato-dev
+
+  chart:test:e2e:
+    desc: "Run the st-workloads-bootstrap e2e bats test (creates/destroys a kind cluster)"
+    vars:
+      CLUSTER_NAME: '{{.CLUSTER_NAME | default "st-workloads-e2e"}}'
+      HARBOR_PASSWORD: '{{.HARBOR_PASSWORD | default "Harbor12345"}}'
+    env:
+      CLUSTER_NAME: "{{.CLUSTER_NAME}}"
+      HARBOR_PASSWORD: "{{.HARBOR_PASSWORD}}"
+    cmds:
+      - bats test/e2e/st-workloads-bootstrap.bats
+
+  chart:lint:
+    desc: "Lint the st-workloads-bootstrap Helm chart"
+    cmds:
+      - helm lint charts/st-workloads-bootstrap/
+
+  chart:template:
+    desc: "Render st-workloads-bootstrap chart templates (dry-run)"
+    cmds:
+      - helm template st-workloads-bootstrap charts/st-workloads-bootstrap/ --set harbor.adminPassword=test

@@ -1,0 +1,58 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: open-portal
+  namespace: default
+  title: OpenPort
+  description: Unified developer platform built with TanStack Start and SolidJS
+  labels:
+    platform: core
+    team: platform
+  links:
+    - url: https://github.com/staccato-toolkit/open-portal
+      title: GitHub Repository
+      icon: github
+spec:
+  type: service
+  owner: group:default/platform-team
+  lifecycle: experimental
+  providesApis:
+    - platform:default/open-portal-api
+  dependsOn:
+    - resource:default/sqlite-db
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: open-portal-api
+  namespace: default
+  title: OpenPort API
+  description: TanStack Start server functions API for OpenPort
+spec:
+  type: graphql
+  owner: group:default/platform-team
+  lifecycle: experimental
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: sqlite-db
+  namespace: default
+  title: OpenPort SQLite Database
+  description: Local development database for OpenPort
+spec:
+  type: database
+  owner: group:default/platform-team
+  lifecycle: experimental
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: platform-team
+  namespace: default
+  title: Platform Team
+  description: Core OpenPort platform development team
+spec:
+  type: team
+  children:
+    - user:default/admin

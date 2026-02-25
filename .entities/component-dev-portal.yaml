@@ -1,0 +1,22 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: dev-portal
+  title: Developer Portal
+  description: Central developer experience platform providing unified access to documentation, ADRs, and software catalog
+  annotations:
+    backstage.io/techdocs-ref: dir:../../src/dev-portal
+    backstage.io/adr-location: ../../src/dev-portal/docs/adrs
+  tags:
+    - developer-experience
+    - portal
+    - backstage
+  links:
+    - url: https://github.com/org/dev-portal
+      title: Repository
+      icon: github
+spec:
+  type: website
+  lifecycle: production
+  owner: platform-team
+  system: developer-platform

@@ -1,0 +1,33 @@
+{
+  "name": "@op-plugin/db-bun",
+  "version": "0.0.0",
+  "description": "Bun SQLite driver for OpenPort. Uses drizzle-orm/bun-sqlite.",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "check": "vp check",
+    "test": "bun test",
+    "prepublishOnly": "vp run build"
+  },
+  "dependencies": {
+    "@op/platform": "workspace:*",
+    "drizzle-orm": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^25.5.0",
+    "drizzle-kit": "catalog:",
+    "typescript": "^5.9.3",
+    "vite-plus": "^0.1.11",
+    "@op/platform": "workspace:*"
+  }
+}

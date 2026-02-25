@@ -1,0 +1,47 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: gitops-provider
+  namespace: vela-system
+  annotations:
+    app.oam.dev/description: >
+      Applies the FluxInstance CRD to activate Flux GitOps reconciliation from
+      the Harbor OCI registry. Harbor and flux-operator are managed separately
+      as KubeVela addons; this Application is the thin final step that creates
+      the FluxInstance resource.
+spec:
+  components:
+    - name: flux-instance
+      type: k8s-objects
+      properties:
+        objects:
+          - apiVersion: fluxcd.controlplane.io/v1
+            kind: FluxInstance
+            metadata:
+              name: flux
+              namespace: flux-system
+              annotations:
+                fluxcd.controlplane.io/reconcileEvery: "1m"
+                fluxcd.controlplane.io/reconcileTimeout: "3m"
+            spec:
+              distribution:
+                version: "2.x"
+                registry: "ghcr.io/fluxcd"
+                artifact: "oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests"
+              components:
+                - source-controller
+                - kustomize-controller
+                - helm-controller
+                - notification-controller
+              cluster:
+                type: kubernetes
+                size: medium
+                multitenant: false
+                networkPolicy: true
+                domain: "cluster.local"
+              sync:
+                kind: OCIRepository
+                url: "oci://harbor-core.harbor.svc.cluster.local/staccato/manifests"
+                ref: "latest"
+                path: "./"
+                pullSecret: "harbor-oci-credentials"

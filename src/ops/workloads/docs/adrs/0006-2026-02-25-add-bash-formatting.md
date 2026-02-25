@@ -1,0 +1,1 @@
+../../../../../openspec/changes/archive/2026-02-25-add-bash-formatting/design.md

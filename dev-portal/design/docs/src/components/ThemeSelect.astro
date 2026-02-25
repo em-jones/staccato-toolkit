@@ -1,0 +1,133 @@
+---
+---
+
+<div class="staccato-theme-select">
+  <select id="staccato-theme" aria-label="Color theme">
+    <option value="catppuccin">Catppuccin</option>
+    <option value="tokyo-night">Tokyo Night</option>
+    <option value="nord">Nord</option>
+  </select>
+  <select id="staccato-variant" aria-label="Variant">
+    <option value="modern">Modern</option>
+    <option value="classic">Classic</option>
+  </select>
+  <select id="staccato-mode" aria-label="Color mode">
+    <option value="auto">Auto</option>
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+  </select>
+</div>
+
+<script>
+  function getCookie(name: string): string | null {
+    if (typeof document === "undefined") return null;
+    const m = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+    return m ? decodeURIComponent(m[2]) : null;
+  }
+
+  function setCookie(name: string, value: string): void {
+    if (typeof document === "undefined") return;
+    const expires = new Date(Date.now() + 365 * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+  }
+
+  function systemMode(): "light" | "dark" {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  }
+
+  function resolvedMode(storedMode: string): "light" | "dark" {
+    return storedMode === "auto" || !storedMode
+      ? systemMode()
+      : (storedMode as "light" | "dark");
+  }
+
+  function apply(theme: string, variant: string, mode: string): void {
+    const resolved = resolvedMode(mode);
+    const el = document.documentElement;
+    el.setAttribute("data-color-theme", theme);
+    el.setAttribute("data-mode", resolved);
+    el.setAttribute("data-variant", variant);
+    // Keep Starlight shell in sync
+    el.setAttribute("data-theme", resolved);
+  }
+
+  function init(): void {
+    const themeEl = document.getElementById(
+      "staccato-theme"
+    ) as HTMLSelectElement | null;
+    const variantEl = document.getElementById(
+      "staccato-variant"
+    ) as HTMLSelectElement | null;
+    const modeEl = document.getElementById(
+      "staccato-mode"
+    ) as HTMLSelectElement | null;
+
+    if (!themeEl || !variantEl || !modeEl) return;
+
+    const savedTheme = getCookie("staccato-theme") || "catppuccin";
+    const savedVariant = getCookie("staccato-variant") || "modern";
+    const savedMode = getCookie("staccato-mode") || "auto";
+
+    themeEl.value = savedTheme;
+    variantEl.value = savedVariant;
+    modeEl.value = savedMode;
+
+    apply(savedTheme, savedVariant, savedMode);
+
+    themeEl.addEventListener("change", () => {
+      setCookie("staccato-theme", themeEl.value);
+      apply(themeEl.value, variantEl.value, modeEl.value);
+    });
+
+    variantEl.addEventListener("change", () => {
+      setCookie("staccato-variant", variantEl.value);
+      apply(themeEl.value, variantEl.value, modeEl.value);
+    });
+
+    modeEl.addEventListener("change", () => {
+      setCookie("staccato-mode", modeEl.value);
+      apply(themeEl.value, variantEl.value, modeEl.value);
+    });
+
+    // If auto mode, track system preference changes
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", () => {
+        if (modeEl.value === "auto") {
+          apply(themeEl.value, variantEl.value, modeEl.value);
+        }
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+  document.addEventListener("astro:after-swap", init);
+</script>
+
+<style>
+  .staccato-theme-select {
+    display: flex;
+    gap: 0.375rem;
+    align-items: center;
+  }
+
+  select {
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.25rem;
+    color: var(--sl-color-text);
+    padding: 0.2rem 0.4rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    appearance: none;
+  }
+
+  select:hover {
+    border-color: var(--sl-color-text-accent);
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+title: Progress
+description: Progress bar components
+---
+
+## Usage
+
+Apply `.progress` to create a progress bar.
+
+```html
+<div class="progress">
+  <div class="progress-bar" style="width: 45%"></div>
+</div>
+```
+
+## With percentage
+
+```html
+<div class="progress">
+  <div class="progress-bar" style="width: 75%">75%</div>
+</div>
+```
+
+## Sizes
+
+| Class          | Height         |
+| -------------- | -------------- |
+| `.progress-xs` | 0.25rem        |
+| `.progress-sm` | 0.5rem         |
+| `.progress-md` | 1rem (default) |
+| `.progress-lg` | 1.5rem         |
+| `.progress-xl` | 2rem           |
+
+### Size Examples
+
+```html
+<div class="progress progress-sm"><div class="progress-bar" style="width: 60%"></div></div>
+<div class="progress progress-lg"><div class="progress-bar" style="width: 60%"></div></div>
+```
+
+## Colors
+
+| Class                 | Description     |
+| --------------------- | --------------- |
+| `.progress-primary`   | Primary color   |
+| `.progress-secondary` | Secondary color |
+| `.progress-accent`    | Accent color    |
+| `.progress-success`   | Success color   |
+| `.progress-warning`   | Warning color   |
+| `.progress-error`     | Error color     |
+
+### Color Examples
+
+```html
+<div class="progress progress-primary"><div class="progress-bar" style="width: 60%"></div></div>
+<div class="progress progress-success"><div class="progress-bar" style="width: 60%"></div></div>
+```
+
+## Indeterminate
+
+| Class                     | Description                  |
+| ------------------------- | ---------------------------- |
+| `.progress-indeterminate` | Animated indeterminate state |
+
+```html
+<div class="progress progress-indeterminate">
+  <div class="progress-bar"></div>
+</div>
+```

@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: trivy
+  title: Trivy
+  description: Comprehensive security scanner for vulnerabilities in container images, file systems, Git repositories, and infrastructure as code.
+  tags:
+    - ci-cd
+    - utility
+    - security
+    - scanning
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

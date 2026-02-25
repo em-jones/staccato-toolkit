@@ -1,0 +1,83 @@
+---
+title: Card
+description: Container for grouping related content and actions
+---
+
+## Structure
+
+A card is composed of a root `.card` wrapper with optional inner elements:
+
+```html
+<div class="card">
+  <div class="card-body">
+    <h2 class="card-title">Title</h2>
+    <p>Body content</p>
+    <div class="card-actions justify-end">
+      <button class="btn btn-primary btn-sm">Action</button>
+    </div>
+  </div>
+</div>
+```
+
+## Elements
+
+| Element         | Description                                             |
+| --------------- | ------------------------------------------------------- |
+| `.card`         | Root container — sets background, border, and radius    |
+| `.card-body`    | Padded content area (`padding: 1.5rem`, `gap: 0.75rem`) |
+| `.card-title`   | Styled heading inside `.card-body`                      |
+| `.card-figure`  | Full-bleed image/media region at top or side            |
+| `.card-actions` | Flex row for action buttons                             |
+
+## Variants
+
+| Modifier         | Description                                             |
+| ---------------- | ------------------------------------------------------- |
+| `card-bordered`  | Thicker 2px border for extra emphasis                   |
+| `card-elevated`  | Drops the border and adds a shadow                      |
+| `card-glass`     | Frosted-glass backdrop with semi-transparent background |
+| `card-compact`   | Reduces body padding for dense layouts                  |
+| `card-hoverable` | Shadow lift and primary border tint on hover            |
+| `card-side`      | Horizontal layout — figure and body sit side-by-side    |
+
+### Variant Examples
+
+```html
+<div class="card card-bordered">
+  <div class="card-body">
+    <h2 class="card-title">Bordered</h2>
+    <p>Thicker border</p>
+  </div>
+</div>
+```
+
+## With image
+
+Place `.card-figure` before `.card-body` to render a top-edge image:
+
+```html
+<div class="card">
+  <div class="card-figure">
+    <img src="/photo.jpg" alt="Photo" />
+  </div>
+  <div class="card-body">
+    <h2 class="card-title">Photo Card</h2>
+  </div>
+</div>
+```
+
+## Horizontal layout
+
+Use `card-side` for a media-beside-text layout:
+
+```html
+<div class="card card-side card-bordered">
+  <div class="card-figure" style="width: 8rem">
+    <img src="/thumb.jpg" alt="" />
+  </div>
+  <div class="card-body">
+    <h2 class="card-title">Side Card</h2>
+    <p>Content beside the image.</p>
+  </div>
+</div>
+```

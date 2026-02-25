@@ -1,0 +1,28 @@
+{
+  "extends": "lighthouse:default",
+  "settings": {
+    "onlyCategories": ["performance", "accessibility", "best-practices", "seo"],
+    "onlyAudits": [
+      "first-contentful-paint",
+      "largest-contentful-paint",
+      "cumulative-layout-shift",
+      "total-blocking-time",
+      "speed-index",
+      "viewport",
+      "document-title",
+      "html-has-lang",
+      "meta-description",
+      "canonical",
+      "image-alt",
+      "link-name",
+      "label",
+      "button-name"
+    ]
+  },
+  "audits": {
+    "screenshot-thumbnails": false,
+    "final-screenshot": false
+  },
+  "output": ["json", "html"],
+  "outputPath": "./lighthouse/results/"
+}

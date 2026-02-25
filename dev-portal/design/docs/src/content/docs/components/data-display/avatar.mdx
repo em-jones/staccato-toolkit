@@ -1,0 +1,83 @@
+---
+title: Avatar
+description: Display user profile images or initials
+---
+
+## Usage
+
+Apply `.avatar` to display user images or placeholder initials.
+
+```html
+<div class="avatar">
+  <img src="image.jpg" alt="User" />
+</div>
+
+<div class="avatar">
+  <span>JD</span>
+</div>
+```
+
+## Sizes
+
+| Class         | Size             |
+| ------------- | ---------------- |
+| `.avatar-xs`  | 1.5rem           |
+| `.avatar-sm`  | 2rem             |
+| `.avatar-md`  | 2.5rem (default) |
+| `.avatar-lg`  | 3rem             |
+| `.avatar-xl`  | 4rem             |
+| `.avatar-2xl` | 5rem             |
+
+### Size Examples
+
+```html
+<div class="avatar avatar-xs">JS</div>
+<div class="avatar avatar-sm">JS</div>
+<div class="avatar avatar-md">JS</div>
+<div class="avatar avatar-lg">JS</div>
+<div class="avatar avatar-xl">JS</div>
+```
+
+## Status indicators
+
+| Class             | Description                        |
+| ----------------- | ---------------------------------- |
+| `.avatar-online`  | Green dot indicating online status |
+| `.avatar-offline` | Gray dot indicating offline status |
+| `.avatar-busy`    | Red dot indicating busy status     |
+| `.avatar-away`    | Yellow dot indicating away status  |
+
+### Status Examples
+
+```html
+<div class="avatar avatar-lg avatar-online">
+  <img src="user.jpg" alt="User" />
+</div>
+<div class="avatar avatar-lg avatar-offline">
+  <img src="user.jpg" alt="User" />
+</div>
+<div class="avatar avatar-lg avatar-busy">
+  <img src="user.jpg" alt="User" />
+</div>
+<div class="avatar avatar-lg avatar-away">
+  <img src="user.jpg" alt="User" />
+</div>
+```
+
+## Shape modifiers
+
+| Class             | Description                 |
+| ----------------- | --------------------------- |
+| `.avatar-rounded` | Rounded rectangle (0.75rem) |
+
+## Avatar groups
+
+Stack multiple avatars with `.avatar-group`:
+
+```html
+<div class="avatar-group">
+  <div class="avatar"><img src="user1.jpg" /></div>
+  <div class="avatar"><img src="user2.jpg" /></div>
+  <div class="avatar"><img src="user3.jpg" /></div>
+</div>
+```

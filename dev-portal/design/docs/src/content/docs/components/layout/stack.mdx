@@ -1,0 +1,79 @@
+---
+title: Stack
+description: Flexbox layout utility
+---
+
+## Usage
+
+Apply `.stack` to create a flex column layout.
+
+```html
+<div class="stack stack-gap-2">
+  <div
+    style="padding:0.5rem;background:var(--color-primary);color:var(--color-bg);border-radius:var(--variant-radius)"
+  >
+    Item 1
+  </div>
+  <div
+    style="padding:0.5rem;background:var(--color-secondary);color:var(--color-bg);border-radius:var(--variant-radius)"
+  >
+    Item 2
+  </div>
+  <div
+    style="padding:0.5rem;background:var(--color-accent);color:var(--color-bg);border-radius:var(--variant-radius)"
+  >
+    Item 3
+  </div>
+</div>
+```
+
+## Horizontal layout
+
+```html
+<div class="stack stack-horizontal stack-gap-2 stack-items-center">
+  <div
+    style="padding:0.5rem;background:var(--color-primary);color:var(--color-bg);border-radius:var(--variant-radius)"
+  >
+    Item 1
+  </div>
+  <div
+    style="padding:0.5rem;background:var(--color-secondary);color:var(--color-bg);border-radius:var(--variant-radius)"
+  >
+    Item 2
+  </div>
+  <div
+    style="padding:0.5rem;background:var(--color-accent);color:var(--color-bg);border-radius:var(--variant-radius)"
+  >
+    Item 3
+  </div>
+</div>
+```
+
+## Orientation
+
+| Class                       | Description         |
+| --------------------------- | ------------------- |
+| `.stack-horizontal`         | Horizontal layout   |
+| `.stack-reverse`            | Vertical reversed   |
+| `.stack-horizontal-reverse` | Horizontal reversed |
+
+## Gap sizes
+
+| Class          | Gap     |
+| -------------- | ------- |
+| `.stack-gap-0` | 0       |
+| `.stack-gap-1` | 0.25rem |
+| `.stack-gap-2` | 0.5rem  |
+| `.stack-gap-3` | 0.75rem |
+| `.stack-gap-4` | 1rem    |
+| `.stack-gap-6` | 1.5rem  |
+| `.stack-gap-8` | 2rem    |
+
+## Alignment
+
+| Class                  | Description    |
+| ---------------------- | -------------- |
+| `.stack-items-start`   | Align to start |
+| `.stack-items-end`     | Align to end   |
+| `.stack-items-center`  | Center align   |
+| `.stack-items-stretch` | Stretch items  |

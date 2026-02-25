@@ -1,0 +1,72 @@
+version: "0.2"
+language: en-GB
+
+ignorePaths:
+  - node_modules/**
+  - .devbox/**
+  - .git/**
+  - .vale/styles/**
+  - site/**
+  - "**/*.gen.go"
+
+dictionaries:
+  - en_GB
+  - software-terms
+
+words:
+  - ADR
+  - ADRs
+  - AGENTS
+  - api
+  - apis
+  - backstage
+  - cspell
+  - dagger
+  - daggerverse
+  - dashboards
+  - datasource
+  - datasources
+  - devbox
+  - devops
+  - frontend
+  - golang
+  - grafana
+  - grpc
+  - healthz
+  - kebab
+  - kubectl
+  - kubernetes
+  - loki
+  - lychee
+  - markdownlint
+  - mkdocs
+  - otel
+  - openspec
+  - opentelemetry
+  - platformer
+  - prettierrc
+  - prometheus
+  - protobuf
+  - prom
+  - ruleset
+  - rulesets
+  - shellcheck
+  - shfmt
+  - staccato
+  - syscall
+  - syscalls
+  - td
+  - tdq
+  - techdocs
+  - tempo
+  - testable
+  - toolchain
+  - toolchains
+  - traefik
+  - tracing
+  - vela
+  - workdir
+  - workloads
+  - worktree
+  - worktrees
+  - yaml

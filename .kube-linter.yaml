@@ -1,0 +1,6 @@
+# KubeLinter configuration for openspec-td
+# See: .opencode/rules/technologies/k8s/kube-linter.md
+
+checks:
+  # Enable default check set (~40 checks covering security, reliability, and configuration correctness)
+  doNotAutoAddDefaults: false

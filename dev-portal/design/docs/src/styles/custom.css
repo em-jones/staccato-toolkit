@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@plugin "@op/tailwind-config" {
+  theme: all;
+  variant: modern;
+}
+
+/*
+  Map Starlight's --sl-color-* variables to our theme variables so the
+  entire Starlight shell (sidebar, nav, search, etc.) follows our color theme.
+  These run in @layer base and override Starlight's props.css (starlight.base layer).
+*/
+:root {
+  --default-font-family: "Atkinson Hyperlegible", sans-serif;
+  /* Core surface mapping */
+  --sl-color-black: var(--color-bg);
+  --sl-color-white: var(--color-text);
+  --sl-color-gray-1: var(--color-surface1, var(--color-bg));
+  --sl-color-gray-2: color-mix(in srgb, var(--color-text) 85%, var(--color-bg));
+  --sl-color-gray-3: color-mix(in srgb, var(--color-text) 65%, var(--color-bg));
+  --sl-color-gray-4: color-mix(in srgb, var(--color-text) 45%, var(--color-bg));
+  --sl-color-gray-5: color-mix(in srgb, var(--color-text) 25%, var(--color-bg));
+  --sl-color-gray-6: var(
+    --color-surface0,
+    color-mix(in srgb, var(--color-bg) 85%, var(--color-text))
+  );
+  --sl-color-gray-7: var(
+    --color-mantle,
+    color-mix(in srgb, var(--color-bg) 93%, var(--color-text))
+  );
+
+  /* Accent */
+  --sl-color-accent-low: color-mix(in srgb, var(--color-primary) 25%, var(--color-bg));
+  --sl-color-accent: var(--color-primary);
+  --sl-color-accent-high: color-mix(in srgb, var(--color-primary) 80%, var(--color-text));
+
+  /* Semantic */
+  --sl-color-text: var(--color-text);
+  --sl-color-text-accent: var(--color-primary);
+  --sl-color-text-invert: var(--color-bg);
+  --sl-color-bg: var(--color-bg);
+  --sl-color-bg-nav: var(--color-crust, var(--color-mantle, var(--color-bg)));
+  --sl-color-bg-sidebar: var(--color-mantle, var(--color-bg));
+  --sl-color-bg-inline-code: var(
+    --color-surface0,
+    color-mix(in srgb, var(--color-bg) 85%, var(--color-text))
+  );
+  --sl-color-bg-accent: var(--color-primary);
+  --sl-color-hairline-light: var(
+    --color-surface1,
+    color-mix(in srgb, var(--color-bg) 80%, var(--color-text))
+  );
+  --sl-color-hairline-shade: var(
+    --color-surface0,
+    color-mix(in srgb, var(--color-bg) 85%, var(--color-text))
+  );
+}
+
+/* Live HTML preview panels rendered inside Starlight Tabs */
+.component-preview {
+  padding: 1.5rem;
+  background: var(--sl-color-gray-6);
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-start;
+}

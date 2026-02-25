@@ -1,0 +1,17 @@
+site_name: Staccato Server
+site_description: API server for the Staccato Toolkit
+
+docs_dir: docs
+site_dir: site
+
+nav:
+  - Home: index.md
+
+theme:
+  name: material
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true

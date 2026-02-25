@@ -1,0 +1,19 @@
+site_name: Authorization Duck IAM
+site_description: Gentle Duck IAM-based authorization plugin
+
+docs_dir: docs
+site_dir: site
+
+nav:
+  - Home: index.md
+  - Policies: policies.md
+  - ADRs: adrs/
+
+theme:
+  name: material
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true

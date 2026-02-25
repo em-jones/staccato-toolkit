@@ -1,0 +1,54 @@
+---
+title: Radio
+description: Radio button styling
+---
+
+## Usage
+
+Apply `.radio` to radio input elements.
+
+```html
+<label style="display:flex;align-items:center;gap:0.5rem">
+  <input type="radio" name="demo" class="radio" /> Option A
+</label>
+<label style="display:flex;align-items:center;gap:0.5rem">
+  <input type="radio" name="demo" class="radio" checked /> Option B
+</label>
+<label style="display:flex;align-items:center;gap:0.5rem">
+  <input type="radio" name="demo" class="radio" disabled /> Disabled
+</label>
+```
+
+## Colors
+
+| Class              | Description     |
+| ------------------ | --------------- |
+| `.radio-primary`   | Primary color   |
+| `.radio-secondary` | Secondary color |
+| `.radio-accent`    | Accent color    |
+| `.radio-warning`   | Warning color   |
+| `.radio-error`     | Error color     |
+
+```html
+<input type="radio" name="c" class="radio radio-primary" checked />
+<input type="radio" name="c" class="radio radio-secondary" />
+<input type="radio" name="c" class="radio radio-accent" />
+<input type="radio" name="c" class="radio radio-warning" />
+<input type="radio" name="c" class="radio radio-error" />
+```
+
+## Sizes
+
+| Class       | Size              |
+| ----------- | ----------------- |
+| `.radio-xs` | 1rem              |
+| `.radio-sm` | 1.125rem          |
+| `.radio-md` | 1.25rem (default) |
+| `.radio-lg` | 1.5rem            |
+
+```html
+<input type="radio" name="sz" class="radio radio-primary radio-xs" checked />
+<input type="radio" name="sz" class="radio radio-primary radio-sm" />
+<input type="radio" name="sz" class="radio radio-primary radio-md" />
+<input type="radio" name="sz" class="radio radio-primary radio-lg" />
+```

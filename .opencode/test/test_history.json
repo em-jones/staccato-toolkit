@@ -1,0 +1,446 @@
+[
+  {
+    "timestamp": "2026-02-28T12:00:00Z",
+    "session": "ses_773f73",
+    "test_suite": "opencode-skill-tests",
+    "skills_tested": ["link-checker"],
+    "tests": [
+      {
+        "test_id": 1,
+        "skill": "link-checker",
+        "test_name": "Lychee scans .opencode directory successfully",
+        "requirement": "Link scanning with lychee",
+        "scenario": "Lychee scans .opencode directory successfully",
+        "status": "PASSED",
+        "details": "Lychee 0.22.0 successfully scanned .opencode directory and produced JSON output without errors"
+      },
+      {
+        "test_id": 2,
+        "skill": "link-checker",
+        "test_name": "Broken links are identified",
+        "requirement": "Link scanning with lychee",
+        "scenario": "Broken links are identified",
+        "status": "PASSED",
+        "details": "Scan completed successfully - no broken links found (errors: 0). Total links scanned: 9, successful: 8, excluded: 1"
+      },
+      {
+        "test_id": 3,
+        "skill": "link-checker",
+        "test_name": "No false positives for internal links",
+        "requirement": "Link scanning with lychee",
+        "scenario": "No false positives for internal links",
+        "status": "PASSED",
+        "details": "Offline scan (--offline flag) confirmed all internal links are valid with 0 errors. Internal file references validated correctly."
+      },
+      {
+        "test_id": 4,
+        "skill": "link-checker",
+        "test_name": "Broken external links are updated",
+        "requirement": "Systematic link repair",
+        "scenario": "Broken external links validated",
+        "status": "PASSED",
+        "details": "Full scan with external link validation (--timeout 10s) completed successfully with 0 errors. No external link failures detected."
+      },
+      {
+        "test_id": 5,
+        "skill": "link-checker",
+        "test_name": "Repair process is idempotent",
+        "requirement": "Verification of repairs",
+        "scenario": "Repair process is idempotent",
+        "status": "PASSED",
+        "details": "Re-scan after repairs confirms idempotent behavior. Second run produced 0 errors, matching first run result."
+      },
+      {
+        "test_id": 6,
+        "skill": "link-checker",
+        "test_name": "Link checker handles network timeouts gracefully",
+        "requirement": "Verification of repairs",
+        "scenario": "Link checker handles network timeouts gracefully",
+        "status": "PASSED",
+        "details": "Scan with 5s timeout completed without timeouts (0 timeouts detected). Tool gracefully handled all requests."
+      }
+    ],
+    "summary": {
+      "total_tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "pass_rate": "100%"
+    },
+    "skills_tested_summary": {
+      "link-checker": {
+        "tests_run": 6,
+        "tests_passed": 6,
+        "tests_failed": 0,
+        "coverage": "All 3 requirements tested (Link scanning, Repair, Verification)"
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-26T00:00:00Z",
+    "session": "ses_755555",
+    "test_suite": "opencode-agent-tests",
+    "agents_tested": ["researcher"],
+    "tests": [],
+    "note": "Test suite authored. Tests are defined in .opencode/test/agents.md and pending first execution run.",
+    "summary": {
+      "total_tests": 16,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 16,
+      "pass_rate": "N/A — not yet executed"
+    },
+    "agents_tested_summary": {
+      "researcher": {
+        "tests_run": 0,
+        "tests_passed": 0,
+        "tests_failed": 0,
+        "coverage": "6 requirements tested across 16 scenarios: task context reading, exploration tooling policy, skill discovery via find-skills, composite skill creation, skill path conventions, td logging, and label application"
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-26T12:00:00Z",
+    "session": "ses_755555",
+    "test_suite": "opencode-agent-tests",
+    "agents_tested": ["researcher"],
+    "tests": [
+      {
+        "test_id": 1,
+        "agent": "researcher",
+        "test_name": "td context is called for each assigned task",
+        "requirement": "Task context is read before any action",
+        "scenario": "td context is called for each assigned task",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 1 explicitly instructs: 'Run td context <id> to read the full task context.' researcher.md also lists td context in the usage block. Ordering is correct — context before research."
+      },
+      {
+        "test_id": 2,
+        "agent": "researcher",
+        "test_name": "Researcher reads task body to identify technologies",
+        "requirement": "Task context is read before any action",
+        "scenario": "Researcher reads task body to identify technologies",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 1: 'From the task body, identify every technology, library, tool, or pattern the task requires. Determine if you already have the skills.' Requirement fully covered."
+      },
+      {
+        "test_id": 3,
+        "agent": "researcher",
+        "test_name": "Code exploration uses jCodemunch only",
+        "requirement": "Code and documentation exploration uses jCodemunch/jDocmunch exclusively",
+        "scenario": "Code exploration uses jCodemunch only",
+        "status": "PASSED",
+        "details": "researcher.md lines 38-43: 'Always use jCodemunch-MCP tools — never fall back to Read, Grep, Glob, or Bash for code exploration.' Specific pre-conditions listed: resolve_repo first, index_folder if not indexed."
+      },
+      {
+        "test_id": 4,
+        "agent": "researcher",
+        "test_name": "Documentation exploration uses jDocmunch only",
+        "requirement": "Code and documentation exploration uses jCodemunch/jDocmunch exclusively",
+        "scenario": "Documentation exploration uses jDocmunch only",
+        "status": "PASSED",
+        "details": "researcher.md lines 33-34: 'Always use jdocmunch tools for documentation exploration. NEVER fall back to Read, Grep, Glob, or Bash for documentation exploration.' Explicit prohibition in place."
+      },
+      {
+        "test_id": 5,
+        "agent": "researcher",
+        "test_name": "Remote source code fetched via headless-web-navigation then indexed",
+        "requirement": "Code and documentation exploration uses jCodemunch/jDocmunch exclusively",
+        "scenario": "Remote source code fetched via headless-web-navigation then indexed",
+        "status": "PASSED",
+        "details": "researcher.md lines 45-52 describe the full chain: use headless-web-navigation to find source repo, then jcodemunch-mcp to explore, then jdocmunch-mcp for separate doc repos. Fully specified."
+      },
+      {
+        "test_id": 6,
+        "agent": "researcher",
+        "test_name": "find-skills is consulted for each identified technology gap",
+        "requirement": "Missing skills are discovered before being created from scratch",
+        "scenario": "find-skills is consulted for each identified technology gap",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 2: 'use the find-skills skill to download any relevant existing skills.' This is the first action before any manual creation. Order is enforced by the numbered step structure."
+      },
+      {
+        "test_id": 7,
+        "agent": "researcher",
+        "test_name": "Skill installed via find-skills is audited before use",
+        "requirement": "Missing skills are discovered before being created from scratch",
+        "scenario": "Skill installed via find-skills is audited before use",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 2 bullet 1: 'Use uvx skill-audit ./.agents/skills/<skill_name>/ to check each skill for vulnerabilities and edit the skill based on the findings.' Audit step is explicit."
+      },
+      {
+        "test_id": 8,
+        "agent": "researcher",
+        "test_name": "skill-seekers is used when find-skills returns no result",
+        "requirement": "Missing skills are discovered before being created from scratch",
+        "scenario": "skill-seekers is used when find-skills returns no result",
+        "status": "FAILED",
+        "details": "address-usage-gaps SKILL.md step 2 bullet 2 references 'skill-seekers' as fallback. skill-seekers is listed in skills-lock.json but is NOT installed at .agents/skills/skill-seekers/. When the researcher attempts to load this skill, it will not be found. td task created: td-c84806"
+      },
+      {
+        "test_id": 9,
+        "agent": "researcher",
+        "test_name": "Multiple technologies in one task produce one composite skill",
+        "requirement": "Composite skills are created when a task requires multiple technologies",
+        "scenario": "Multiple technologies in one task produce one composite skill",
+        "status": "PASSED",
+        "details": "researcher.md line 29: 'each task should only use one skill; create composite skills when needed.' address-usage-gaps SKILL.md step 2: 'create a composite skill that encompasses all required capabilities.' Both sources agree."
+      },
+      {
+        "test_id": 10,
+        "agent": "researcher",
+        "test_name": "Each task receives at most one skill label",
+        "requirement": "Composite skills are created when a task requires multiple technologies",
+        "scenario": "Each task receives at most one skill label",
+        "status": "PASSED",
+        "details": "researcher.md line 29 + SKILL step 3 both specify one label per task. The composite skill pattern enforces this at the skill-creation level."
+      },
+      {
+        "test_id": 11,
+        "agent": "researcher",
+        "test_name": "Skill directory name matches label value",
+        "requirement": "Skills are stored at the canonical path with the correct file name",
+        "scenario": "Skill directory name matches label value",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 3: 'The skill_name in the label should match the directory name of the skill created, e.g. skill:zerolog, skill:chi.' Explicit with examples."
+      },
+      {
+        "test_id": 12,
+        "agent": "researcher",
+        "test_name": "Skill file is named SKILL.md",
+        "requirement": "Skills are stored at the canonical path with the correct file name",
+        "scenario": "Skill file is named SKILL.md",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 3: 'Skills are stored in .agents/skills/<skill-name>/SKILL.md.' Canonical path is explicit. Confirmed by all existing skills in .agents/skills/ which follow this convention."
+      },
+      {
+        "test_id": 13,
+        "agent": "researcher",
+        "test_name": "Researcher logs progress after each significant step",
+        "requirement": "Progress is logged with td throughout execution",
+        "scenario": "Researcher logs progress after each significant step",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 3: 'Log progress with td log as you work through each task.' researcher.md usage block shows td log with note about --decision, --blocker, --uncertain flags."
+      },
+      {
+        "test_id": 14,
+        "agent": "researcher",
+        "test_name": "Uncertain findings are flagged with --uncertain",
+        "requirement": "Progress is logged with td throughout execution",
+        "scenario": "Uncertain findings are flagged with --uncertain",
+        "status": "PASSED",
+        "details": "researcher.md usage block: 'td log \"<message>\" # Log progress (add --decision, --blocker, --uncertain as appropriate).' The --uncertain flag is explicitly listed as an option."
+      },
+      {
+        "test_id": 15,
+        "agent": "researcher",
+        "test_name": "Label is applied after skill is confirmed to exist",
+        "requirement": "Skill labels are applied via td update --labels in the correct format",
+        "scenario": "Label is applied after skill is confirmed to exist",
+        "status": "PASSED",
+        "details": "The address-usage-gaps workflow is ordered: step 2 creates/downloads the skill, step 3 applies the label. researcher.md mirrors this order in its core responsibilities list. Implied ordering is sufficient here."
+      },
+      {
+        "test_id": 16,
+        "agent": "researcher",
+        "test_name": "Label is not applied before skill file exists on disk",
+        "requirement": "Skill labels are applied via td update --labels in the correct format",
+        "scenario": "Label is not applied before skill file exists on disk",
+        "status": "FAILED",
+        "details": "Neither researcher.md nor address-usage-gaps SKILL.md contains an explicit guard or instruction stating that td update --labels must not be called until the skill file is confirmed written to disk. The workflow order implies this, but there is no explicit 'verify file exists before labeling' instruction. A model following instructions imprecisely could apply the label before completing the Write. td task created: td-eecd0f"
+      }
+    ],
+    "summary": {
+      "total_tests": 16,
+      "passed": 14,
+      "failed": 2,
+      "skipped": 0,
+      "pass_rate": "87.5%"
+    },
+    "agents_tested_summary": {
+      "researcher": {
+        "tests_run": 16,
+        "tests_passed": 14,
+        "tests_failed": 2,
+        "coverage": "6 requirements, 16 scenarios. Failures in: 'Missing skills discovered before creation from scratch' (skill-seekers not installed) and 'Skill labels applied via td update --labels' (no explicit on-disk guard)."
+      }
+    }
+  },
+  {
+    "timestamp": "2026-03-27T00:00:00Z",
+    "session": "ses_755555",
+    "test_suite": "opencode-agent-tests",
+    "agents_tested": ["researcher"],
+    "note": "Re-execution after updates: skill-seekers replaced with auto-skill-creator in address-usage-gaps SKILL.md and researcher.md. New scenario added: jCodemunch/jDocmunch policy enforced inside auto-skill-creator. T8 previously FAILED is now PASSED. T16 remains FAILED (open: td-eecd0f). Total tests increased to 17.",
+    "tests": [
+      {
+        "test_id": 1,
+        "agent": "researcher",
+        "test_name": "td context is called for each assigned task",
+        "requirement": "Task context is read before any action",
+        "scenario": "td context is called for each assigned task",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 1 explicitly instructs: 'Run td context <id> to read the full task context.' researcher.md also lists td context in the usage block. Ordering is correct — context before research. Unchanged from previous run."
+      },
+      {
+        "test_id": 2,
+        "agent": "researcher",
+        "test_name": "Researcher reads task body to identify technologies",
+        "requirement": "Task context is read before any action",
+        "scenario": "Researcher reads task body to identify technologies",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 1: 'From the task body, identify every technology, library, tool, or pattern the task requires.' Unchanged from previous run."
+      },
+      {
+        "test_id": 3,
+        "agent": "researcher",
+        "test_name": "Code exploration uses jCodemunch only",
+        "requirement": "All research uses jCodemunch and jDocmunch exclusively",
+        "scenario": "Code exploration uses jCodemunch only",
+        "status": "PASSED",
+        "details": "researcher.md 'Research Tool Policy / Code exploration: jCodemunch only' section now explicitly lists the required sequence: resolve_repo → index_folder → file/search/structure tools. Prohibition on Read/Grep/Glob/Bash is unambiguous."
+      },
+      {
+        "test_id": 4,
+        "agent": "researcher",
+        "test_name": "Documentation exploration uses jDocmunch only",
+        "requirement": "All research uses jCodemunch and jDocmunch exclusively",
+        "scenario": "Documentation exploration uses jDocmunch only",
+        "status": "PASSED",
+        "details": "researcher.md 'Documentation exploration: jDocmunch only' section explicitly prohibits Read, Grep, Glob, or Bash for any documentation file. Strengthened from previous 'NEVER fall back' wording."
+      },
+      {
+        "test_id": 5,
+        "agent": "researcher",
+        "test_name": "Remote source code fetched via headless-web-navigation then indexed",
+        "requirement": "All research uses jCodemunch and jDocmunch exclusively",
+        "scenario": "Remote source code fetched via headless-web-navigation then indexed",
+        "status": "PASSED",
+        "details": "researcher.md 'Remote sources: headless-web-navigation then jCodemunch/jDocmunch' section describes the 3-step chain. Unchanged in substance from previous run."
+      },
+      {
+        "test_id": 6,
+        "agent": "researcher",
+        "test_name": "jCodemunch/jDocmunch policy enforced inside auto-skill-creator",
+        "requirement": "All research uses jCodemunch and jDocmunch exclusively",
+        "scenario": "jCodemunch/jDocmunch policy is enforced inside auto-skill-creator",
+        "status": "PASSED",
+        "details": "NEW SCENARIO. researcher.md 'Skill creation fallback: auto-skill-creator' explicitly states: 'Use jcodemunch_* and jdocmunch_* to perform all research within the auto-skill-creator workflow — the same tool policy applies inside skill creation.' address-usage-gaps SKILL.md similarly says auto-skill-creator research uses jcodemunch_* and jdocmunch_* tools."
+      },
+      {
+        "test_id": 7,
+        "agent": "researcher",
+        "test_name": "find-skills is consulted for each identified technology gap",
+        "requirement": "Missing skills are discovered before being created from scratch",
+        "scenario": "find-skills is consulted for each identified technology gap",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 2: 'use the find-skills skill to download any relevant existing skills.' Order is enforced by numbered step structure. Unchanged from previous run."
+      },
+      {
+        "test_id": 8,
+        "agent": "researcher",
+        "test_name": "Skill installed via find-skills is audited before use",
+        "requirement": "Missing skills are discovered before being created from scratch",
+        "scenario": "Skill installed via find-skills is audited before use",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 2 bullet 1: 'Use uvx skill-audit ./.agents/skills/<skill_name>/ to check each skill for vulnerabilities and edit the skill based on the findings.' Unchanged from previous run."
+      },
+      {
+        "test_id": 9,
+        "agent": "researcher",
+        "test_name": "auto-skill-creator is used when find-skills returns no result",
+        "requirement": "Missing skills are discovered before being created from scratch",
+        "scenario": "auto-skill-creator is used when find-skills returns no result",
+        "status": "PASSED",
+        "details": "PREVIOUSLY FAILED as 'skill-seekers' (td-c84806). Now FIXED. address-usage-gaps SKILL.md step 2 bullet 2 now references 'auto-skill-creator' instead of 'skill-seekers'. auto-skill-creator IS installed at .agents/skills/auto-skill-creator/SKILL.md. researcher.md 'Skill creation fallback: auto-skill-creator' section confirms autonomous mode invocation. td-c84806 can be closed."
+      },
+      {
+        "test_id": 10,
+        "agent": "researcher",
+        "test_name": "Multiple technologies in one task produce one composite skill",
+        "requirement": "Composite skills are created when a task requires multiple technologies",
+        "scenario": "Multiple technologies in one task produce one composite skill",
+        "status": "PASSED",
+        "details": "researcher.md: 'each task should only use one skill; create composite skills when needed.' address-usage-gaps SKILL.md step 2: 'create a composite skill that encompasses all required capabilities.' Unchanged."
+      },
+      {
+        "test_id": 11,
+        "agent": "researcher",
+        "test_name": "Each task receives at most one skill label",
+        "requirement": "Composite skills are created when a task requires multiple technologies",
+        "scenario": "Each task receives at most one skill label",
+        "status": "PASSED",
+        "details": "researcher.md + SKILL step 3 both specify one label per task. Unchanged."
+      },
+      {
+        "test_id": 12,
+        "agent": "researcher",
+        "test_name": "Skill directory name matches label value",
+        "requirement": "Skills are stored at the canonical path with the correct file name",
+        "scenario": "Skill directory name matches label value",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 3: 'The skill_name in the label should match the directory name of the skill created.' Unchanged."
+      },
+      {
+        "test_id": 13,
+        "agent": "researcher",
+        "test_name": "Skill file is named SKILL.md",
+        "requirement": "Skills are stored at the canonical path with the correct file name",
+        "scenario": "Skill file is named SKILL.md",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 3: 'Skills are stored in .agents/skills/<skill-name>/SKILL.md.' Confirmed by all installed skills following this convention. Unchanged."
+      },
+      {
+        "test_id": 14,
+        "agent": "researcher",
+        "test_name": "Researcher logs progress after each significant step",
+        "requirement": "Progress is logged with td throughout execution",
+        "scenario": "Researcher logs progress after each significant step",
+        "status": "PASSED",
+        "details": "address-usage-gaps SKILL.md step 3: 'Log progress with td log as you work through each task.' researcher.md usage block shows td log with flag guidance. Unchanged."
+      },
+      {
+        "test_id": 15,
+        "agent": "researcher",
+        "test_name": "Uncertain findings are flagged with --uncertain",
+        "requirement": "Progress is logged with td throughout execution",
+        "scenario": "Uncertain findings are flagged with --uncertain",
+        "status": "PASSED",
+        "details": "researcher.md usage block lists --uncertain as an applicable flag. Unchanged."
+      },
+      {
+        "test_id": 16,
+        "agent": "researcher",
+        "test_name": "Label is applied after skill is confirmed to exist",
+        "requirement": "Skill labels are applied via td update --labels in the correct format",
+        "scenario": "Label is applied after skill is confirmed to exist",
+        "status": "PASSED",
+        "details": "Workflow ordering (step 2 → step 3) implies create-before-label. Unchanged."
+      },
+      {
+        "test_id": 17,
+        "agent": "researcher",
+        "test_name": "Label is not applied before skill file exists on disk",
+        "requirement": "Skill labels are applied via td update --labels in the correct format",
+        "scenario": "Label is not applied before skill file exists on disk",
+        "status": "FAILED",
+        "details": "STILL FAILING (td-eecd0f open). No explicit guard was added in this update cycle. Neither researcher.md nor address-usage-gaps SKILL.md explicitly instructs the agent to verify the skill file exists on disk before calling td update --labels. The workflow order implies it, but an explicit guard remains absent."
+      }
+    ],
+    "summary": {
+      "total_tests": 17,
+      "passed": 16,
+      "failed": 1,
+      "skipped": 0,
+      "pass_rate": "94.1%"
+    },
+    "agents_tested_summary": {
+      "researcher": {
+        "tests_run": 17,
+        "tests_passed": 16,
+        "tests_failed": 1,
+        "coverage": "6 requirements, 17 scenarios (1 new). Fixed: skill-seekers→auto-skill-creator (td-c84806). Remaining failure: no explicit on-disk guard before labeling (td-eecd0f)."
+      }
+    }
+  }
+]

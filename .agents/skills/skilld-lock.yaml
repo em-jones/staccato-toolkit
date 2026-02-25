@@ -1,0 +1,8 @@
+skills:
+  gridstack-skilld:
+    packageName: gridstack
+    version: 12.4.2
+    repo: gridstack/gridstack.js
+    source: "https://github.com/gridstack/gridstack.js/tree/v12.4.2/docs"
+    syncedAt: 2026-03-26
+    generator: skilld

@@ -1,0 +1,208 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "st-workloads-bootstrap.fullname" . }}-test
+  namespace: vela-system
+  labels:
+    {{- include "st-workloads-bootstrap.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "st-workloads-bootstrap.fullname" . }}-test
+  labels:
+    {{- include "st-workloads-bootstrap.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces", "secrets", "pods"]
+    verbs: ["get", "list", "create", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list"]
+  - apiGroups: ["core.oam.dev"]
+    resources: ["applications", "componentdefinitions"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "st-workloads-bootstrap.fullname" . }}-test
+  labels:
+    {{- include "st-workloads-bootstrap.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "st-workloads-bootstrap.fullname" . }}-test
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "st-workloads-bootstrap.fullname" . }}-test
+    namespace: vela-system
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "st-workloads-bootstrap.fullname" . }}-test
+  namespace: vela-system
+  labels:
+    {{- include "st-workloads-bootstrap.labels" . | nindent 4 }}
+    app.kubernetes.io/component: test
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  serviceAccountName: {{ include "st-workloads-bootstrap.fullname" . }}-test
+  containers:
+    - name: validate
+      image: {{ .Values.addon.job.image }}
+      imagePullPolicy: {{ .Values.addon.job.imagePullPolicy }}
+      command:
+        - sh
+        - -ec
+        - |
+          PASS=0
+          FAIL=0
+          TEST_NS="helm-test-reflector-$$"
+
+          ok()   { echo "  [PASS] $*"; PASS=$((PASS+1)); }
+          fail() { echo "  [FAIL] $*"; FAIL=$((FAIL+1)); }
+
+          wait_deploy() {
+            local ns="$1" name="$2" timeout="${3:-120}"
+            local elapsed=0
+            until kubectl rollout status "deployment/${name}" -n "${ns}" --timeout=5s \
+                    >/dev/null 2>&1; do
+              [ "$elapsed" -ge "$timeout" ] && return 1
+              sleep 5; elapsed=$((elapsed+5))
+            done
+            return 0
+          }
+
+          # ────────────────────────────────────────────────────────────────
+          # CHECK 1 — Harbor instance is running
+          # ────────────────────────────────────────────────────────────────
+          echo ""
+          echo "Check 1: Harbor instance is running"
+          if wait_deploy harbor harbor-core 180; then
+            ok "harbor-core Deployment is ready in namespace 'harbor'"
+          else
+            fail "harbor-core Deployment not ready after 180s"
+          fi
+
+          # ────────────────────────────────────────────────────────────────
+          # CHECK 2 — harbor-oci-credentials exists in flux-system with
+          #           the correct reflector annotations
+          # ────────────────────────────────────────────────────────────────
+          echo ""
+          echo "Check 2: harbor-oci-credentials has reflector annotations"
+          SECRET_JSON=$(kubectl get secret harbor-oci-credentials \
+            -n flux-system -o json 2>/dev/null) || true
+
+          if [ -z "${SECRET_JSON}" ]; then
+            fail "Secret flux-system/harbor-oci-credentials not found"
+          else
+            ok "Secret flux-system/harbor-oci-credentials exists"
+
+            check_annotation() {
+              local key="$1" expected="$2"
+              local got
+              got=$(printf '%s' "${SECRET_JSON}" | \
+                kubectl get secret harbor-oci-credentials -n flux-system \
+                  -o "jsonpath={.metadata.annotations.${key}}" 2>/dev/null || true)
+              if [ "${got}" = "${expected}" ]; then
+                ok "annotation ${key}=${expected}"
+              else
+                fail "annotation ${key}: got '${got}', want '${expected}'"
+              fi
+            }
+
+            # Use kubectl jsonpath directly (no jq dependency)
+            ALLOWED=$(kubectl get secret harbor-oci-credentials -n flux-system \
+              -o 'jsonpath={.metadata.annotations.reflector\.v1\.k8s\.emberstack\.com/reflection-allowed}' \
+              2>/dev/null || true)
+            AUTO=$(kubectl get secret harbor-oci-credentials -n flux-system \
+              -o 'jsonpath={.metadata.annotations.reflector\.v1\.k8s\.emberstack\.com/reflection-auto-enabled}' \
+              2>/dev/null || true)
+
+            [ "${ALLOWED}" = "true" ] && \
+              ok "reflector.v1.k8s.emberstack.com/reflection-allowed=true" || \
+              fail "reflector.v1.k8s.emberstack.com/reflection-allowed not 'true' (got '${ALLOWED}')"
+
+            [ "${AUTO}" = "true" ] && \
+              ok "reflector.v1.k8s.emberstack.com/reflection-auto-enabled=true" || \
+              fail "reflector.v1.k8s.emberstack.com/reflection-auto-enabled not 'true' (got '${AUTO}')"
+          fi
+
+          # ────────────────────────────────────────────────────────────────
+          # CHECK 3 — Reflector controller is running
+          # ────────────────────────────────────────────────────────────────
+          echo ""
+          echo "Check 3: Reflector controller is running"
+          if wait_deploy reflector reflector 120; then
+            ok "reflector Deployment is ready in namespace 'reflector'"
+          else
+            fail "reflector Deployment not ready after 120s"
+          fi
+
+          # ────────────────────────────────────────────────────────────────
+          # CHECK 4 — flux-operator is running
+          # ────────────────────────────────────────────────────────────────
+          echo ""
+          echo "Check 4: flux-operator is running"
+          # flux-operator is deployed as release-name-flux-operator in flux-system
+          FLUX_DEPLOY=$(kubectl get deployments -n flux-system \
+            -l "app.kubernetes.io/name=flux-operator" \
+            -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+
+          if [ -n "${FLUX_DEPLOY}" ]; then
+            if wait_deploy flux-system "${FLUX_DEPLOY}" 120; then
+              ok "flux-operator Deployment '${FLUX_DEPLOY}' is ready in namespace 'flux-system'"
+            else
+              fail "flux-operator Deployment '${FLUX_DEPLOY}' not ready after 120s"
+            fi
+          else
+            fail "No Deployment with label app.kubernetes.io/name=flux-operator found in flux-system"
+          fi
+
+          # ────────────────────────────────────────────────────────────────
+          # CHECK 5 — harbor-oci-credentials is reflected into a new namespace
+          # ────────────────────────────────────────────────────────────────
+          echo ""
+          echo "Check 5: harbor-oci-credentials is reflected into newly created namespaces"
+
+          # Create a fresh namespace; reflector should mirror the secret within ~30s
+          kubectl create namespace "${TEST_NS}" 2>/dev/null || true
+
+          REFLECTED=""
+          ELAPSED=0
+          until [ -n "${REFLECTED}" ] || [ "${ELAPSED}" -ge 60 ]; do
+            REFLECTED=$(kubectl get secret harbor-oci-credentials \
+              -n "${TEST_NS}" --ignore-not-found 2>/dev/null || true)
+            [ -n "${REFLECTED}" ] && break
+            sleep 5; ELAPSED=$((ELAPSED+5))
+          done
+
+          if [ -n "${REFLECTED}" ]; then
+            ok "harbor-oci-credentials reflected into namespace '${TEST_NS}' within ${ELAPSED}s"
+          else
+            fail "harbor-oci-credentials NOT reflected into namespace '${TEST_NS}' after 60s"
+          fi
+
+          # Clean up the test namespace (best-effort)
+          kubectl delete namespace "${TEST_NS}" --ignore-not-found >/dev/null 2>&1 || true
+
+          # ────────────────────────────────────────────────────────────────
+          # Summary
+          # ────────────────────────────────────────────────────────────────
+          echo ""
+          echo "Results: ${PASS} passed, ${FAIL} failed"
+          [ "${FAIL}" -eq 0 ] && exit 0 || exit 1

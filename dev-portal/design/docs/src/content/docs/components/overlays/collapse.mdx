@@ -1,0 +1,38 @@
+---
+title: Collapse
+description: Toggleable content sections
+---
+
+## Usage
+
+Apply `.collapse` with `.collapse-title` and `.collapse-content`. Add `.collapse-open` to show expanded.
+
+```html
+<div class="collapse collapse-open">
+  <div class="collapse-title">
+    Click to expand
+    <span class="collapse-arrow">▼</span>
+  </div>
+  <div class="collapse-content">Hidden content revealed here</div>
+</div>
+```
+
+## Style modifiers
+
+| Class                | Description                             |
+| -------------------- | --------------------------------------- |
+| `.collapse-bordered` | Thicker border                          |
+| `.collapse-glass`    | Glassmorphism effect with backdrop blur |
+| `.collapse-plus`     | Plus/minus toggle icon                  |
+| `.collapse-hover`    | Hover effect on title                   |
+
+```html
+<div class="collapse collapse-bordered collapse-open">
+  <div class="collapse-title">Bordered</div>
+  <div class="collapse-content">Content inside a bordered collapse</div>
+</div>
+<div class="collapse collapse-plus collapse-open">
+  <div class="collapse-title">Plus/Minus Toggle</div>
+  <div class="collapse-content">Content with plus/minus icon</div>
+</div>
+```

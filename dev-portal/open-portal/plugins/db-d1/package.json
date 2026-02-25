@@ -1,0 +1,31 @@
+{
+  "name": "@op-plugin/db-d1",
+  "version": "0.0.0",
+  "description": "Cloudflare D1 driver for OpenPort. Uses drizzle-orm/d1.",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "check": "vp check",
+    "prepublishOnly": "vp run build"
+  },
+  "dependencies": {
+    "@op/platform": "workspace:*",
+    "drizzle-orm": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.0.0",
+    "@types/node": "^25.5.0",
+    "drizzle-kit": "catalog:",
+    "typescript": "^5.9.3",
+    "vite-plus": "^0.1.11"
+  }
+}

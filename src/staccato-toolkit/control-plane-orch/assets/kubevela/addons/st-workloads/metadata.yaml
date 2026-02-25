@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=http://json-schema.org/draft-04/schema#
+name: st-workloads
+version: 0.1.0
+description: >
+  The st-environment addon provisions a complete GitOps-managed environment. It installs the
+  ControlPlane Flux Operator, creates a FluxInstance wired to the configured OCI/Git source,
+  registers platform capabilities (cert-manager, external-secrets, observability, reloader) as
+  GitRepository sources via a ResourceSet, and creates per-system ResourceSets for workload
+  reconciliation.
+icon: https://fluxcd.io/img/flux-icon-color.png
+url: https://github.com/controlplaneio-fluxcd/flux-operator
+tags:
+  - gitops
+  - flux
+  - staccato-toolkit
+  - environment
+system:
+  vela: ">=v1.10.0"
+  kubernetes: ">=1.25.0-0"
+deployTo:
+  control_plane: true
+  runtime_cluster: true

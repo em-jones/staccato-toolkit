@@ -1,0 +1,25 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: authorization-duck-iam
+  title: Authorization Duck IAM
+  description: Gentle Duck IAM-based authorization plugin for the developer portal
+  annotations:
+    backstage.io/techdocs-ref: dir:../../src/dev-portal/open-portal/plugins/authorization-duck-iam
+    backstage.io/adr-location: ../../src/dev-portal/open-portal/plugins/authorization-duck-iam/docs/adrs
+  tags:
+    - authorization
+    - duck-iam
+    - plugin
+    - access-control
+  links:
+    - url: https://github.com/staccato-toolkit/staccato-toolkit
+      title: Repository
+      icon: github
+spec:
+  type: library
+  lifecycle: production
+  owner: platform-team
+  system: developer-platform
+  dependsOn:
+    - component:auth-core

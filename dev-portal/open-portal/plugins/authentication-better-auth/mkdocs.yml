@@ -1,0 +1,19 @@
+site_name: Authentication Better Auth
+site_description: Better Auth authentication strategy for the developer portal
+
+docs_dir: docs
+site_dir: site
+
+nav:
+  - Home: index.md
+  - Configuration: configuration.md
+  - ADRs: adrs/
+
+theme:
+  name: material
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true

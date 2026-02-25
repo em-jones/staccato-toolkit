@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: adrs
+  title: Architectural Decision Records
+  description: Repository and management system for architectural decisions across the platform
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - architecture
+    - documentation
+    - decisions
+spec:
+  type: library
+  lifecycle: production
+  owner: platform-team
+  system: developer-platform

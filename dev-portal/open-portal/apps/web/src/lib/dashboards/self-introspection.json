@@ -1,0 +1,77 @@
+{
+  "id": "openport-self-introspection",
+  "title": "OpenPort: Self-Introspection",
+  "description": "Built-in observability dashboard for the OpenPort application itself.",
+  "version": 1,
+  "panels": [
+    {
+      "id": "http-request-rate",
+      "title": "HTTP Request Rate",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "query": {
+        "metric": "http.server.request.duration",
+        "aggregation": "rate",
+        "groupBy": ["http.route", "http.method"],
+        "window": "5m"
+      },
+      "unit": "req/s"
+    },
+    {
+      "id": "p50-latency",
+      "title": "p50 Request Latency",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "query": {
+        "metric": "http.server.request.duration",
+        "aggregation": "p50",
+        "groupBy": ["http.route"],
+        "window": "5m"
+      },
+      "unit": "ms"
+    },
+    {
+      "id": "p95-latency",
+      "title": "p95 Request Latency",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "query": {
+        "metric": "http.server.request.duration",
+        "aggregation": "p95",
+        "groupBy": ["http.route"],
+        "window": "5m"
+      },
+      "unit": "ms"
+    },
+    {
+      "id": "error-rate",
+      "title": "Error Rate",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "query": {
+        "metric": "http.server.request.duration",
+        "aggregation": "rate",
+        "filter": { "http.response.status_code": "5xx" },
+        "groupBy": ["http.route"],
+        "window": "5m"
+      },
+      "unit": "err/s",
+      "thresholds": [
+        { "value": 0.01, "color": "yellow" },
+        { "value": 0.05, "color": "red" }
+      ]
+    },
+    {
+      "id": "active-sessions",
+      "title": "Active Sessions",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 16, "w": 6, "h": 4 },
+      "query": {
+        "metric": "openport.sessions.active",
+        "aggregation": "last",
+        "window": "1m"
+      },
+      "unit": "sessions"
+    }
+  ]
+}

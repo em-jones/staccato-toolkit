@@ -1,0 +1,57 @@
+---
+title: Skeleton
+description: Loading placeholder elements
+---
+
+## Usage
+
+Apply `.skeleton` to create animated loading placeholders.
+
+```html
+<div class="skeleton" style="width:200px;height:1rem"></div>
+```
+
+## Text variants
+
+| Class               | Description           |
+| ------------------- | --------------------- |
+| `.skeleton-text`    | Text placeholder line |
+| `.skeleton-text-xs` | Extra small text      |
+| `.skeleton-text-sm` | Small text            |
+| `.skeleton-text-md` | Medium text           |
+| `.skeleton-text-lg` | Large text            |
+
+```html
+<div class="skeleton skeleton-text-xs"></div>
+<div class="skeleton skeleton-text-sm"></div>
+<div class="skeleton skeleton-text"></div>
+<div class="skeleton skeleton-text-lg"></div>
+```
+
+## Element variants
+
+| Class              | Description                 |
+| ------------------ | --------------------------- |
+| `.skeleton-avatar` | Circular avatar placeholder |
+| `.skeleton-image`  | Image placeholder           |
+| `.skeleton-button` | Button placeholder          |
+| `.skeleton-card`   | Card placeholder            |
+
+```html
+<div class="skeleton skeleton-avatar"></div>
+<div class="skeleton skeleton-button"></div>
+<div class="skeleton skeleton-image" style="width:120px;height:80px"></div>
+```
+
+## Card skeleton
+
+```html
+<div class="skeleton skeleton-card" style="width:200px">
+  <div class="skeleton skeleton-image" style="height:120px"></div>
+  <div style="padding:0.75rem;display:flex;flex-direction:column;gap:0.5rem">
+    <div class="skeleton skeleton-text"></div>
+    <div class="skeleton skeleton-text-sm"></div>
+    <div class="skeleton skeleton-button" style="margin-top:0.25rem"></div>
+  </div>
+</div>
+```

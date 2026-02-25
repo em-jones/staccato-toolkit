@@ -1,0 +1,87 @@
+{
+  "name": "@op-plugin/solid-ui",
+  "version": "0.0.0",
+  "description": "A starter for creating a TypeScript package.",
+  "homepage": "https://github.com/author/library#readme",
+  "bugs": {
+    "url": "https://github.com/author/library/issues"
+  },
+  "license": "MIT",
+  "author": "Author Name <author.name@mail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/author/library.git"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "solid": "./src/index.ts",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
+    },
+    "./search": {
+      "solid": "./src/search/index.ts",
+      "import": "./dist/search/index.mjs",
+      "default": "./dist/search/index.mjs"
+    },
+    "./package.json": "./package.json",
+    "./styles.css": {
+      "import": "./dist/styles.css",
+      "default": "./dist/styles.css"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack && bun run build:lib && bun run build:css",
+    "build:lib": "vite build --config vite.lib.config.ts",
+    "build:css": "vite build --config vite.css.config.ts && rm -f ./dist/styles.js",
+    "dev": "vp pack --watch",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "vp run build"
+  },
+  "dependencies": {
+    "@codemirror/autocomplete": "^6.18.3",
+    "@codemirror/commands": "^6.7.1",
+    "@codemirror/language": "^6.10.8",
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/view": "^6.36.2",
+    "@lezer/highlight": "^1.2.1",
+    "@lezer/lr": "^1.4.2",
+    "@op-plugin/auth-core": "workspace:*",
+    "@op-plugin/catalog": "workspace:*",
+    "@op-plugin/core-ui": "workspace:*",
+    "@op/platform": "workspace:*",
+    "@op/tailwind-config": "workspace:*",
+    "@tanstack/solid-store": "catalog:",
+    "codemirror": "^6.0.1",
+    "d3": "^7.9.0",
+    "solid-codemirror": "^2.3.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "catalog:",
+    "@types/d3": "^7.4.3",
+    "@types/node": "^25.5.0",
+    "@typescript/native-preview": "7.0.0-dev.20260328.1",
+    "bumpp": "^11.0.1",
+    "tailwindcss": "catalog:",
+    "typescript": "^6.0.2",
+    "vite": "catalog:",
+    "vite-plugin-solid": "catalog:",
+    "vite-plus": "^0.1.14"
+  },
+  "peerDependencies": {
+    "@nanostores/solid": "^0.4.2",
+    "@op-plugin/core-ui": "*",
+    "@tanstack/solid-form": "*",
+    "@tanstack/solid-query": "*",
+    "@tanstack/solid-router": "*",
+    "solid-js": "^1.9.0"
+  }
+}

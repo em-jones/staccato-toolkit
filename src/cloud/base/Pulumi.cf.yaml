@@ -1,0 +1,20 @@
+config:
+  cf:cf_zone_id:
+    description: Cloudflare Zone ID
+  cf:domain:
+    description: Domain name to create DNS records for
+  cf:cluster_name:
+    description: Kubernetes cluster name
+    default: my-cluster
+  cf:cluster_region:
+    description: DigitalOcean region
+    default: nyc1
+  cf:cluster_version:
+    description: Kubernetes version
+    default: "1.30"
+  cf:cluster_node_count:
+    description: Number of worker nodes
+    default: "2"
+  cf:cluster_node_size:
+    description: Droplet size
+    default: s-2vcpu-2gb

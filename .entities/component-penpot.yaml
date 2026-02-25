@@ -1,0 +1,31 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: penpot
+  title: Penpot Design Platform
+  description: >
+    Open-source, self-hosted UI/UX design and prototyping platform for collaborative design work.
+    Deployed via Garden + Helm on kind-staccato-dev in the penpot namespace.
+    Accessible at http://localhost:3000 via Garden port-forward.
+  annotations:
+    garden.io/deploy-action: penpot
+  links:
+    - url: http://localhost:3000
+      title: Penpot Web UI (local dev)
+      icon: dashboard
+    - url: https://help.penpot.app/technical-guide/configuration/
+      title: Penpot Documentation
+      icon: docs
+    - url: https://github.com/penpot/penpot-helm
+      title: Penpot Helm Chart
+      icon: github
+  tags:
+    - design
+    - ui-ux
+    - self-hosted
+    - platform
+spec:
+  type: service
+  lifecycle: experimental
+  owner: platform-architects
+  system: staccato-toolkit

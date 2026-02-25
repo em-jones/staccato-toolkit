@@ -1,0 +1,65 @@
+---
+title: Navbar
+description: Navigation bar layouts
+---
+
+## Usage
+
+Apply `.navbar` with `.navbar-start`, `.navbar-center`, and `.navbar-end` sections.
+
+```html
+<nav class="navbar">
+  <div class="navbar-start">
+    <a href="#" class="navbar-title">Brand</a>
+  </div>
+  <div class="navbar-center">
+    <a href="#" class="navbar-item">Home</a>
+    <a href="#" class="navbar-item">About</a>
+    <a href="#" class="navbar-item">Docs</a>
+  </div>
+  <div class="navbar-end">
+    <button class="btn btn-primary btn-sm">Login</button>
+  </div>
+</nav>
+```
+
+## Sizes
+
+| Class        | Description      |
+| ------------ | ---------------- |
+| `.navbar-xs` | Extra small      |
+| `.navbar-sm` | Small            |
+| `.navbar-md` | Medium (default) |
+| `.navbar-lg` | Large            |
+
+```html
+<nav class="navbar navbar-sm">
+  <div class="navbar-start">
+    <a href="#" class="navbar-title">Small Navbar</a>
+  </div>
+  <div class="navbar-end">
+    <a href="#" class="navbar-item">Link</a>
+  </div>
+</nav>
+<nav class="navbar navbar-lg">
+  <div class="navbar-start">
+    <a href="#" class="navbar-title">Large Navbar</a>
+  </div>
+  <div class="navbar-end">
+    <a href="#" class="navbar-item">Link</a>
+  </div>
+</nav>
+```
+
+## Glass effect
+
+```html
+<nav class="navbar navbar-glass" style="background:var(--color-primary)">
+  <div class="navbar-start">
+    <a href="#" class="navbar-title" style="color:var(--color-bg)">Glass Navbar</a>
+  </div>
+  <div class="navbar-end">
+    <a href="#" class="navbar-item" style="color:var(--color-bg)">Link</a>
+  </div>
+</nav>
+```

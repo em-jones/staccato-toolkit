@@ -1,0 +1,24 @@
+# src/staccato-toolkit/core
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: staccato-core
+  title: Staccato Core
+  description: Core business logic, data models, and interfaces for the staccato toolkit — lives at src/staccato-toolkit/core/
+  annotations:
+    backstage.io/techdocs-ref: dir:../../../../src/staccato-toolkit/core
+    backstage.io/adr-location: docs/adrs
+  tags:
+    - go
+    - core
+    - library
+    - staccato
+  links:
+    - url: https://github.com/org/openspec-td/tree/main/src/staccato-toolkit/core
+      title: Source
+      icon: github
+spec:
+  type: library
+  lifecycle: experimental
+  owner: platform-team
+  system: developer-platform

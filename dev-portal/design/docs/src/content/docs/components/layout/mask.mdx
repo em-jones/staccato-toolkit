@@ -1,0 +1,49 @@
+---
+title: Mask
+description: Image and element shaping
+---
+
+## Usage
+
+Apply `.mask` with a shape modifier to clip images or elements.
+
+```html
+<div
+  class="mask mask-squircle"
+  style="width:80px;height:80px;background:var(--color-primary);display:flex;align-items:center;justify-content:center;color:var(--color-bg)"
+>
+  Squircle
+</div>
+```
+
+## Shape variants
+
+| Class                 | Description      |
+| --------------------- | ---------------- |
+| `.mask-squircle`      | Super ellipse    |
+| `.mask-decagon`       | 10-sided polygon |
+| `.mask-diamond`       | Diamond shape    |
+| `.mask-heart`         | Heart shape      |
+| `.mask-hexagon`       | Hexagon          |
+| `.mask-octagon`       | 8-sided polygon  |
+| `.mask-parallelogram` | Parallelogram    |
+| `.mask-pentagon`      | Pentagon         |
+| `.mask-triangle`      | Triangle         |
+
+```html
+<div
+  class="mask mask-squircle"
+  style="width:64px;height:64px;background:var(--color-primary)"
+></div>
+<div
+  class="mask mask-diamond"
+  style="width:64px;height:64px;background:var(--color-secondary)"
+></div>
+<div class="mask mask-heart" style="width:64px;height:64px;background:var(--color-error)"></div>
+<div class="mask mask-hexagon" style="width:64px;height:64px;background:var(--color-accent)"></div>
+<div class="mask mask-octagon" style="width:64px;height:64px;background:var(--color-warning)"></div>
+<div
+  class="mask mask-triangle"
+  style="width:64px;height:64px;background:var(--color-primary)"
+></div>
+```

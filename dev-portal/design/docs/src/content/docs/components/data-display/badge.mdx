@@ -1,0 +1,66 @@
+---
+title: Badge
+description: Small status indicators and labels
+---
+
+## Usage
+
+Apply `.badge` inline next to text or inside other elements.
+
+```html
+<span class="badge">Default</span>
+<span class="badge badge-primary">Primary</span>
+<span class="badge badge-secondary">Secondary</span>
+<span class="badge badge-accent">Accent</span>
+<span class="badge badge-warning">Warning</span>
+<span class="badge badge-error">Error</span>
+<span class="badge badge-green">Green</span>
+```
+
+## Color variants
+
+| Class             | Description                        |
+| ----------------- | ---------------------------------- |
+| _(default)_       | Neutral surface color              |
+| `badge-primary`   | Brand color                        |
+| `badge-secondary` | Muted                              |
+| `badge-accent`    | Accent color                       |
+| `badge-warning`   | Amber — caution                    |
+| `badge-error`     | Red — error or destructive         |
+| `badge-green`     | Green — success or positive status |
+
+## Outline modifier
+
+```html
+<span class="badge badge-outline badge-primary">Draft</span>
+<span class="badge badge-outline badge-secondary">Review</span>
+<span class="badge badge-outline badge-accent">New</span>
+<span class="badge badge-outline badge-error">Blocked</span>
+```
+
+## Sizes
+
+| Class       | Description               |
+| ----------- | ------------------------- |
+| `badge-xs`  | Extra small (h: 0.875rem) |
+| `badge-sm`  | Small (h: 1.125rem)       |
+| _(default)_ | Medium (h: 1.25rem)       |
+| `badge-lg`  | Large (h: 1.5rem)         |
+
+```html
+<span class="badge badge-primary badge-xs">XS</span>
+<span class="badge badge-primary badge-sm">SM</span>
+<span class="badge badge-primary">MD</span>
+<span class="badge badge-primary badge-lg">LG</span>
+```
+
+## Inside other elements
+
+```html
+<button class="btn btn-ghost">
+  Notifications <span class="badge badge-primary badge-sm">4</span>
+</button>
+<button class="btn btn-outline btn-error">
+  Errors <span class="badge badge-error badge-sm">12</span>
+</button>
+```

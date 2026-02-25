@@ -1,0 +1,46 @@
+apiVersion: garden.io/v0
+kind: Run
+type: exec
+name: start-kind-cluster
+description: Create the staccato-dev kind cluster (if not exists) and install Kube
+source:
+  path: ../
+spec:
+  command:
+    - task
+    - cluster:start
+---
+apiVersion: garden.io/v0
+kind: Deploy
+type: helm
+name: st-control-plane
+description: >
+  Install KubeVela core + st-workloads addon (Harbor, flux-operator, Reflector,
+  harbor-oci-credentials) via the st-workloads-bootstrap Helm chart.
+dependencies:
+  - run.start-kind-cluster
+source:
+  path: ../../
+include:
+  - charts/st-workloads-bootstrap/**/*
+  - src/staccato-toolkit/control-plane-orch/assets/kubevela/addons/st-workloads/**/*.cue
+  - src/staccato-toolkit/control-plane-orch/assets/kubevela/addons/st-workloads/template.yaml
+spec:
+  releaseName: st-workloads-bootstrap
+  namespace: vela-system
+  chart:
+    path: charts/st-workloads-bootstrap
+  values:
+    harbor:
+      adminPassword: ${var.harborAdminPassword || "Harbor12345"}
+  timeout: 600
+---
+apiVersion: garden.io/v0
+kind: Deploy
+type: kubernetes
+name: ops-environment
+dependencies:
+  - deploy.st-control-plane
+spec:
+  manifestFiles:
+    - ./ops/*.yaml

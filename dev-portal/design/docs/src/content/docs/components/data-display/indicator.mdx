@@ -1,0 +1,162 @@
+---
+title: Indicator
+description: Floating badges and status dots anchored to a container element
+---
+
+## Usage
+
+Wrap the target element with `.indicator` and place `.indicator-item` inside it. By default the
+badge anchors to the **top-end** corner.
+
+```html
+<div class="indicator">
+  <button class="btn">Notifications</button>
+  <span class="indicator-item">3</span>
+</div>
+```
+
+## Position classes
+
+Combine one vertical and one horizontal modifier on `.indicator-item` to control placement.
+
+| Class               | Axis       | Description          |
+| ------------------- | ---------- | -------------------- |
+| `.indicator-top`    | vertical   | Align to top edge    |
+| `.indicator-middle` | vertical   | Center vertically    |
+| `.indicator-bottom` | vertical   | Align to bottom edge |
+| `.indicator-start`  | horizontal | Align to left edge   |
+| `.indicator-center` | horizontal | Center horizontally  |
+| `.indicator-end`    | horizontal | Align to right edge  |
+
+## Top row
+
+### Top start
+
+```html
+<div class="indicator">
+  <button class="btn">Inbox</button>
+  <span class="indicator-item indicator-top indicator-start badge badge-error">!</span>
+</div>
+```
+
+### Top center
+
+```html
+<div class="indicator">
+  <button class="btn">Updates</button>
+  <span class="indicator-item indicator-top indicator-center badge badge-primary">5</span>
+</div>
+```
+
+### Top end (default)
+
+```html
+<div class="indicator">
+  <button class="btn">Notifications</button>
+  <span class="indicator-item indicator-top indicator-end badge badge-primary">9+</span>
+</div>
+```
+
+## Middle row
+
+### Middle start
+
+```html
+<div class="indicator">
+  <button class="btn">Messages</button>
+  <span class="indicator-item indicator-middle indicator-start badge badge-accent">2</span>
+</div>
+```
+
+### Middle center
+
+```html
+<div class="indicator">
+  <button class="btn">Activity</button>
+  <span class="indicator-item indicator-middle indicator-center badge badge-warning">!</span>
+</div>
+```
+
+### Middle end
+
+```html
+<div class="indicator">
+  <button class="btn">Alerts</button>
+  <span class="indicator-item indicator-middle indicator-end badge badge-error">7</span>
+</div>
+```
+
+## Bottom row
+
+### Bottom start
+
+```html
+<div class="indicator">
+  <button class="btn">Queue</button>
+  <span class="indicator-item indicator-bottom indicator-start badge badge-secondary">4</span>
+</div>
+```
+
+### Bottom center
+
+```html
+<div class="indicator">
+  <button class="btn">Tasks</button>
+  <span class="indicator-item indicator-bottom indicator-center badge badge-accent">New</span>
+</div>
+```
+
+### Bottom end
+
+```html
+<div class="indicator">
+  <button class="btn">Downloads</button>
+  <span class="indicator-item indicator-bottom indicator-end badge badge-green">✓</span>
+</div>
+```
+
+## Dot variant
+
+Add `.indicator-dot` to render a small dot instead of a labelled badge. Useful for presence or
+status indicators on avatars.
+
+```html
+<div class="indicator">
+  <div class="avatar avatar-lg">JD</div>
+  <span
+    class="indicator-item indicator-dot indicator-bottom indicator-end"
+    style="background: var(--color-accent); border: 2px solid var(--color-bg)"
+  ></span>
+</div>
+```
+
+### Dot positions
+
+```html
+<!-- Online (bottom-end) -->
+<div class="indicator">
+  <div class="avatar avatar-lg">AB</div>
+  <span
+    class="indicator-item indicator-dot indicator-bottom indicator-end"
+    style="background: var(--color-green); border: 2px solid var(--color-bg)"
+  ></span>
+</div>
+
+<!-- Busy (top-end) -->
+<div class="indicator">
+  <div class="avatar avatar-lg">CD</div>
+  <span
+    class="indicator-item indicator-dot indicator-top indicator-end"
+    style="background: var(--color-error); border: 2px solid var(--color-bg)"
+  ></span>
+</div>
+
+<!-- Away (top-start) -->
+<div class="indicator">
+  <div class="avatar avatar-lg">EF</div>
+  <span
+    class="indicator-item indicator-dot indicator-top indicator-start"
+    style="background: var(--color-warning); border: 2px solid var(--color-bg)"
+  ></span>
+</div>
+```

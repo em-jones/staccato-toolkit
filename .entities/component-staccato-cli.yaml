@@ -1,0 +1,25 @@
+# src/staccato-toolkit/cli
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: staccato-cli
+  title: Staccato CLI
+  description: User-facing command-line interface for the staccato toolkit — lives at src/staccato-toolkit/cli/
+  annotations:
+    backstage.io/techdocs-ref: dir:../../../../src/staccato-toolkit/cli
+    backstage.io/adr-location: docs/adrs
+  tags:
+    - go
+    - cli
+    - staccato
+  links:
+    - url: https://github.com/org/openspec-td/tree/main/src/staccato-toolkit/cli
+      title: Source
+      icon: github
+spec:
+  type: service
+  lifecycle: experimental
+  owner: platform-team
+  system: developer-platform
+  dependsOn:
+    - component:staccato-domain

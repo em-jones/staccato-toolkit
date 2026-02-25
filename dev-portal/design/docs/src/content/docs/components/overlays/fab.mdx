@@ -1,0 +1,81 @@
+---
+title: FAB
+description: Floating action buttons
+---
+
+## Usage
+
+Apply `.fab` to create a floating action button.
+
+```html
+<button class="fab fab-primary">+</button>
+```
+
+## Sizes
+
+| Class     | Size             |
+| --------- | ---------------- |
+| `.fab-xs` | 2rem             |
+| `.fab-sm` | 2.75rem          |
+| `.fab-md` | 3.5rem (default) |
+| `.fab-lg` | 4.5rem           |
+
+```html
+<button class="fab fab-primary fab-xs">+</button>
+<button class="fab fab-primary fab-sm">+</button>
+<button class="fab fab-primary fab-md">+</button>
+<button class="fab fab-primary fab-lg">+</button>
+```
+
+## Colors
+
+| Class            | Description     |
+| ---------------- | --------------- |
+| `.fab-primary`   | Primary color   |
+| `.fab-secondary` | Secondary color |
+| `.fab-accent`    | Accent color    |
+| `.fab-warning`   | Warning color   |
+| `.fab-error`     | Error color     |
+
+```html
+<button class="fab fab-primary">P</button>
+<button class="fab fab-secondary">S</button>
+<button class="fab fab-accent">A</button>
+<button class="fab fab-warning">W</button>
+<button class="fab fab-error">E</button>
+```
+
+## Style modifiers
+
+| Class          | Description   |
+| -------------- | ------------- |
+| `.fab-square`  | Square shape  |
+| `.fab-outline` | Outline style |
+| `.fab-ghost`   | Ghost style   |
+
+```html
+<button class="fab fab-primary fab-square">+</button>
+<button class="fab fab-primary fab-outline">+</button>
+<button class="fab fab-primary fab-ghost">+</button>
+```
+
+## Speed Dial
+
+Apply `.speed-dial` to create a floating button with expandable actions.
+
+```html
+<div
+  class="speed-dial speed-dial-bottom"
+  style="position:relative;height:180px;display:flex;align-items:flex-end;justify-content:center"
+>
+  <div
+    class="speed-dial-content"
+    style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;margin-bottom:0.5rem"
+  >
+    <button class="fab fab-secondary fab-sm">A</button>
+    <button class="fab fab-accent fab-sm">B</button>
+    <button class="fab fab-warning fab-sm">C</button>
+  </div>
+  <button class="fab fab-primary">+</button>
+</div>
+```

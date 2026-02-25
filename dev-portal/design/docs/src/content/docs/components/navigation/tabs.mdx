@@ -1,0 +1,157 @@
+---
+title: Tabs
+description: Tabbed navigation components
+---
+
+## Usage
+
+Use `.tabs` with `.tabs-list` for tab buttons and `.tabs-content` for the panel. Add `.tab-active` to the active tab.
+
+```html
+<div class="tabs">
+  <div class="tabs-list">
+    <button class="tab tab-active">Tab 1</button>
+    <button class="tab">Tab 2</button>
+    <button class="tab">Tab 3</button>
+  </div>
+  <div class="tabs-content">
+    <p>Content for the active tab panel</p>
+  </div>
+</div>
+```
+
+## Radio-based tabs (CSS-only toggle)
+
+For CSS-only tab toggling without JavaScript, use radio inputs. The content following a checked radio will be shown.
+
+```html
+<div class="tabs tabs-box">
+  <input type="radio" name="my_tabs" class="tab" aria-label="Tab 1" />
+  <div class="tab-content">Content for Tab 1</div>
+
+  <input type="radio" name="my_tabs" class="tab" aria-label="Tab 2" checked="checked" />
+  <div class="tab-content">Content for Tab 2</div>
+
+  <input type="radio" name="my_tabs" class="tab" aria-label="Tab 3" />
+  <div class="tab-content">Content for Tab 3</div>
+</div>
+```
+
+Note: Each tab group needs a unique `name` attribute for the radio inputs.
+
+## Pills variant
+
+```html
+<div class="tabs tabs-pills">
+  <div class="tabs-list">
+    <button class="tab tab-active">Overview</button>
+    <button class="tab">Details</button>
+    <button class="tab">Settings</button>
+  </div>
+</div>
+```
+
+## Tabs border variant
+
+```html
+<div class="tabs tabs-border">
+  <input type="radio" name="my_tabs_2" class="tab" aria-label="Tab 1" />
+  <div class="tab-content">Content 1</div>
+
+  <input type="radio" name="my_tabs_2" class="tab" aria-label="Tab 2" checked="checked" />
+  <div class="tab-content">Content 2</div>
+
+  <input type="radio" name="my_tabs_2" class="tab" aria-label="Tab 3" />
+  <div class="tab-content">Content 3</div>
+</div>
+```
+
+## Tabs lift variant
+
+```html
+<div class="tabs tabs-lift">
+  <input type="radio" name="my_tabs_3" class="tab" aria-label="Tab 1" />
+  <div class="tab-content">Content 1</div>
+
+  <input type="radio" name="my_tabs_3" class="tab" aria-label="Tab 2" checked="checked" />
+  <div class="tab-content">Content 2</div>
+
+  <input type="radio" name="my_tabs_3" class="tab" aria-label="Tab 3" />
+  <div class="tab-content">Content 3</div>
+</div>
+```
+
+## Tabs with icons
+
+```html
+<div class="tabs tabs-lift">
+  <label class="tab">
+    <input type="radio" name="my_tabs_4" />
+    <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.5"
+        d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+      />
+    </svg>
+    Live
+  </label>
+  <div class="tab-content">Tab content 1</div>
+
+  <label class="tab">
+    <input type="radio" name="my_tabs_4" checked="checked" />
+    <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.5"
+        d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+      />
+    </svg>
+    Details
+  </label>
+  <div class="tab-content">Tab content 2</div>
+</div>
+```
+
+## Outlined content area
+
+```html
+<div class="tabs">
+  <div class="tabs-list">
+    <button class="tab tab-active">Files</button>
+    <button class="tab">Settings</button>
+  </div>
+  <div class="tabs-content tabs-content-outlined">
+    <p>Content with an outlined border below the tabs</p>
+  </div>
+</div>
+```
+
+## Sizes
+
+Five sizes are available: `xs`, `sm`, `md` (default), `lg`, `xl`.
+
+```html
+<div class="tabs tabs-xs">
+  <div class="tabs-list">
+    <button class="tab tab-active">XS Tab</button>
+    <button class="tab">Other</button>
+  </div>
+</div>
+<div class="tabs tabs-lg">
+  <div class="tabs-list">
+    <button class="tab tab-active">LG Tab</button>
+    <button class="tab">Other</button>
+  </div>
+</div>
+```
+
+## Layout options
+
+| Class                 | Description        |
+| --------------------- | ------------------ |
+| `.tabs-list-centered` | Center the tabs    |
+| `.tabs-list-full`     | Equal-width tabs   |
+| `.tabs-bottom`        | Tabs below content |

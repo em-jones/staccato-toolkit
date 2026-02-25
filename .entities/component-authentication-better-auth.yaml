@@ -1,0 +1,25 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: authentication-better-auth
+  title: Authentication Better Auth
+  description: Better Auth authentication strategy for the developer portal
+  annotations:
+    backstage.io/techdocs-ref: dir:../../src/dev-portal/open-portal/plugins/authentication-better-auth
+    backstage.io/adr-location: ../../src/dev-portal/open-portal/plugins/authentication-better-auth/docs/adrs
+  tags:
+    - authentication
+    - better-auth
+    - plugin
+    - strategy
+  links:
+    - url: https://github.com/staccato-toolkit/staccato-toolkit
+      title: Repository
+      icon: github
+spec:
+  type: library
+  lifecycle: production
+  owner: platform-team
+  system: developer-platform
+  dependsOn:
+    - component:auth-core

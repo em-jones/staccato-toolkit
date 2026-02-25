@@ -1,0 +1,88 @@
+---
+title: Chat Bubble
+description: Chat message bubbles for conversation UIs
+---
+
+## Usage
+
+Wrap each message in `.chat`. Use `.chat-start` (default) for received messages and `.chat-end`
+for sent messages.
+
+```html
+<div class="chat">
+  <div class="chat-image avatar avatar-sm">JD</div>
+  <div class="chat-header">Jane Doe</div>
+  <div class="chat-bubble">Hey! Did you see the new deploy?</div>
+  <div class="chat-footer">10:32 AM</div>
+</div>
+```
+
+## Alignment
+
+| Class         | Description                        |
+| ------------- | ---------------------------------- |
+| `.chat-start` | Avatar on the left (default)       |
+| `.chat-end`   | Avatar on the right (sent message) |
+
+```html
+<div class="chat">
+  <div class="chat-image avatar avatar-sm">AB</div>
+  <div class="chat-header">Alice</div>
+  <div class="chat-bubble">Hey there!</div>
+  <div class="chat-footer">2:10 PM</div>
+</div>
+
+<div class="chat chat-end">
+  <div class="chat-image avatar avatar-sm">ME</div>
+  <div class="chat-bubble chat-bubble-primary">Hi! How's it going?</div>
+  <div class="chat-footer">2:11 PM · Delivered</div>
+</div>
+```
+
+## Color variants
+
+| Class                    | Description     |
+| ------------------------ | --------------- |
+| `.chat-bubble-primary`   | Primary color   |
+| `.chat-bubble-secondary` | Secondary color |
+| `.chat-bubble-accent`    | Accent color    |
+| `.chat-bubble-warning`   | Warning color   |
+| `.chat-bubble-error`     | Error color     |
+| `.chat-bubble-green`     | Green color     |
+
+```html
+<div class="chat">
+  <div class="chat-bubble">Default</div>
+</div>
+<div class="chat">
+  <div class="chat-bubble chat-bubble-primary">Primary</div>
+</div>
+<div class="chat">
+  <div class="chat-bubble chat-bubble-accent">Accent</div>
+</div>
+<div class="chat">
+  <div class="chat-bubble chat-bubble-error">Error</div>
+</div>
+```
+
+## Full conversation example
+
+```html
+<div class="chat">
+  <div class="chat-image avatar avatar-sm">JD</div>
+  <div class="chat-header">Jane · 10:30 AM</div>
+  <div class="chat-bubble">The pipeline just went red on staging. 😬</div>
+</div>
+
+<div class="chat chat-end">
+  <div class="chat-image avatar avatar-sm">ME</div>
+  <div class="chat-bubble chat-bubble-primary">On it — looks like a missing env var.</div>
+  <div class="chat-footer">10:31 AM · Seen</div>
+</div>
+
+<div class="chat">
+  <div class="chat-image avatar avatar-sm">JD</div>
+  <div class="chat-bubble">Thanks, deploying fix now.</div>
+  <div class="chat-footer">10:33 AM</div>
+</div>
+```

@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: dagger
+  title: dagger
+  description: Programmable CI/CD engine — runs pipelines as code in Go containers
+  tags:
+    - devbox
+    - cli
+    - ci-cd
+    - utility
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

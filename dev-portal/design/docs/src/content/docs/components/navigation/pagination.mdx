@@ -1,0 +1,107 @@
+---
+title: Pagination
+description: Page navigation with border-bottom active indicator
+---
+
+## Usage
+
+Apply `.paginator` with `.paginator-item` buttons. The active page uses a border-bottom with matching text color.
+
+```html
+<div class="paginator">
+  <button class="paginator-item">&laquo;</button>
+  <button class="paginator-item">1</button>
+  <button class="paginator-item">2</button>
+  <button class="paginator-item paginator-active">3</button>
+  <button class="paginator-item">4</button>
+  <button class="paginator-item">5</button>
+  <button class="paginator-item">&raquo;</button>
+</div>
+```
+
+## States
+
+| Class               | Description         |
+| ------------------- | ------------------- |
+| `.paginator-active` | Current/active page |
+| `:disabled`         | Disabled page       |
+
+```html
+<div class="paginator">
+  <button class="paginator-item" disabled>&laquo;</button>
+  <button class="paginator-item paginator-active">1</button>
+  <button class="paginator-item">2</button>
+  <button class="paginator-item">3</button>
+  <button class="paginator-item">&raquo;</button>
+</div>
+```
+
+## Go to Page (Ellipsis Popover)
+
+When there are more than 5 pages, use the `.paginator-ellipsis` button to trigger a popover that allows users to jump to a specific page.
+
+```html
+<div class="paginator">
+  <button class="paginator-item">1</button>
+  <button class="paginator-item">2</button>
+  <button class="paginator-item paginator-active">3</button>
+  <!-- Ellipsis triggers popover with "go to page" -->
+  <button
+    class="paginator-ellipsis"
+    onclick="document.getElementById('paginator-popover').classList.toggle('hidden')"
+  >
+    …
+  </button>
+  <button class="paginator-item">10</button>
+
+  <!-- Popover (positioned via dropdown pattern) -->
+  <div id="paginator-popover" class="hidden paginator-popover">
+    <input type="number" class="paginator-popover-input" min="1" max="10" placeholder="#" />
+    <button class="paginator-popover-go">Go</button>
+  </div>
+</div>
+```
+
+The popover contains:
+
+- `.paginator-popover-input` — number input for entering the page
+- `.paginator-popover-go` — button to confirm navigation
+
+## Sizes
+
+| Class           | Description      |
+| --------------- | ---------------- |
+| `.paginator-xs` | Extra small      |
+| `.paginator-sm` | Small            |
+| `.paginator-md` | Medium (default) |
+| `.paginator-lg` | Large            |
+
+```html
+<div class="paginator paginator-sm">
+  <button class="paginator-item">1</button>
+  <button class="paginator-item paginator-active">2</button>
+  <button class="paginator-item">3</button>
+</div>
+<div class="paginator paginator-lg">
+  <button class="paginator-item">1</button>
+  <button class="paginator-item paginator-active">2</button>
+  <button class="paginator-item">3</button>
+</div>
+```
+
+## Color Variants
+
+| Class                  | Description     |
+| ---------------------- | --------------- |
+| `.paginator-primary`   | Primary color   |
+| `.paginator-secondary` | Secondary color |
+| `.paginator-accent`    | Accent color    |
+| `.paginator-neutral`   | Neutral color   |
+
+```html
+<div class="paginator paginator-secondary">
+  <button class="paginator-item">1</button>
+  <button class="paginator-item paginator-active">2</button>
+  <button class="paginator-item">3</button>
+</div>
+```

@@ -1,0 +1,151 @@
+name: CI Pipeline
+
+# Trigger on push to default branch and on pull requests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  # Commit stage: fast quality checks (lint)
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Dagger
+        uses: dagger/dagger-for-github@v6
+        with:
+          version: "latest"
+
+      - name: Run lint task
+        run: dagger call lint --source ../..
+        working-directory: ./src/ops/workloads
+
+      - name: Run shellcheck task
+        run: dagger call shellcheck --source ../..
+        working-directory: ./src/ops/workloads
+
+      - name: Run markdown syntax lint task
+        run: dagger call lint-md --source ../..
+        working-directory: ./src/ops/workloads
+
+      - name: Run prose lint task
+        run: dagger call lint-prose --source ../..
+        working-directory: ./src/ops/workloads
+
+      - name: Run spell check task
+        run: dagger call spell-check --source ../..
+        working-directory: ./src/ops/workloads
+
+  # Commit stage: format check
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Dagger
+        uses: dagger/dagger-for-github@v6
+        with:
+          version: "latest"
+
+      - name: Run format check
+        run: dagger call format --source ../..
+        working-directory: ./src/ops/workloads
+
+      - name: Run shfmt check
+        run: dagger call shfmt-check --source ../..
+        working-directory: ./src/ops/workloads
+
+      - name: Run markdown format check
+        run: dagger call format-md --source ../..
+        working-directory: ./src/ops/workloads
+
+  # Commit stage: unit tests
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: [lint, format]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Dagger
+        uses: dagger/dagger-for-github@v6
+        with:
+          version: "latest"
+
+      - name: Run test task
+        run: dagger call test --source ../..
+        working-directory: ./src/ops/workloads
+
+  # Commit stage: build artifact
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Dagger
+        uses: dagger/dagger-for-github@v6
+        with:
+          version: "latest"
+
+      - name: Run build task
+        run: dagger call build --source ../..
+        working-directory: ./src/ops/workloads
+
+  # Link checking: runs separately to avoid blocking fast lint/format checks
+  links:
+    name: Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Dagger
+        uses: dagger/dagger-for-github@v6
+        with:
+          version: "latest"
+
+      - name: Run link check task
+        run: dagger call check-links --source ../..
+        working-directory: ./src/ops/workloads
+
+  # Example: Secrets handling pattern (commented for reference)
+  # Uncomment and adapt when secrets are needed
+  #
+  # with-secret:
+  #   name: Task with Secret
+  #   runs-on: ubuntu-latest
+  #   needs: [build]
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Set up Dagger
+  #       uses: dagger/dagger-for-github@v6
+  #       with:
+  #         version: "latest"
+  #
+  #     - name: Run task with secret
+  #       run: |
+  #         dagger call deploy \
+  #           --secret registry-token=env:REGISTRY_TOKEN
+  #       working-directory: ./src/ops/platform
+  #       env:
+  #         # Secret is passed from GitHub repository secrets
+  #         # The value never appears in logs due to dagger's secret API
+  #         REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+  #
+  # Important:
+  # - Always use `--secret name=env:VAR_NAME` to pass secrets to dagger
+  # - Reference secrets using `${{ secrets.SECRET_NAME }}` from GitHub secrets store
+  # - Never hardcode secret values in this file

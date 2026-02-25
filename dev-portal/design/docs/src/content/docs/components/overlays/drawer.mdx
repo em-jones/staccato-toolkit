@@ -1,0 +1,48 @@
+---
+title: Drawer
+description: Slide-out navigation panels
+---
+
+## Usage
+
+Apply `.drawer` to create a slide-out panel layout. Toggle via a checkbox.
+
+```html
+<div class="drawer">
+  <input type="checkbox" id="my-drawer" class="drawer-toggle" />
+
+  <div class="drawer-content">
+    <label for="my-drawer" class="btn">Open Drawer</label>
+    Main content here
+  </div>
+
+  <div class="drawer-side">
+    <label for="my-drawer" class="drawer-overlay"></label>
+    <div class="p-4" style="width: 16rem; background: var(--color-bg);">Sidebar content</div>
+  </div>
+</div>
+```
+
+### Drawer side panel structure
+
+```html
+<div
+  style="display: flex; gap: 0.5rem; align-items: stretch; height: 8rem; border: 1px solid var(--color-surface1); border-radius: 0.5rem; overflow: hidden;"
+>
+  <div
+    style="width: 10rem; background: var(--color-surface0); padding: 1rem; border-right: 1px solid var(--color-surface1);"
+  >
+    <div style="font-weight: 600; margin-bottom: 0.5rem;">Sidebar</div>
+    <div style="font-size: 0.875rem;">Navigation item</div>
+    <div style="font-size: 0.875rem;">Navigation item</div>
+  </div>
+  <div style="flex: 1; padding: 1rem;">Main content</div>
+</div>
+```
+
+## Position
+
+| Class           | Description              |
+| --------------- | ------------------------ |
+| `.drawer-start` | Drawer slides from left  |
+| `.drawer-end`   | Drawer slides from right |

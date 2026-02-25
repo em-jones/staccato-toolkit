@@ -1,0 +1,1 @@
+../../../../../openspec/changes/archive/2026-02-25-select-go-logging-library/design.md

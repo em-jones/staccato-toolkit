@@ -1,0 +1,116 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenPort Plugin Configuration API",
+    "description": "OpenAPI 3.1 specification generated from plugin serverConfig schemas. Each schema component describes the configuration structure for a plugin.",
+    "version": "0.0.1"
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "EventsS2Config": {
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "default": "http://localhost:9092"
+          },
+          "apiKey": {
+            "type": "string"
+          },
+          "basin": {
+            "type": "string"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 3000
+          }
+        },
+        "required": []
+      },
+      "WorkflowsHatchetConfig": {
+        "type": "object",
+        "properties": {
+          "serverUrl": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "workerName": {
+            "type": "string",
+            "default": "openport-worker"
+          }
+        },
+        "required": []
+      },
+      "DbBunConfig": {
+        "type": "object",
+        "properties": {
+          "databaseUrl": {
+            "type": "string",
+            "default": "dev.db"
+          }
+        },
+        "required": []
+      },
+      "AuthenticationBetterAuthConfig": {
+        "type": "object",
+        "properties": {
+          "secret": {
+            "type": "string"
+          },
+          "baseUrl": {
+            "type": "string"
+          },
+          "trustedOrigins": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "secret"
+        ]
+      },
+      "AuthorizationDuckIamConfig": {
+        "type": "object",
+        "properties": {
+          "defaultRole": {
+            "type": "string",
+            "default": "viewer"
+          },
+          "superAdminEmails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": []
+      },
+      "CatalogConfig": {
+        "type": "object",
+        "properties": {
+          "catalogInfoPath": {
+            "type": "string",
+            "default": "../../catalog-info.yaml"
+          }
+        },
+        "required": []
+      },
+      "ServerFeatureFlagsConfig": {
+        "type": "object",
+        "properties": {
+          "clientName": {
+            "type": "string",
+            "default": "server"
+          }
+        },
+        "required": []
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - gofmt
+    - goimports
+    - gocyclo
+    - unused
+    - gosec
+  disable-all: false
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+
+issues:
+  exclude-use-default: false

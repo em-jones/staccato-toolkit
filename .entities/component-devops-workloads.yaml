@@ -1,0 +1,24 @@
+# src/ops/workloads
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: devops-workloads
+  title: Platform DevOps Module
+  description: Go-based Dagger pipeline module for CI/CD automation — lives at src/ops/workloads/
+  annotations:
+    backstage.io/techdocs-ref: dir:../../../../src/ops/workloads
+    backstage.io/adr-location: docs/adrs
+  tags:
+    - dagger
+    - go
+    - ci-cd
+    - devops
+  links:
+    - url: https://github.com/org/openspec-td/tree/main/src/ops/platform
+      title: Source
+      icon: github
+spec:
+  type: library
+  lifecycle: experimental
+  owner: platform-team
+  system: developer-platform

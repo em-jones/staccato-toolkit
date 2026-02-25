@@ -1,0 +1,664 @@
+{
+  "title": "Tech Radar",
+  "quadrants": [
+    {
+      "id": "1",
+      "name": "Infrastructure"
+    },
+    {
+      "id": "2",
+      "name": "Languages"
+    },
+    {
+      "id": "3",
+      "name": "Frameworks/Libraries"
+    },
+    {
+      "id": "4",
+      "name": "Patterns/Processes"
+    }
+  ],
+  "rings": [
+    {
+      "id": "1",
+      "name": "Adopt"
+    },
+    {
+      "id": "2",
+      "name": "Trial"
+    },
+    {
+      "id": "3",
+      "name": "Assess"
+    },
+    {
+      "id": "4",
+      "name": "Hold"
+    }
+  ],
+  "entries": [
+    {
+      "name": "Dagger Cloud",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Used as the remote Dagger engine for in-cluster manifest rendering Jobs. Eliminates the need for a privileged in-cluster Dagger engine deployment.",
+      "moved": 1
+    },
+    {
+      "name": "distroless/static",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Minimal, non-root container images; eliminates shell attack surface",
+      "moved": 0
+    },
+    {
+      "name": "kind",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Zero-cloud-cost local Kubernetes; standard for CI and dev cluster parity",
+      "moved": 0
+    },
+    {
+      "name": "k3d",
+      "quadrant": "Infrastructure",
+      "ring": "Assess",
+      "description": "Lighter alternative to kind; monitor for full API compatibility improvements",
+      "moved": 0
+    },
+    {
+      "name": "minikube",
+      "quadrant": "Infrastructure",
+      "ring": "Hold",
+      "description": "Heavier than kind for single-node dev; inconsistent Docker driver behaviour",
+      "moved": 0
+    },
+    {
+      "name": "chi",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "Selected as standard Go HTTP router for all services - stdlib-compatible, OTel-native, lightweight",
+      "moved": 0
+    },
+    {
+      "name": "gin",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Assess",
+      "description": "Popular alternative - rejected due to custom Context type breaking stdlib compatibility",
+      "moved": 0
+    },
+    {
+      "name": "echo",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Assess",
+      "description": "Popular alternative - similar tradeoffs to gin, no compelling advantage over chi",
+      "moved": 0
+    },
+    {
+      "name": "huma",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Assess",
+      "description": "OpenAPI-first approach - too opinionated for general use but worth monitoring",
+      "moved": 0
+    },
+    {
+      "name": "log/slog (Go stdlib)",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "Formal adoption of slog as the platform logging library",
+      "moved": 0
+    },
+    {
+      "name": "go.opentelemetry.io/contrib/bridges/otelslog",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "Official OTel bridge for slog to enable OTLP log export",
+      "moved": 0
+    },
+    {
+      "name": "zerolog",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Hold",
+      "description": "No official OTel bridge; not adopted",
+      "moved": 0
+    },
+    {
+      "name": "zap",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Assess",
+      "description": "Official OTel bridge exists, but slog preferred for stdlib compatibility",
+      "moved": 0
+    },
+    {
+      "name": "servicedefaults pattern",
+      "quadrant": "Infrastructure",
+      "ring": "Trial",
+      "description": "New initialization pattern for Go services; analogous to .NET Aspire AddServiceDefaults()",
+      "moved": 0
+    },
+    {
+      "name": "shellcheck",
+      "quadrant": "Patterns/Processes",
+      "ring": "Adopt",
+      "description": "Static analysis for bash/shell scripts. Catches syntax errors, unsafe patterns, and portability issues before they reach production. Adopted as the standard linting tool for all .sh files in the platform, consistent with the platform's quality tooling posture for Go (golangci-lint) and TypeScript (ESLint).",
+      "moved": 1
+    },
+    {
+      "name": "dagger",
+      "quadrant": "Platforms",
+      "ring": "Adopt",
+      "description": "Existing CI/CD platform extended with Render and PublishModule tasks",
+      "moved": 0
+    },
+    {
+      "name": "gRPC",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "High-performance RPC framework for internal service-to-service communication with native streaming and multiplexing support",
+      "moved": 1
+    },
+    {
+      "name": "Protocol Buffers (protobuf)",
+      "quadrant": "Languages",
+      "ring": "Adopt",
+      "description": "Efficient binary serialization format and schema language for gRPC services ensuring backward compatibility and cross-language support",
+      "moved": 1
+    },
+    {
+      "name": "genqlient",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "Type-safe GraphQL code generator for Go; chosen for compile-time safety and consistency across services",
+      "moved": 1
+    },
+    {
+      "name": "bats-core",
+      "quadrant": "Patterns/Processes",
+      "ring": "Adopt",
+      "description": "Bash Automated Testing System \u2014 the de-facto standard test harness for bash scripts. Adopted to complete the quality tooling triad for bash (alongside shellcheck linting and shfmt formatting), consistent with the platform's posture that every language/runtime must have automated testing, linting, and formatting enforced in CI.",
+      "moved": 1
+    },
+    {
+      "name": "Prometheus ServiceMonitor",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Kubernetes ServiceMonitor CRD for Prometheus auto-discovery and metric collection configuration",
+      "moved": 1
+    },
+    {
+      "name": "shfmt",
+      "quadrant": "Patterns/Processes",
+      "ring": "Adopt",
+      "description": "Formatter for bash/shell scripts. Enforces consistent style and catches structural issues. Adopted as the standard formatting tool for all .sh files in the platform, consistent with the quality tooling posture for Go (gofmt) and TypeScript (Prettier).",
+      "moved": 1
+    },
+    {
+      "name": "Grafana",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Unified dashboarding platform for logs, metrics, and traces correlation",
+      "moved": 1
+    },
+    {
+      "name": "Grafana Provisioning API",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "Dashboard and datasource management via API and configuration files",
+      "moved": 1
+    },
+    {
+      "name": "Tempo",
+      "quadrant": "Infrastructure",
+      "ring": "Trial",
+      "description": "Grafana Labs OSS; strong OTel support; not yet CNCF; Trial until production validation",
+      "moved": 0
+    },
+    {
+      "name": "OpenTelemetry Go SDK",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "Standard Go library for instrumenting applications with traces, metrics, and logs; enables vendor-neutral observability",
+      "moved": 1
+    },
+    {
+      "name": "OpenTelemetry",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "CNCF standard; vendor-agnostic instrumentation SDK for all Go services",
+      "moved": 0
+    },
+    {
+      "name": "Prometheus",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Industry-standard metrics; native Kubernetes integration",
+      "moved": 0
+    },
+    {
+      "name": "Loki",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "De-facto log aggregation for Kubernetes/Grafana environments; LogQL familiar to Prometheus users",
+      "moved": 0
+    },
+    {
+      "name": "kube-prometheus-stack",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Opinionated helm chart bundling Prometheus + AlertManager + Grafana; community standard",
+      "moved": 0
+    },
+    {
+      "name": "KubeVela",
+      "quadrant": "Infrastructure",
+      "ring": "Trial",
+      "description": "CNCF project; OAM standard alignment; production-proven but new to this platform; advancing to Adopt when observability integration validated",
+      "moved": 0
+    },
+    {
+      "name": "Open Application Model (OAM)",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "CNCF standard for cloud-native application definition; aligns with long-term vendor neutrality goals",
+      "moved": 0
+    },
+    {
+      "name": "vela CLI",
+      "quadrant": "Infrastructure",
+      "ring": "Trial",
+      "description": "KubeVela's CLI tool; Trial aligned with KubeVela platform entry",
+      "moved": 0
+    },
+    {
+      "name": "kubectl",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Already added to Tech Radar in support-kubernetes; this change implements the adoption",
+      "moved": 0
+    },
+    {
+      "name": "skaffold",
+      "quadrant": "Infrastructure",
+      "ring": "Trial",
+      "description": "Already added to Tech Radar in support-kubernetes; this change implements the adoption",
+      "moved": 0
+    },
+    {
+      "name": "k9s",
+      "quadrant": "Infrastructure",
+      "ring": "Trial",
+      "description": "Already added to Tech Radar in support-kubernetes; this change implements the adoption",
+      "moved": 0
+    },
+    {
+      "name": "helm",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Already added to Tech Radar in support-kubernetes; this change implements the adoption",
+      "moved": 0
+    },
+    {
+      "name": "Trivy",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Best-in-class OSS container scanner; single binary, wide CVE coverage, CycloneDX SBOM",
+      "moved": 0
+    },
+    {
+      "name": "Grype",
+      "quadrant": "Infrastructure",
+      "ring": "Assess",
+      "description": "Strong alternative to Trivy; monitor for capability parity",
+      "moved": 0
+    },
+    {
+      "name": "Snyk",
+      "quadrant": "Infrastructure",
+      "ring": "Hold",
+      "description": "SaaS lock-in; free tier limits; not suitable for this platform's vendor-agnosticism goals",
+      "moved": 0
+    },
+    {
+      "name": "Grafana Loki",
+      "quadrant": "Infrastructure",
+      "ring": "Trial",
+      "description": "Efficient label-based log aggregation; lighter than ELK",
+      "moved": 0
+    },
+    {
+      "name": "Grafana Tempo",
+      "quadrant": "Infrastructure",
+      "ring": "Trial",
+      "description": "Grafana-native distributed tracing; supersedes Jaeger for this stack",
+      "moved": 0
+    },
+    {
+      "name": "Lightstep",
+      "quadrant": "Infrastructure",
+      "ring": "Hold",
+      "description": "SaaS vendor lock-in; cost at scale; rejected in this evaluation",
+      "moved": 0
+    },
+    {
+      "name": "Jaeger",
+      "quadrant": "Infrastructure",
+      "ring": "Hold",
+      "description": "Superseded by Tempo for Grafana-native workflows",
+      "moved": 0
+    },
+    {
+      "name": "Kubernetes",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "De-facto standard for container orchestration; CNCF Graduated; required for component platform and observability stack",
+      "moved": 0
+    },
+    {
+      "name": "Prettier (Markdown)",
+      "quadrant": "Patterns/Processes",
+      "ring": "Adopt",
+      "description": "Industry-standard formatter with native markdown support; already in the npm ecosystem for this repo",
+      "moved": 1
+    },
+    {
+      "name": "markdownlint-cli2",
+      "quadrant": "Patterns/Processes",
+      "ring": "Adopt",
+      "description": "Widely adopted markdown structure linter with a rich configurable rule set; npm-native and CI-friendly",
+      "moved": 1
+    },
+    {
+      "name": "Vale",
+      "quadrant": "Patterns/Processes",
+      "ring": "Adopt",
+      "description": "Language-agnostic prose linter with pluggable style packages; runs as a standalone binary without runtime dependencies",
+      "moved": 1
+    },
+    {
+      "name": "cspell",
+      "quadrant": "Patterns/Processes",
+      "ring": "Adopt",
+      "description": "Fast npm-native spell checker with project wordlist support; handles technical terminology well via custom dictionaries",
+      "moved": 1
+    },
+    {
+      "name": "lychee",
+      "quadrant": "Patterns/Processes",
+      "ring": "Adopt",
+      "description": "Fast parallel link checker with configurable retries, exclusion patterns, and native markdown support; runs as a standalone binary",
+      "moved": 1
+    },
+    {
+      "name": "playwright-extra",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Assess",
+      "description": "Stealth plugin wrapper for Playwright \u2014 useful for anti-detection scraping but not yet Adopt due to limited maintenance signals",
+      "moved": 1
+    },
+    {
+      "name": "playwright-extra-plugin-stealth",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Assess",
+      "description": "Community stealth plugin that suppresses webdriver fingerprints; pair with playwright-extra",
+      "moved": 1
+    },
+    {
+      "name": "Bubble Tea",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "De-facto Go TUI framework using the Elm Architecture. 40k stars, 18k+ dependents, corporate-backed by Charm. v2.0.0 released Feb 2026. Selected as the standard TUI library for staccato-toolkit/tui.",
+      "moved": 1
+    },
+    {
+      "name": "cobra",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "The de-facto Go CLI framework. 43k stars, 202k dependent repos, used by Kubernetes, Helm, GitHub CLI, Docker. Selected as the CLI framework for staccato-toolkit/cli.",
+      "moved": 1
+    },
+    {
+      "name": "go-app",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Trial",
+      "description": "Go+WASM PWA framework where a single Go codebase compiles to both the HTTP server and the WASM client. First-class PWA support (manifest, service worker, offline). 8.9k stars, actively maintained (Feb 2026). Trial pending production validation of WASM binary size and load performance.",
+      "moved": 1
+    },
+    {
+      "name": "prometheus-client",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "Prometheus client libraries (Go, Python, JavaScript); standard for metrics instrumentation across all service languages",
+      "moved": 1
+    },
+    {
+      "name": "GraphQL",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "Query language and runtime for API consumption; standardized for consistent client integration patterns",
+      "moved": 1
+    },
+    {
+      "name": "graphql-core",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Trial",
+      "description": "Core GraphQL schema and validation library; adopted for Go backend GraphQL implementation",
+      "moved": 1
+    },
+    {
+      "name": "@opentelemetry/sdk-node",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "Node.js OpenTelemetry SDK \u2014 already adopted for Go services; extending to Backstage Node.js backend",
+      "moved": 0
+    },
+    {
+      "name": "@opentelemetry/exporter-prometheus",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "Prometheus metric exporter for OTel Node SDK; aligns with existing Prometheus stack",
+      "moved": 1
+    },
+    {
+      "name": "@opentelemetry/exporter-trace-otlp-http",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "OTLP/HTTP trace exporter; routes Backstage traces to Jaeger via the OTLP protocol",
+      "moved": 1
+    },
+    {
+      "name": "@opentelemetry/auto-instrumentations-node",
+      "quadrant": "Frameworks/Libraries",
+      "ring": "Adopt",
+      "description": "Auto-instrumentation for Node.js (Express, HTTP, etc.); zero-code span generation for Backstage backend",
+      "moved": 1
+    },
+    {
+      "name": "Grafana Alloy",
+      "quadrant": "Infrastructure",
+      "ring": "Trial",
+      "description": "Next-gen OpenTelemetry-native collector from Grafana Labs; replaces Promtail and standalone OTel Collector with a single programmable pipeline agent. Trial until production validation of River syntax and Kubernetes log collection stability.",
+      "moved": 1
+    },
+    {
+      "name": "Headlamp",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Selected as the platform's web-based Kubernetes UI. CNCF sandbox project, Apache 2.0 licensed, plugin-extensible, and supports CRD display natively. No cluster-side agents required for core functionality.",
+      "moved": 1
+    },
+    {
+      "name": "Penpot",
+      "quadrant": "Infrastructure",
+      "ring": "Trial",
+      "description": "Open-source, self-hosted UI/UX design and prototyping platform. Deployed via Helm on kind-staccato-dev for collaborative design work alongside development workflows.",
+      "moved": 1
+    },
+    {
+      "name": "Flux v2",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "GitOps sync engine. Pull-based, CNCF Graduated. OCIRepository source replaces GitRepository/Gitea source from prior flux-local-bootstrap design.",
+      "moved": 1
+    },
+    {
+      "name": "Harbor",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "OCI registry receiving pushed rendered manifests via flux push artifact",
+      "moved": 0
+    },
+    {
+      "name": "Flux Operator",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "ControlPlane's Flux Operator manages Flux controller lifecycle via the FluxInstance CRD. Deployed as a custom KubeVela addon wrapping the OCI Helm chart. Provides a declarative interface for Flux configuration via the FluxInstance CRD.",
+      "moved": 1
+    },
+    {
+      "name": "OAM / KubeVela",
+      "quadrant": "Patterns/Processes",
+      "ring": "Trial",
+      "description": "Open Application Model. KubeVela addons used to manage platform infrastructure (Harbor, Flux Operator) alongside OAM Applications for workloads. Remains Trial \u2014 expanding usage to include the addon mechanism for platform component lifecycle.",
+      "moved": 0
+    },
+    {
+      "name": "k0s",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Lightweight, single-binary Kubernetes distribution by Mirantis. Replaces KinD for local dev and targets production deployments via k0sctl. Provides dev-to-prod parity without a separate control-plane host requirement in single-node mode.",
+      "moved": 1
+    },
+    {
+      "name": "k0sctl",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "CLI tool for deploying and managing k0s clusters declaratively via a YAML config. Used as the provisioning layer in the bootstrap CLI command.",
+      "moved": 1
+    },
+    {
+      "name": "Flux HelmRelease",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Flux v2 HelmRelease CRD used to manage third-party Helm chart installations declaratively via GitOps. Replaces ad-hoc helm install scripts for the observability stack and Gitea.",
+      "moved": 1
+    },
+    {
+      "name": "Flux CD",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "GitOps reconciliation engine for staccato-manifests; drives rollout lifecycle via Kustomization health checks.",
+      "moved": 1
+    },
+    {
+      "name": "Progressive Delivery (canary + blue-green)",
+      "quadrant": "Patterns/Processes",
+      "ring": "Trial",
+      "description": "Weight-based canary and atomic blue-green deployment patterns expressed as OAM traits; trialing before full platform adoption.",
+      "moved": 1
+    },
+    {
+      "name": "Flux v2 Kustomization CRD",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Flux `Kustomization` objects drive the GitOps reconciliation loop from `staccato-manifests` into the cluster. Adopting as the standard wiring layer for all component deployments.",
+      "moved": 1
+    },
+    {
+      "name": "KubeVela ComponentDefinition (CUE)",
+      "quadrant": "Patterns/Processes",
+      "ring": "Trial",
+      "description": "CUE-based ComponentDefinition as the platform-standard abstraction layer for Kubernetes workload types; promotes intent-driven OAM Applications over raw YAML",
+      "moved": 1
+    },
+    {
+      "name": "OAM Application manifest pattern",
+      "quadrant": "Patterns/Processes",
+      "ring": "Adopt",
+      "description": "Canonical pattern for declaring Kubernetes workloads as OAM Applications \u2014 replaces raw Deployment YAML in source repos",
+      "moved": 1
+    },
+    {
+      "name": "vela export (render pipeline)",
+      "quadrant": "Patterns/Processes",
+      "ring": "Trial",
+      "description": "KubeVela OAM Application rendering step driven from Dagger",
+      "moved": 0
+    },
+    {
+      "name": "Gitea",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Self-hosted Git service deployed via Helm into the local kind cluster; enables a fully local GitOps loop without requiring GitHub access for day-to-day development",
+      "moved": 1
+    },
+    {
+      "name": "Kustomize",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "Canonical first-party manifest renderer for staccato-toolkit; overlay model separates environment concerns without templating language overhead",
+      "moved": 1
+    },
+    {
+      "name": "Flux",
+      "quadrant": "Infrastructure",
+      "ring": "Adopt",
+      "description": "GitOps sync engine reading from staccato-manifests to reconcile cluster state. Chosen over ArgoCD for its pull-based Kubernetes-native operator model and lightweight footprint.",
+      "moved": 1
+    },
+    {
+      "name": "ArgoCD",
+      "quadrant": "Infrastructure",
+      "ring": "Hold",
+      "description": "Rejected as primary GitOps engine: UI-heavy, higher operator overhead, not aligned to CLI/platform use case; may be revisited for UI-centric workloads",
+      "moved": 0
+    },
+    {
+      "name": "Garden",
+      "quadrant": "Infrastructure",
+      "ring": "Trial",
+      "description": "Content-hash action graph with cross-session caching, Mutagen sync mode for hot-reload, and CI portability via environment-scoped providers. Selected over Tilt for multi-service platforms where per-session full rebuilds become the bottleneck.",
+      "moved": 1
+    },
+    {
+      "name": "Tilt",
+      "quadrant": "Infrastructure",
+      "ring": "Assess",
+      "description": "Valid for small-scale single-developer workflows; fast setup; no cross-session caching. Revisit if Garden configuration overhead proves excessive at current service count.",
+      "moved": 1
+    },
+    {
+      "name": "watchexec",
+      "quadrant": "Patterns/Processes",
+      "ring": "Adopt",
+      "description": "Already in use in dev container images (Containerfile.dev) to trigger in-container go build + restart on source file changes. Solid, language-agnostic, zero configuration.",
+      "moved": 1
+    },
+    {
+      "name": "Telepresence",
+      "quadrant": "Infrastructure",
+      "ring": "Assess",
+      "description": "CNCF Incubating. Surgical per-service integration-debug tool \u2014 intercepts cluster traffic to a local process. Evaluate separately when native debugger access to live cluster traffic becomes a development bottleneck.",
+      "moved": 1
+    },
+    {
+      "name": "Go",
+      "quadrant": "Languages",
+      "ring": "Trial",
+      "description": "Go runtime adopted for authoring Dagger pipeline modules. Introduced by initialize-dagger-devops.",
+      "moved": 1
+    },
+    {
+      "name": "koanf",
+      "quadrant": "Languages & Frameworks",
+      "ring": "Adopt",
+      "description": "Multi-source config loader for Go; merges YAML files, dotenv, and env vars in explicit priority order with no global state",
+      "moved": 0
+    },
+    {
+      "name": "invopop/jsonschema",
+      "quadrant": "Languages & Frameworks",
+      "ring": "Adopt",
+      "description": "JSON Schema Draft 2020-12 generation from Go struct definitions via reflection; struct is the single source of truth",
+      "moved": 0
+    }
+  ]
+}

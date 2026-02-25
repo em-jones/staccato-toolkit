@@ -1,0 +1,110 @@
+---
+title: Button
+description: Trigger actions and navigation
+---
+
+## Usage
+
+Apply `.btn` to any `<button>` or `<a>` element. Combine with a modifier to set color, style, or
+size.
+
+```html
+<button class="btn btn-primary">Save</button> <a href="/docs" class="btn btn-ghost">Read docs</a>
+```
+
+## Color variants
+
+| Class           | Description             |
+| --------------- | ----------------------- |
+| `btn-primary`   | Brand-colored fill      |
+| `btn-secondary` | Muted fill              |
+| `btn-accent`    | Accent-colored fill     |
+| `btn-warning`   | Warning state fill      |
+| `btn-error`     | Destructive action fill |
+| `btn-green`     | Success / green fill    |
+
+### Color Examples
+
+```html
+<button class="btn">Default</button>
+<button class="btn btn-primary">Primary</button>
+<button class="btn btn-secondary">Secondary</button>
+<button class="btn btn-accent">Accent</button>
+<button class="btn btn-warning">Warning</button>
+<button class="btn btn-error">Error</button>
+<button class="btn btn-green">Green</button>
+```
+
+## Style modifiers
+
+| Class         | Description                                                                     |
+| ------------- | ------------------------------------------------------------------------------- |
+| `btn-outline` | Border only, transparent fill. Combine with a color variant to tint the border. |
+| `btn-ghost`   | No background or border; text-only                                              |
+| `btn-link`    | Underlined text link style                                                      |
+
+### Style Examples
+
+```html
+<button class="btn btn-outline">Default</button>
+<button class="btn btn-outline btn-primary">Primary</button>
+<button class="btn btn-outline btn-secondary">Secondary</button>
+<button class="btn btn-outline btn-accent">Accent</button>
+<button class="btn btn-outline btn-error">Error</button>
+```
+
+```html
+<button class="btn btn-ghost">Ghost</button> <button class="btn btn-link">Link</button>
+```
+
+## Sizes
+
+| Class       | Description             |
+| ----------- | ----------------------- |
+| `btn-xs`    | Extra small (h: 1.5rem) |
+| `btn-sm`    | Small (h: 2rem)         |
+| _(default)_ | Medium (h: 2.5rem)      |
+| `btn-lg`    | Large (h: 3rem)         |
+| `btn-xl`    | Extra large (h: 3.5rem) |
+
+### Size Examples
+
+```html
+<button class="btn btn-primary btn-xs">XS</button>
+<button class="btn btn-primary btn-sm">SM</button>
+<button class="btn btn-primary btn-md">MD</button>
+<button class="btn btn-primary btn-lg">LG</button>
+<button class="btn btn-primary btn-xl">XL</button>
+```
+
+## Shape modifiers
+
+| Class        | Description                         |
+| ------------ | ----------------------------------- |
+| `btn-circle` | Pill-shaped, equal width and height |
+| `btn-square` | Square, no padding                  |
+| `btn-block`  | Full-width (`width: 100%`)          |
+
+### Shape Examples
+
+```html
+<button class="btn btn-primary btn-circle">+</button>
+<button class="btn btn-primary btn-square">?</button>
+<button class="btn btn-primary btn-block">Full Width</button>
+```
+
+## Disabled state
+
+Add the native `disabled` attribute or the `.btn-disabled` class:
+
+```html
+<button class="btn btn-primary" disabled>Saving…</button>
+<button class="btn btn-outline btn-disabled">Unavailable</button>
+```
+
+### Disabled Examples
+
+```html
+<button class="btn btn-primary" disabled>Disabled</button>
+<button class="btn btn-outline btn-disabled">Disabled</button>
+```

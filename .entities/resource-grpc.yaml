@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: grpc
+  title: gRPC
+  description: High-performance RPC framework using Protocol Buffers for efficient service-to-service communication with strong typing.
+  tags:
+    - api
+    - library
+    - rpc
+spec:
+  type: library
+  owner: platform-team
+  system: developer-platform

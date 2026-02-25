@@ -1,0 +1,179 @@
+---
+title: Visualizations
+description: Data visualization components in the solid-ui package
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+## Overview
+
+The `solid-ui` package provides visualization components for observability and analytics
+dashboards. These components are built with SolidJS and integrate with the Staccato UI design
+system.
+
+## MetricsChart
+
+A responsive time-series line chart powered by D3. Renders multiple metric series with
+automatic axis scaling, grid lines, and a legend.
+
+### Usage
+
+<Tabs>
+  <TabItem label="Preview">
+    <div class="component-preview not-content">
+      <MetricsChart series={series} title="System Metrics" height={240} />
+    </div>
+  </TabItem>
+  <TabItem label="TSX">
+    ```tsx
+    import { MetricsChart } from "@staccato/solid-ui/signals";
+    import type { MetricSeries } from "@staccato/solid-ui/signals/types";
+
+    const series: MetricSeries[] = [
+      {
+        name: "CPU Usage",
+        data: [
+          { timestamp: Date.now() - 60000, value: 42 },
+          { timestamp: Date.now() - 30000, value: 55 },
+          { timestamp: Date.now(), value: 38 },
+        ],
+      },
+      {
+        name: "Memory",
+        data: [
+          { timestamp: Date.now() - 60000, value: 2048 },
+          { timestamp: Date.now() - 30000, value: 2100 },
+          { timestamp: Date.now(), value: 2300 },
+        ],
+        color: "#8b5cf6",
+      },
+    ];
+
+    <MetricsChart series={series} title="System Metrics" height={240} />;
+    ```
+
+  </TabItem>
+</Tabs>
+
+### Props
+
+| Prop     | Type             | Default | Description                 |
+| -------- | ---------------- | ------- | --------------------------- |
+| `series` | `MetricSeries[]` | —       | Array of metric data series |
+| `title`  | `string`         | —       | Optional chart title        |
+| `height` | `number`         | `200`   | Chart height in pixels      |
+| `class`  | `string`         | —       | Additional CSS classes      |
+
+### Data types
+
+```ts
+interface MetricDataPoint {
+  /** Unix milliseconds */
+  timestamp: number;
+  value: number;
+}
+
+interface MetricSeries {
+  name: string;
+  data: MetricDataPoint[];
+  /** CSS color string; defaults to a palette of 6 colors */
+  color?: string;
+}
+```
+
+### Features
+
+- **Responsive width** — fills the parent container, height is fixed.
+- **Multi-series** — each series gets a distinct color; legend appears automatically when more
+  than one series is present.
+- **Smooth curves** — uses `d3.curveMonotoneX` for visually smooth line interpolation.
+- **Themed axes** — axis labels and grid lines use CSS custom properties for dark/light mode
+  compatibility.
+
+## LogsTable
+
+A paginated, filterable table for displaying structured log entries. Supports level filtering
+(debug, info, warn, error) and includes a built-in pagination footer.
+
+### Usage
+
+```tsx
+import { LogsTable } from "@staccato/solid-ui/signals";
+import type { LogEntry } from "@staccato/solid-ui/signals/types";
+
+const entries: LogEntry[] = [
+  {
+    id: "1",
+    timestamp: "2026-03-31T10:00:00Z",
+    level: "info",
+    message: "Request completed",
+    labels: { method: "GET", path: "/api/health" },
+  },
+  {
+    id: "2",
+    timestamp: "2026-03-31T10:01:00Z",
+    level: "error",
+    message: "Connection timeout",
+    labels: { host: "db-primary" },
+  },
+];
+
+<LogsTable entries={entries} pageSize={25} />;
+```
+
+### Props
+
+| Prop       | Type         | Default | Description            |
+| ---------- | ------------ | ------- | ---------------------- |
+| `entries`  | `LogEntry[]` | —       | Array of log entries   |
+| `pageSize` | `number`     | `50`    | Rows per page          |
+| `class`    | `string`     | —       | Additional CSS classes |
+
+### Data types
+
+```ts
+type LogLevel = "debug" | "info" | "warn" | "error";
+
+interface LogEntry {
+  id: string;
+  /** ISO-8601 timestamp string */
+  timestamp: string;
+  level: LogLevel;
+  message: string;
+  labels?: Record<string, string>;
+}
+```
+
+### Features
+
+- **Level filter** — pill buttons to filter by log level; shows entry count.
+- **Pagination** — previous/next controls with page indicator.
+- **Label badges** — key-value labels rendered as inline badges.
+- **Empty state** — friendly message when no entries match the filter.
+
+## TraceSpan (type only)
+
+The `TraceSpan` type is defined for future trace visualization components. It models a
+distributed tracing span with hierarchical parent-child relationships.
+
+```ts
+interface TraceSpan {
+  traceId: string;
+  spanId: string;
+  parentSpanId?: string;
+  name: string;
+  /** Unix milliseconds */
+  startMs: number;
+  durationMs: number;
+  status?: "ok" | "error" | "unset";
+  labels?: Record<string, string>;
+}
+```
+
+## Related components
+
+For non-chart data display, see:
+
+- [Stat](/components/data-display/stat/) — single-value metric cards
+- [Table](/components/data-display/table/) — generic data tables
+- [Card](/components/data-display/card/) — content containers

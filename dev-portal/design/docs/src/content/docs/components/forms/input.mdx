@@ -1,0 +1,108 @@
+---
+title: Input
+description: Text input fields and form controls
+---
+
+## Text input
+
+Apply `.input` to a `<input>` element for the base text field style.
+
+```html
+<input class="input" type="text" placeholder="Default border" />
+<input class="input input-primary" type="text" placeholder="Primary border" />
+<input class="input input-accent" type="text" placeholder="Accent border" />
+<input class="input input-warning" type="text" placeholder="Warning border" />
+<input class="input input-error" type="text" placeholder="Error border" />
+```
+
+### Color-border variants
+
+| Class             | Description                           |
+| ----------------- | ------------------------------------- |
+| `input-primary`   | Primary-colored focus ring and border |
+| `input-secondary` | Secondary color                       |
+| `input-accent`    | Accent color                          |
+| `input-warning`   | Warning color                         |
+| `input-error`     | Error / destructive color             |
+
+### Sizes
+
+| Class       | Description             |
+| ----------- | ----------------------- |
+| `input-xs`  | Extra small (h: 1.5rem) |
+| `input-sm`  | Small (h: 2rem)         |
+| _(default)_ | Medium (h: 2.5rem)      |
+| `input-lg`  | Large (h: 3rem)         |
+
+### Size Examples
+
+```html
+<input class="input input-xs" placeholder="XS" />
+<input class="input input-sm" placeholder="SM" />
+<input class="input" placeholder="MD" />
+<input class="input input-lg" placeholder="LG" />
+```
+
+## Textarea
+
+Use `.textarea` on a `<textarea>` element. Inherits the same size and focus tokens as `.input`.
+
+```html
+<textarea class="textarea" placeholder="Write something…"></textarea>
+```
+
+## Select
+
+Use `.select` on a `<select>` element for a styled dropdown with a built-in chevron.
+
+```html
+<select class="select">
+  <option disabled selected>Pick one</option>
+  <option>Option A</option>
+</select>
+```
+
+## Checkbox
+
+Use `.checkbox` on `<input type="checkbox">`. Pair with a color variant to set the checked color.
+
+```html
+<input type="checkbox" class="checkbox checkbox-primary" />
+<input type="checkbox" class="checkbox checkbox-secondary" />
+<input type="checkbox" class="checkbox checkbox-accent" />
+```
+
+**Color variants:** `checkbox-primary`, `checkbox-secondary`, `checkbox-accent`, `checkbox-warning`, `checkbox-error`
+
+## Toggle
+
+Use `.toggle` on `<input type="checkbox">` for a pill-shaped switch. Pair with a color variant.
+
+```html
+<input type="checkbox" class="toggle toggle-primary" />
+<input type="checkbox" class="toggle toggle-secondary" />
+<input type="checkbox" class="toggle toggle-accent" />
+```
+
+**Color variants:** `toggle-primary`, `toggle-secondary`, `toggle-accent`, `toggle-warning`, `toggle-error`
+
+## Form layout
+
+Wrap a label and input in `.form-control` for consistent vertical spacing. Use `.label` on the `<label>` element and `.label-text` / `.label-text-alt` for helper copy.
+
+```html
+<div class="form-control">
+  <label class="label" for="email">
+    <span class="label-text">Email</span>
+  </label>
+  <input id="email" class="input input-primary" type="email" placeholder="you@example.com" />
+  <span class="label-text-alt">We'll never share your email.</span>
+</div>
+```
+
+| Class             | Description                                                      |
+| ----------------- | ---------------------------------------------------------------- |
+| `.form-control`   | Vertical flex container for label + input + helper text          |
+| `.label`          | Flex row with gap for label text and optional right-side content |
+| `.label-text`     | Standard label text (0.875rem)                                   |
+| `.label-text-alt` | Muted helper / hint text (0.75rem)                               |

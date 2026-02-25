@@ -1,0 +1,1 @@
+../../../../../openspec/changes/archive/2026-02-27-initialize-interface-modules/design.md

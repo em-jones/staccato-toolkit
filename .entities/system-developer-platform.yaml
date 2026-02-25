@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: developer-platform
+  title: Developer Platform
+  description: Platform tooling and infrastructure for internal developers — the Staccato Toolkit and its supporting CI/CD and portal components.
+  tags:
+    - staccato
+    - platform
+spec:
+  owner: platform-team

@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: skaffold
+  title: Skaffold
+  description: Command-line tool that facilitates continuous development for Kubernetes applications with automated build, push, and deploy workflows.
+  tags:
+    - kubernetes
+    - utility
+    - ci-cd
+    - development
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

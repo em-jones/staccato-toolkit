@@ -1,0 +1,21 @@
+site_name: Staccato Toolkit
+site_description: Platform tooling and infrastructure for internal developers
+
+docs_dir: docs
+site_dir: site
+
+nav:
+  - Home: index.md
+  - Architecture: architecture/overview.md
+  - ADRs:
+      - Kubernetes UI (Headlamp): adr/0024-kubernetes-ui-headlamp.md
+  - Kubernetes UI Guide: decisions/kubernetes-ui-tool-evaluation.md
+
+theme:
+  name: material
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true

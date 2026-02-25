@@ -1,0 +1,48 @@
+---
+title: Swap
+description: Toggle content animation
+---
+
+## Usage
+
+Apply `.swap` with a checkbox, `.swap-off` (default state), and `.swap-on` (checked state).
+
+```html
+<label class="swap">
+  <input type="checkbox" />
+  <span class="swap-off">☀️ Light</span>
+  <span class="swap-on">🌙 Dark</span>
+</label>
+```
+
+## Animation types
+
+| Class          | Description                |
+| -------------- | -------------------------- |
+| `.swap-rotate` | Rotate animation (180deg)  |
+| `.swap-flip`   | Flip animation (scaleX -1) |
+
+```html
+<label class="swap swap-rotate">
+  <input type="checkbox" />
+  <span class="swap-off" style="font-size:1.5rem">☀️</span>
+  <span class="swap-on" style="font-size:1.5rem">🌙</span>
+</label>
+
+<label class="swap swap-flip">
+  <input type="checkbox" />
+  <span class="swap-off" style="font-size:1.25rem;font-weight:700">ON</span>
+  <span class="swap-on" style="font-size:1.25rem;font-weight:700">OFF</span>
+</label>
+```
+
+## Active by default
+
+Add `.swap-active` to show the "on" state without a checkbox:
+
+```html
+<div class="swap swap-active">
+  <span class="swap-off">Hidden</span>
+  <span class="swap-on">Visible (active)</span>
+</div>
+```

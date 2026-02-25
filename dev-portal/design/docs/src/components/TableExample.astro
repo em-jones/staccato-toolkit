@@ -1,0 +1,47 @@
+---
+interface Props {
+  striped?: boolean;
+  bordered?: boolean;
+  hover?: boolean;
+  compact?: boolean;
+}
+
+const { striped, bordered, hover, compact } = Astro.props;
+
+const classes = [
+  "table",
+  striped && "table-striped",
+  bordered && "table-bordered",
+  hover && "table-hover",
+  compact && "table-compact",
+].filter(Boolean).join(" ");
+---
+
+<div class="table-wrapper">
+  <table class={classes}>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Alice</td>
+        <td>Engineer</td>
+        <td>Active</td>
+      </tr>
+      <tr>
+        <td>Bob</td>
+        <td>Designer</td>
+        <td> Away</td>
+      </tr>
+      <tr>
+        <td>Charlie</td>
+        <td>Manager</td>
+        <td>Offline</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

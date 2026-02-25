@@ -1,0 +1,13 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: backstage-cli
+  title: @backstage/cli
+  description: Node.js library dependency
+  tags:
+    - npm
+    - node
+    - library
+spec:
+  type: node-library
+  owner: platform-team

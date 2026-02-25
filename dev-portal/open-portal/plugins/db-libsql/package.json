@@ -1,0 +1,33 @@
+{
+  "name": "@op-plugin/db-libsql",
+  "version": "0.0.0",
+  "description": "LibSQL (Turso) driver for OpenPort. Uses drizzle-orm/libsql and @libsql/client.",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "check": "vp check",
+    "prepublishOnly": "vp run build"
+  },
+  "dependencies": {
+    "@libsql/client": "catalog:",
+    "drizzle-orm": "catalog:"
+  },
+  "peerDependencies": {
+    "@op/platform": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "drizzle-kit": "catalog:",
+    "typescript": "^5.9.3",
+    "vite-plus": "^0.1.11"
+  }
+}

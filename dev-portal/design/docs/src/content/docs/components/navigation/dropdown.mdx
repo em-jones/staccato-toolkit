@@ -1,0 +1,118 @@
+---
+title: Dropdown
+description: Contextual menus and popovers
+---
+
+## Usage
+
+Apply `.dropdown` to a container with a trigger and `.dropdown-content` for the menu.
+
+### Focus trigger (default)
+
+The dropdown opens when a focusable child receives focus.
+
+```html
+<div class="dropdown">
+  <button tabindex="0" class="btn btn-primary">Menu ▾</button>
+  <ul class="dropdown-content">
+    <li><a href="#">Item 1</a></li>
+    <li><a href="#">Item 2</a></li>
+    <li><a href="#">Item 3</a></li>
+  </ul>
+</div>
+```
+
+### Hover trigger
+
+Add `.dropdown-hover` to open on hover.
+
+```html
+<div class="dropdown dropdown-hover">
+  <button class="btn btn-primary">Menu ▾</button>
+  <ul class="dropdown-content">
+    <li><a href="#">Item 1</a></li>
+    <li><a href="#">Item 2</a></li>
+  </ul>
+</div>
+```
+
+### Details/Summary trigger
+
+Use a `<details>` element as the dropdown container for native click toggle.
+
+```html
+<details class="dropdown">
+  <summary class="btn btn-primary">Menu ▾</summary>
+  <ul class="dropdown-content">
+    <li><a href="#">Item 1</a></li>
+    <li><a href="#">Item 2</a></li>
+  </ul>
+</details>
+```
+
+### Always open
+
+Add `.dropdown-open` to keep the menu visible.
+
+```html
+<div class="dropdown dropdown-open">
+  <button tabindex="0" class="btn btn-primary">Menu ▾</button>
+  <ul class="dropdown-content">
+    <li><a href="#">Item 1</a></li>
+  </ul>
+</div>
+```
+
+### Always closed
+
+Add `.dropdown-close` to force the menu hidden (useful for JS-controlled state).
+
+```html
+<div class="dropdown dropdown-close">
+  <button tabindex="0" class="btn btn-primary">Menu ▾</button>
+  <ul class="dropdown-content">
+    <li><a href="#">Item 1</a></li>
+  </ul>
+</div>
+```
+
+### Popover API
+
+Use the native HTML `popover` attribute for modal-like dropdowns.
+
+```html
+<div class="dropdown" popover="auto">
+  <button popovertarget="my-popover" class="btn btn-primary">Open</button>
+  <ul class="dropdown-content" id="my-popover">
+    <li><a href="#">Item 1</a></li>
+  </ul>
+</div>
+```
+
+## Position
+
+| Class              | Description                  |
+| ------------------ | ---------------------------- |
+| `.dropdown-top`    | Menu appears above           |
+| `.dropdown-bottom` | Menu appears below (default) |
+| `.dropdown-left`   | Menu appears to left         |
+| `.dropdown-right`  | Menu appears to right        |
+
+## Alignment
+
+| Class              | Description           |
+| ------------------ | --------------------- |
+| `.dropdown-start`  | Align to start (left) |
+| `.dropdown-center` | Horizontally centered |
+| `.dropdown-end`    | Align to end (right)  |
+
+## Trigger type
+
+| Class             | Description                    |
+| ----------------- | ------------------------------ |
+| `.dropdown-hover` | Opens on hover                 |
+| (default)         | Opens on focus (focus-within)  |
+| `<details>`       | Opens on click (native toggle) |
+| `.dropdown-open`  | Always open                    |
+| `.dropdown-close` | Always closed (for JS control) |
+| `popover`         | Native HTML popover API        |

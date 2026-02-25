@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: distroless
+  title: Distroless
+  description: Minimal container base images containing only application runtime dependencies without package managers or shells for enhanced security.
+  tags:
+    - containers
+    - infrastructure
+    - base-image
+    - security
+spec:
+  type: infrastructure
+  owner: platform-team
+  system: developer-platform

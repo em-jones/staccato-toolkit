@@ -1,0 +1,35 @@
+# Production Containerfile for Staccato CLI
+# Multi-stage build producing minimal distroless image
+# Usage: docker build -f Containerfile.prod -t staccato-cli:prod .
+#        docker run staccato-cli:prod [command] [flags]
+
+# Stage 1: Builder
+FROM golang:1.23-alpine AS builder
+WORKDIR /src
+
+# Copy Go module files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build statically-compiled binary for Linux
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /staccato-cli .
+
+# Stage 2: Runtime (distroless)
+FROM gcr.io/distroless/static:nonroot
+
+# Copy only the compiled binary from builder
+COPY --from=builder /staccato-cli /staccato-cli
+
+# Run as non-root user (nonroot:nonroot)
+USER nonroot:nonroot
+
+# Set entrypoint to the CLI tool
+ENTRYPOINT ["/staccato-cli"]
+
+# Default command (can be overridden)
+CMD []

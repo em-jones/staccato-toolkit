@@ -1,0 +1,676 @@
+- generic [active] [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#_top"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Staccato UI" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e8]: Staccato UI
+        - button "Search" [ref=e11] [cursor=pointer]:
+          - img [ref=e12]
+          - generic [ref=e14]: Search
+          - generic [ref=e15]:
+            - generic [ref=e16]: Ctrl
+            - generic [ref=e17]: K
+        - generic [ref=e18]:
+          - link "GitHub" [ref=e20] [cursor=pointer]:
+            - /url: https://github.com/withastro/starlight
+            - generic [ref=e21]: GitHub
+            - img [ref=e22]
+          - generic [ref=e24]:
+            - combobox "Color theme" [ref=e25] [cursor=pointer]:
+              - option "Catppuccin" [selected]
+              - option "Tokyo Night"
+              - option "Nord"
+            - combobox "Variant" [ref=e26] [cursor=pointer]:
+              - option "Modern" [selected]
+              - option "Classic"
+            - combobox "Color mode" [ref=e27] [cursor=pointer]:
+              - option "Auto" [selected]
+              - option "Light"
+              - option "Dark"
+    - navigation "Main":
+      - list [ref=e31]:
+        - listitem [ref=e32]:
+          - link "Welcome to Staccato UI" [ref=e33] [cursor=pointer]:
+            - /url: /
+        - listitem [ref=e34]:
+          - group [ref=e35]:
+            - generic "components" [ref=e36] [cursor=pointer]:
+              - generic [ref=e37]: components
+              - img [ref=e38]
+            - list [ref=e40]:
+              - listitem [ref=e41]:
+                - link "Accordion" [ref=e42] [cursor=pointer]:
+                  - /url: /components/accordion/
+              - listitem [ref=e43]:
+                - link "Alert" [ref=e44] [cursor=pointer]:
+                  - /url: /components/alert/
+              - listitem [ref=e45]:
+                - link "Avatar" [ref=e46] [cursor=pointer]:
+                  - /url: /components/avatar/
+              - listitem [ref=e47]:
+                - link "Badge" [ref=e48] [cursor=pointer]:
+                  - /url: /components/badge/
+              - listitem [ref=e49]:
+                - link "Breadcrumbs" [ref=e50] [cursor=pointer]:
+                  - /url: /components/breadcrumbs/
+              - listitem [ref=e51]:
+                - link "Button" [ref=e52] [cursor=pointer]:
+                  - /url: /components/button/
+              - listitem [ref=e53]:
+                - link "Card" [ref=e54] [cursor=pointer]:
+                  - /url: /components/card/
+              - listitem [ref=e55]:
+                - link "Carousel" [ref=e56] [cursor=pointer]:
+                  - /url: /components/carousel/
+              - listitem [ref=e57]:
+                - link "Chat Bubble" [ref=e58] [cursor=pointer]:
+                  - /url: /components/chat/
+              - listitem [ref=e59]:
+                - link "Collapse" [ref=e60] [cursor=pointer]:
+                  - /url: /components/collapse/
+              - listitem [ref=e61]:
+                - link "Countdown" [ref=e62] [cursor=pointer]:
+                  - /url: /components/countdown/
+              - listitem [ref=e63]:
+                - link "Diff" [ref=e64] [cursor=pointer]:
+                  - /url: /components/diff/
+              - listitem [ref=e65]:
+                - link "Divider" [ref=e66] [cursor=pointer]:
+                  - /url: /components/divider/
+              - listitem [ref=e67]:
+                - link "Dock" [ref=e68] [cursor=pointer]:
+                  - /url: /components/dock/
+              - listitem [ref=e69]:
+                - link "Drawer" [ref=e70] [cursor=pointer]:
+                  - /url: /components/drawer/
+              - listitem [ref=e71]:
+                - link "Dropdown" [ref=e72] [cursor=pointer]:
+                  - /url: /components/dropdown/
+              - listitem [ref=e73]:
+                - link "FAB" [ref=e74] [cursor=pointer]:
+                  - /url: /components/fab/
+              - listitem [ref=e75]:
+                - link "File Input" [ref=e76] [cursor=pointer]:
+                  - /url: /components/file-input/
+              - listitem [ref=e77]:
+                - link "Footer" [ref=e78] [cursor=pointer]:
+                  - /url: /components/footer/
+              - listitem [ref=e79]:
+                - link "Hero" [ref=e80] [cursor=pointer]:
+                  - /url: /components/hero/
+              - listitem [ref=e81]:
+                - link "Indicator" [ref=e82] [cursor=pointer]:
+                  - /url: /components/indicator/
+              - listitem [ref=e83]:
+                - link "Input" [ref=e84] [cursor=pointer]:
+                  - /url: /components/input/
+              - listitem [ref=e85]:
+                - link "Join" [ref=e86] [cursor=pointer]:
+                  - /url: /components/join/
+              - listitem [ref=e87]:
+                - link "Keyboard" [ref=e88] [cursor=pointer]:
+                  - /url: /components/kbd/
+              - listitem [ref=e89]:
+                - link "Link" [ref=e90] [cursor=pointer]:
+                  - /url: /components/link/
+              - listitem [ref=e91]:
+                - link "List" [ref=e92] [cursor=pointer]:
+                  - /url: /components/list/
+              - listitem [ref=e93]:
+                - link "Loading" [ref=e94] [cursor=pointer]:
+                  - /url: /components/loading/
+              - listitem [ref=e95]:
+                - link "Mask" [ref=e96] [cursor=pointer]:
+                  - /url: /components/mask/
+              - listitem [ref=e97]:
+                - link "Menu" [ref=e98] [cursor=pointer]:
+                  - /url: /components/menu/
+              - listitem [ref=e99]:
+                - link "Mockup Browser" [ref=e100] [cursor=pointer]:
+                  - /url: /components/mockup-browser/
+              - listitem [ref=e101]:
+                - link "Mockup Code" [ref=e102] [cursor=pointer]:
+                  - /url: /components/mockup-code/
+              - listitem [ref=e103]:
+                - link "Mockup Phone" [ref=e104] [cursor=pointer]:
+                  - /url: /components/mockup-phone/
+              - listitem [ref=e105]:
+                - link "Mockup Window" [ref=e106] [cursor=pointer]:
+                  - /url: /components/mockup-window/
+              - listitem [ref=e107]:
+                - link "Modal" [ref=e108] [cursor=pointer]:
+                  - /url: /components/modal/
+              - listitem [ref=e109]:
+                - link "Navbar" [ref=e110] [cursor=pointer]:
+                  - /url: /components/navbar/
+              - listitem [ref=e111]:
+                - link "Pagination" [ref=e112] [cursor=pointer]:
+                  - /url: /components/pagination/
+              - listitem [ref=e113]:
+                - link "Progress" [ref=e114] [cursor=pointer]:
+                  - /url: /components/progress/
+              - listitem [ref=e115]:
+                - link "Radial Progress" [ref=e116] [cursor=pointer]:
+                  - /url: /components/radial-progress/
+              - listitem [ref=e117]:
+                - link "Radio" [ref=e118] [cursor=pointer]:
+                  - /url: /components/radio/
+              - listitem [ref=e119]:
+                - link "Range" [ref=e120] [cursor=pointer]:
+                  - /url: /components/range/
+              - listitem [ref=e121]:
+                - link "Rating" [ref=e122] [cursor=pointer]:
+                  - /url: /components/rating/
+              - listitem [ref=e123]:
+                - link "Skeleton" [ref=e124] [cursor=pointer]:
+                  - /url: /components/skeleton/
+              - listitem [ref=e125]:
+                - link "Stack" [ref=e126] [cursor=pointer]:
+                  - /url: /components/stack/
+              - listitem [ref=e127]:
+                - link "Stat" [ref=e128] [cursor=pointer]:
+                  - /url: /components/stat/
+              - listitem [ref=e129]:
+                - link "Steps" [ref=e130] [cursor=pointer]:
+                  - /url: /components/steps/
+              - listitem [ref=e131]:
+                - link "Swap" [ref=e132] [cursor=pointer]:
+                  - /url: /components/swap/
+              - listitem [ref=e133]:
+                - link "Table" [ref=e134] [cursor=pointer]:
+                  - /url: /components/table/
+              - listitem [ref=e135]:
+                - link "Tabs" [ref=e136] [cursor=pointer]:
+                  - /url: /components/tabs/
+              - listitem [ref=e137]:
+                - link "Timeline" [ref=e138] [cursor=pointer]:
+                  - /url: /components/timeline/
+              - listitem [ref=e139]:
+                - link "Toast" [ref=e140] [cursor=pointer]:
+                  - /url: /components/toast/
+              - listitem [ref=e141]:
+                - link "Tooltip" [ref=e142] [cursor=pointer]:
+                  - /url: /components/tooltip/
+        - listitem [ref=e143]:
+          - group [ref=e144]:
+            - generic "getting-started" [ref=e145] [cursor=pointer]:
+              - generic [ref=e146]: getting-started
+              - img [ref=e147]
+            - list [ref=e149]:
+              - listitem [ref=e150]:
+                - link "Overview" [ref=e151] [cursor=pointer]:
+                  - /url: /getting-started/overview/
+              - listitem [ref=e152]:
+                - link "Themes" [ref=e153] [cursor=pointer]:
+                  - /url: /getting-started/themes/
+    - generic [ref=e155]:
+      - complementary [ref=e156]:
+        - navigation "On this page" [ref=e161]:
+          - heading "On this page" [level=2] [ref=e162]
+          - list [ref=e163]:
+            - listitem [ref=e164]:
+              - link "Overview" [ref=e165] [cursor=pointer]:
+                - /url: "#_top"
+            - listitem [ref=e166]:
+              - link "Usage" [ref=e167] [cursor=pointer]:
+                - /url: "#usage"
+            - listitem [ref=e168]:
+              - link "Radio-based tabs (CSS-only toggle)" [ref=e169] [cursor=pointer]:
+                - /url: "#radio-based-tabs-css-only-toggle"
+            - listitem [ref=e170]:
+              - link "Pills variant" [ref=e171] [cursor=pointer]:
+                - /url: "#pills-variant"
+            - listitem [ref=e172]:
+              - link "Tabs border variant" [ref=e173] [cursor=pointer]:
+                - /url: "#tabs-border-variant"
+            - listitem [ref=e174]:
+              - link "Tabs lift variant" [ref=e175] [cursor=pointer]:
+                - /url: "#tabs-lift-variant"
+            - listitem [ref=e176]:
+              - link "Tabs with icons" [ref=e177] [cursor=pointer]:
+                - /url: "#tabs-with-icons"
+            - listitem [ref=e178]:
+              - link "Outlined content area" [ref=e179] [cursor=pointer]:
+                - /url: "#outlined-content-area"
+            - listitem [ref=e180]:
+              - link "Sizes" [ref=e181] [cursor=pointer]:
+                - /url: "#sizes"
+            - listitem [ref=e182]:
+              - link "Layout options" [ref=e183] [cursor=pointer]:
+                - /url: "#layout-options"
+      - main [ref=e185]:
+        - heading "Tabs" [level=1] [ref=e188]
+        - generic [ref=e190]:
+          - generic [ref=e191]:
+            - generic [ref=e192]:
+              - heading "Usage" [level=2] [ref=e193]
+              - link "Section titled “Usage”" [ref=e194] [cursor=pointer]:
+                - /url: "#usage"
+                - img [ref=e196]
+                - generic [ref=e198]: Section titled “Usage”
+            - paragraph [ref=e199]:
+              - text: Use
+              - code [ref=e200]: .tabs
+              - text: with
+              - code [ref=e201]: .tabs-list
+              - text: for tab buttons and
+              - code [ref=e202]: .tabs-content
+              - text: for the panel. Add
+              - code [ref=e203]: .tab-active
+              - text: to the active tab.
+            - generic [ref=e205]:
+              - generic [ref=e206]:
+                - button "Tab 1" [ref=e207] [cursor=pointer]
+                - button "Tab 2" [ref=e208] [cursor=pointer]
+                - button "Tab 3" [ref=e209] [cursor=pointer]
+              - paragraph [ref=e211]: Content for the active tab panel
+            - figure [ref=e213]:
+              - code [ref=e215]:
+                - generic [ref=e217]:
+                  - generic [ref=e218]: <div
+                  - text: class="tabs">
+                - generic [ref=e220]:
+                  - generic [ref=e221]: <div
+                  - text: class="tabs-list">
+                - generic [ref=e223]:
+                  - generic [ref=e224]: <button
+                  - text: class="tab tab-active">Tab 1
+                  - generic [ref=e225]: </button>
+                - generic [ref=e227]:
+                  - generic [ref=e228]: <button
+                  - text: class="tab">Tab 2
+                  - generic [ref=e229]: </button>
+                - generic [ref=e231]:
+                  - generic [ref=e232]: <button
+                  - text: class="tab">Tab 3
+                  - generic [ref=e233]: </button>
+                - generic [ref=e236]: </div>
+                - generic [ref=e238]:
+                  - generic [ref=e239]: <div
+                  - text: class="tabs-content">
+                - generic [ref=e241]:
+                  - generic [ref=e242]: <p>
+                  - text: Content for the active tab panel
+                  - generic [ref=e243]: </p>
+                - generic [ref=e246]: </div>
+                - generic [ref=e249]: </div>
+              - button "Copy to clipboard" [ref=e251] [cursor=pointer]
+            - generic [ref=e253]:
+              - heading "Radio-based tabs (CSS-only toggle)" [level=2] [ref=e254]
+              - link "Section titled “Radio-based tabs (CSS-only toggle)”" [ref=e255] [cursor=pointer]:
+                - /url: "#radio-based-tabs-css-only-toggle"
+                - img [ref=e257]
+                - generic [ref=e259]: Section titled “Radio-based tabs (CSS-only toggle)”
+            - paragraph [ref=e260]: For CSS-only tab toggling without JavaScript, use radio inputs. The content following a checked radio will be shown.
+            - generic [ref=e262]:
+              - radio "Tab 1" [ref=e263] [cursor=pointer]
+              - generic [ref=e264]: Content for Tab 1
+              - radio "Tab 2" [checked] [ref=e265] [cursor=pointer]
+              - generic [ref=e266]: Content for Tab 2
+              - radio "Tab 3" [ref=e267] [cursor=pointer]
+              - generic [ref=e268]: Content for Tab 3
+            - figure [ref=e270]:
+              - code [ref=e272]:
+                - generic [ref=e274]:
+                  - generic [ref=e275]: <div
+                  - text: class="tabs tabs-box">
+                - generic [ref=e277]:
+                  - generic [ref=e278]: <input
+                  - text: type="radio" name="my_tabs" class="tab" aria-label="Tab 1" />
+                - generic [ref=e280]:
+                  - generic [ref=e281]: <div
+                  - text: class="tab-content">Content for Tab 1
+                  - generic [ref=e282]: </div>
+                - generic [ref=e287]: <input
+                - generic [ref=e289]: type="radio"
+                - generic [ref=e291]: name="my_tabs"
+                - generic [ref=e293]: class="tab"
+                - generic [ref=e295]: aria-label="Tab 2"
+                - generic [ref=e297]: checked="checked"
+                - generic [ref=e299]: />
+                - generic [ref=e301]:
+                  - generic [ref=e302]: <div
+                  - text: class="tab-content">Content for Tab 2
+                  - generic [ref=e303]: </div>
+                - generic [ref=e307]:
+                  - generic [ref=e308]: <input
+                  - text: type="radio" name="my_tabs" class="tab" aria-label="Tab 3" />
+                - generic [ref=e310]:
+                  - generic [ref=e311]: <div
+                  - text: class="tab-content">Content for Tab 3
+                  - generic [ref=e312]: </div>
+                - generic [ref=e315]: </div>
+              - button "Copy to clipboard" [ref=e317] [cursor=pointer]
+            - paragraph [ref=e319]:
+              - text: "Note: Each tab group needs a unique"
+              - code [ref=e320]: name
+              - text: attribute for the radio inputs.
+            - generic [ref=e321]:
+              - heading "Pills variant" [level=2] [ref=e322]
+              - link "Section titled “Pills variant”" [ref=e323] [cursor=pointer]:
+                - /url: "#pills-variant"
+                - img [ref=e325]
+                - generic [ref=e327]: Section titled “Pills variant”
+            - generic [ref=e330]:
+              - button "Overview" [ref=e331] [cursor=pointer]
+              - button "Details" [ref=e332] [cursor=pointer]
+              - button "Settings" [ref=e333] [cursor=pointer]
+            - figure [ref=e335]:
+              - code [ref=e337]:
+                - generic [ref=e339]:
+                  - generic [ref=e340]: <div
+                  - text: class="tabs tabs-pills">
+                - generic [ref=e342]:
+                  - generic [ref=e343]: <div
+                  - text: class="tabs-list">
+                - generic [ref=e345]:
+                  - generic [ref=e346]: <button
+                  - text: class="tab tab-active">Overview
+                  - generic [ref=e347]: </button>
+                - generic [ref=e349]:
+                  - generic [ref=e350]: <button
+                  - text: class="tab">Details
+                  - generic [ref=e351]: </button>
+                - generic [ref=e353]:
+                  - generic [ref=e354]: <button
+                  - text: class="tab">Settings
+                  - generic [ref=e355]: </button>
+                - generic [ref=e358]: </div>
+                - generic [ref=e361]: </div>
+              - button "Copy to clipboard" [ref=e363] [cursor=pointer]
+            - generic [ref=e365]:
+              - heading "Tabs border variant" [level=2] [ref=e366]
+              - link "Section titled “Tabs border variant”" [ref=e367] [cursor=pointer]:
+                - /url: "#tabs-border-variant"
+                - img [ref=e369]
+                - generic [ref=e371]: Section titled “Tabs border variant”
+            - generic [ref=e373]:
+              - radio "Tab 1" [ref=e374] [cursor=pointer]
+              - generic [ref=e375]: Content 1
+              - radio "Tab 2" [checked] [ref=e376] [cursor=pointer]
+              - generic [ref=e377]: Content 2
+              - radio "Tab 3" [ref=e378] [cursor=pointer]
+              - generic [ref=e379]: Content 3
+            - figure [ref=e381]:
+              - code [ref=e383]:
+                - generic [ref=e385]:
+                  - generic [ref=e386]: <div
+                  - text: class="tabs tabs-border">
+                - generic [ref=e388]:
+                  - generic [ref=e389]: <input
+                  - text: type="radio" name="my_tabs_2" class="tab" aria-label="Tab 1" />
+                - generic [ref=e391]:
+                  - generic [ref=e392]: <div
+                  - text: class="tab-content">Content 1
+                  - generic [ref=e393]: </div>
+                - generic [ref=e398]: <input
+                - generic [ref=e400]: type="radio"
+                - generic [ref=e402]: name="my_tabs_2"
+                - generic [ref=e404]: class="tab"
+                - generic [ref=e406]: aria-label="Tab 2"
+                - generic [ref=e408]: checked="checked"
+                - generic [ref=e410]: />
+                - generic [ref=e412]:
+                  - generic [ref=e413]: <div
+                  - text: class="tab-content">Content 2
+                  - generic [ref=e414]: </div>
+                - generic [ref=e418]:
+                  - generic [ref=e419]: <input
+                  - text: type="radio" name="my_tabs_2" class="tab" aria-label="Tab 3" />
+                - generic [ref=e421]:
+                  - generic [ref=e422]: <div
+                  - text: class="tab-content">Content 3
+                  - generic [ref=e423]: </div>
+                - generic [ref=e426]: </div>
+              - button "Copy to clipboard" [ref=e428] [cursor=pointer]
+            - generic [ref=e430]:
+              - heading "Tabs lift variant" [level=2] [ref=e431]
+              - link "Section titled “Tabs lift variant”" [ref=e432] [cursor=pointer]:
+                - /url: "#tabs-lift-variant"
+                - img [ref=e434]
+                - generic [ref=e436]: Section titled “Tabs lift variant”
+            - generic [ref=e438]:
+              - radio "Tab 1" [ref=e439] [cursor=pointer]
+              - generic [ref=e440]: Content 1
+              - radio "Tab 2" [checked] [ref=e441] [cursor=pointer]
+              - generic [ref=e442]: Content 2
+              - radio "Tab 3" [ref=e443] [cursor=pointer]
+              - generic [ref=e444]: Content 3
+            - figure [ref=e446]:
+              - code [ref=e448]:
+                - generic [ref=e450]:
+                  - generic [ref=e451]: <div
+                  - text: class="tabs tabs-lift">
+                - generic [ref=e453]:
+                  - generic [ref=e454]: <input
+                  - text: type="radio" name="my_tabs_3" class="tab" aria-label="Tab 1" />
+                - generic [ref=e456]:
+                  - generic [ref=e457]: <div
+                  - text: class="tab-content">Content 1
+                  - generic [ref=e458]: </div>
+                - generic [ref=e463]: <input
+                - generic [ref=e465]: type="radio"
+                - generic [ref=e467]: name="my_tabs_3"
+                - generic [ref=e469]: class="tab"
+                - generic [ref=e471]: aria-label="Tab 2"
+                - generic [ref=e473]: checked="checked"
+                - generic [ref=e475]: />
+                - generic [ref=e477]:
+                  - generic [ref=e478]: <div
+                  - text: class="tab-content">Content 2
+                  - generic [ref=e479]: </div>
+                - generic [ref=e483]:
+                  - generic [ref=e484]: <input
+                  - text: type="radio" name="my_tabs_3" class="tab" aria-label="Tab 3" />
+                - generic [ref=e486]:
+                  - generic [ref=e487]: <div
+                  - text: class="tab-content">Content 3
+                  - generic [ref=e488]: </div>
+                - generic [ref=e491]: </div>
+              - button "Copy to clipboard" [ref=e493] [cursor=pointer]
+            - generic [ref=e495]:
+              - heading "Tabs with icons" [level=2] [ref=e496]
+              - link "Section titled “Tabs with icons”" [ref=e497] [cursor=pointer]:
+                - /url: "#tabs-with-icons"
+                - img [ref=e499]
+                - generic [ref=e501]: Section titled “Tabs with icons”
+            - generic [ref=e503]:
+              - generic [ref=e504] [cursor=pointer]:
+                - radio "Live" [ref=e505]
+                - img [ref=e506]
+                - text: Live
+              - generic [ref=e508]: Tab content 1
+              - generic [ref=e509] [cursor=pointer]:
+                - radio "Details" [checked] [ref=e510]
+                - img [ref=e511]
+                - text: Details
+              - generic [ref=e513]: Tab content 2
+            - figure [ref=e515]:
+              - code [ref=e517]:
+                - generic [ref=e519]:
+                  - generic [ref=e520]: <div
+                  - text: class="tabs tabs-lift">
+                - generic [ref=e522]:
+                  - generic [ref=e523]: <label
+                  - text: class="tab">
+                - generic [ref=e525]:
+                  - generic [ref=e526]: <input
+                  - text: type="radio" name="my_tabs_4" />
+                - generic [ref=e528]:
+                  - generic [ref=e529]: <svg
+                  - text: class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                - generic [ref=e532]: <path
+                - generic [ref=e534]: stroke-linecap="round"
+                - generic [ref=e536]: stroke-linejoin="round"
+                - generic [ref=e538]: stroke-width="1.5"
+                - generic [ref=e540]: d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+                - generic [ref=e542]: />
+                - generic [ref=e545]: </svg>
+                - generic [ref=e547]: Live
+                - generic [ref=e551]: </label>
+                - generic [ref=e553]:
+                  - generic [ref=e554]: <div
+                  - text: class="tab-content">Tab content 1
+                  - generic [ref=e555]: </div>
+                - generic [ref=e559]:
+                  - generic [ref=e560]: <label
+                  - text: class="tab">
+                - generic [ref=e562]:
+                  - generic [ref=e563]: <input
+                  - text: type="radio" name="my_tabs_4" checked="checked" />
+                - generic [ref=e565]:
+                  - generic [ref=e566]: <svg
+                  - text: class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                - generic [ref=e569]: <path
+                - generic [ref=e571]: stroke-linecap="round"
+                - generic [ref=e573]: stroke-linejoin="round"
+                - generic [ref=e575]: stroke-width="1.5"
+                - generic [ref=e577]: d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                - generic [ref=e579]: />
+                - generic [ref=e582]: </svg>
+                - generic [ref=e584]: Details
+                - generic [ref=e588]: </label>
+                - generic [ref=e590]:
+                  - generic [ref=e591]: <div
+                  - text: class="tab-content">Tab content 2
+                  - generic [ref=e592]: </div>
+                - generic [ref=e595]: </div>
+              - button "Copy to clipboard" [ref=e597] [cursor=pointer]
+            - generic [ref=e599]:
+              - heading "Outlined content area" [level=2] [ref=e600]
+              - link "Section titled “Outlined content area”" [ref=e601] [cursor=pointer]:
+                - /url: "#outlined-content-area"
+                - img [ref=e603]
+                - generic [ref=e605]: Section titled “Outlined content area”
+            - generic [ref=e607]:
+              - generic [ref=e608]:
+                - button "Files" [ref=e609] [cursor=pointer]
+                - button "Settings" [ref=e610] [cursor=pointer]
+              - paragraph [ref=e612]: Content with an outlined border below the tabs
+            - figure [ref=e614]:
+              - code [ref=e616]:
+                - generic [ref=e618]:
+                  - generic [ref=e619]: <div
+                  - text: class="tabs">
+                - generic [ref=e621]:
+                  - generic [ref=e622]: <div
+                  - text: class="tabs-list">
+                - generic [ref=e624]:
+                  - generic [ref=e625]: <button
+                  - text: class="tab tab-active">Files
+                  - generic [ref=e626]: </button>
+                - generic [ref=e628]:
+                  - generic [ref=e629]: <button
+                  - text: class="tab">Settings
+                  - generic [ref=e630]: </button>
+                - generic [ref=e633]: </div>
+                - generic [ref=e635]:
+                  - generic [ref=e636]: <div
+                  - text: class="tabs-content tabs-content-outlined">
+                - generic [ref=e638]:
+                  - generic [ref=e639]: <p>
+                  - text: Content with an outlined border below the tabs
+                  - generic [ref=e640]: </p>
+                - generic [ref=e643]: </div>
+                - generic [ref=e646]: </div>
+              - button "Copy to clipboard" [ref=e648] [cursor=pointer]
+            - generic [ref=e650]:
+              - heading "Sizes" [level=2] [ref=e651]
+              - link "Section titled “Sizes”" [ref=e652] [cursor=pointer]:
+                - /url: "#sizes"
+                - img [ref=e654]
+                - generic [ref=e656]: Section titled “Sizes”
+            - paragraph [ref=e657]:
+              - text: "Five sizes are available:"
+              - code [ref=e658]: xs
+              - text: ","
+              - code [ref=e659]: sm
+              - text: ","
+              - code [ref=e660]: md
+              - text: (default),
+              - code [ref=e661]: lg
+              - text: ","
+              - code [ref=e662]: xl
+              - text: .
+            - generic [ref=e663]:
+              - generic [ref=e665]:
+                - button "XS Tab" [ref=e666] [cursor=pointer]
+                - button "Other" [ref=e667] [cursor=pointer]
+              - generic [ref=e669]:
+                - button "LG Tab" [ref=e670] [cursor=pointer]
+                - button "Other" [ref=e671] [cursor=pointer]
+            - figure [ref=e673]:
+              - code [ref=e675]:
+                - generic [ref=e677]:
+                  - generic [ref=e678]: <div
+                  - text: class="tabs tabs-xs">
+                - generic [ref=e680]:
+                  - generic [ref=e681]: <div
+                  - text: class="tabs-list">
+                - generic [ref=e683]:
+                  - generic [ref=e684]: <button
+                  - text: class="tab tab-active">XS Tab
+                  - generic [ref=e685]: </button>
+                - generic [ref=e687]:
+                  - generic [ref=e688]: <button
+                  - text: class="tab">Other
+                  - generic [ref=e689]: </button>
+                - generic [ref=e692]: </div>
+                - generic [ref=e695]: </div>
+                - generic [ref=e697]:
+                  - generic [ref=e698]: <div
+                  - text: class="tabs tabs-lg">
+                - generic [ref=e700]:
+                  - generic [ref=e701]: <div
+                  - text: class="tabs-list">
+                - generic [ref=e703]:
+                  - generic [ref=e704]: <button
+                  - text: class="tab tab-active">LG Tab
+                  - generic [ref=e705]: </button>
+                - generic [ref=e707]:
+                  - generic [ref=e708]: <button
+                  - text: class="tab">Other
+                  - generic [ref=e709]: </button>
+                - generic [ref=e712]: </div>
+                - generic [ref=e715]: </div>
+              - button "Copy to clipboard" [ref=e717] [cursor=pointer]
+            - generic [ref=e719]:
+              - heading "Layout options" [level=2] [ref=e720]
+              - link "Section titled “Layout options”" [ref=e721] [cursor=pointer]:
+                - /url: "#layout-options"
+                - img [ref=e723]
+                - generic [ref=e725]: Section titled “Layout options”
+            - table [ref=e726]:
+              - rowgroup [ref=e727]:
+                - row "Class Description" [ref=e728]:
+                  - columnheader "Class" [ref=e729]
+                  - columnheader "Description" [ref=e730]
+              - rowgroup [ref=e731]:
+                - row ".tabs-list-centered Center the tabs" [ref=e732]:
+                  - cell ".tabs-list-centered" [ref=e733]:
+                    - code [ref=e734]: .tabs-list-centered
+                  - cell "Center the tabs" [ref=e735]
+                - row ".tabs-list-full Equal-width tabs" [ref=e736]:
+                  - cell ".tabs-list-full" [ref=e737]:
+                    - code [ref=e738]: .tabs-list-full
+                  - cell "Equal-width tabs" [ref=e739]
+                - row ".tabs-bottom Tabs below content" [ref=e740]:
+                  - cell ".tabs-bottom" [ref=e741]:
+                    - code [ref=e742]: .tabs-bottom
+                  - cell "Tabs below content" [ref=e743]
+          - generic [ref=e745]:
+            - link "Previous Table" [ref=e746] [cursor=pointer]:
+              - /url: /components/table/
+              - img [ref=e747]
+              - generic [ref=e749]:
+                - text: Previous
+                - text: Table
+            - link "Next Timeline" [ref=e750] [cursor=pointer]:
+              - /url: /components/timeline/
+              - img [ref=e751]
+              - generic [ref=e753]:
+                - text: Next
+                - text: Timeline

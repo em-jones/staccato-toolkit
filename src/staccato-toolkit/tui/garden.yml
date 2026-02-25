@@ -1,0 +1,9 @@
+apiVersion: garden.io/v2
+kind: Command
+name: tui
+description: "Starts hot-reloading development environment for Staccato TUI. Optional: DEBUG=1 for delve debugger support."
+steps:
+  - name: start
+    exec:
+      command:
+        - wgo run -config .wgo.yaml $DEV_BIN_PATH/st-tui
