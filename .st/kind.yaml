@@ -1,0 +1,34 @@
+# kind config.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: staccato-dev
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
+    extraPortMappings:
+      - containerPort: 80
+        hostPort: 8080
+        protocol: TCP
+      - containerPort: 443
+        hostPort: 8443
+        protocol: TCP
+    extraMounts:
+      # Shadow /dev/bsg inside the kind node with an empty directory.
+      # The kernel SCSI Generic subsystem lists /dev/bsg/0:0:0:0 inside the kind
+      # node container, but the device can't actually be bind-mounted. When
+      # buildkitd runs as privileged it tries to mount every listed device node,
+      # causing a StartError. Masking /dev/bsg with an empty bind-mount prevents
+      # runc from enumerating any BSG devices.
+      #
+      # Note: /dev/fuse is intentionally omitted. Kernel >= 5.11 supports
+      # overlayfs natively in user namespaces, so fuse-overlayfs is never
+      # reached. Add /dev/fuse here if this cluster is ever run on kernel
+      # 4.18 <= version < 5.11.
+      - hostPath: .st/kind-empty-bsg
+        containerPath: /dev/bsg
+        propagation: HostToContainer

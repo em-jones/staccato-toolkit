@@ -1,0 +1,26 @@
+# src/staccato-toolkit/server
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: staccato-server
+  title: Staccato Server
+  description: API server for the staccato toolkit, orchestrating interactions between CLI and the underlying system — lives at src/staccato-toolkit/server/
+  annotations:
+    backstage.io/techdocs-ref: dir:../../../../src/staccato-toolkit/server
+    backstage.io/adr-location: docs/adrs
+  tags:
+    - go
+    - server
+    - api
+    - staccato
+  links:
+    - url: https://github.com/org/openspec-td/tree/main/src/staccato-toolkit/server
+      title: Source
+      icon: github
+spec:
+  type: service
+  lifecycle: experimental
+  owner: platform-team
+  system: developer-platform
+  dependsOn:
+    - component:staccato-domain

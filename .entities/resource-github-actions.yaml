@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: github-actions
+  title: GitHub Actions
+  description: CI/CD platform integrated with GitHub for automating build, test, and deployment workflows directly from repositories.
+  tags:
+    - ci-cd
+    - utility
+    - automation
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

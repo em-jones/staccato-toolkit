@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: staccato-server
+  namespace: monitoring
+  labels:
+    app: staccato-server
+spec:
+  namespaceSelector:
+    matchNames:
+      - staccato
+  selector:
+    matchLabels:
+      app: staccato-server
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

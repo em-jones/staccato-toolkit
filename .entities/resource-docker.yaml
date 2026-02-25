@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: docker
+  title: Docker
+  description: Platform for developing, shipping, and running applications in isolated containers with standardized packaging.
+  tags:
+    - containers
+    - infrastructure
+    - build
+spec:
+  type: infrastructure
+  owner: platform-team
+  system: developer-platform

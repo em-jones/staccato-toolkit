@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: go
+  title: go
+  description: Go programming language runtime — used for authoring Dagger pipeline modules at src/ops/platform/
+  tags:
+    - devbox
+    - language
+    - runtime
+    - utility
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

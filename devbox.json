@@ -1,0 +1,45 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+  "packages": [
+    "bun@latest",
+    "nodejs-slim@24.13.0",
+    "dagger@latest",
+    "go@latest",
+    "golangci-lint@latest",
+    "shellcheck@latest",
+    "shfmt@latest",
+    "lychee@latest",
+    "go-task@latest",
+    "kubectl@latest",
+    "k9s@latest",
+    "github:em-jones/staccato-toolkit",
+    "podman@latest",
+    "kubevela@latest",
+    "yq-go@4.52.4",
+    "delve@1.26.0",
+    "wgo@0.6.3",
+    "claude-code@latest",
+    "rootlesskit@latest",
+    "shadow@latest",
+    "k3s@latest",
+    "minikube@latest"
+  ],
+  "env": {
+    "CONTAINERS_CONF":            "${DEVBOX_PROJECT_ROOT}/.st/containers/containers.conf",
+    "CONTAINERS_REGISTRIES_CONF": "${DEVBOX_PROJECT_ROOT}/.st/containers/registries.conf",
+    "KIND_EXPERIMENTAL_PROVIDER": "podman"
+  },
+  "shell": {
+    "init_hook": [
+      "echo 'Welcome to devbox!' > /dev/null",
+      "export DEV_BIN_PATH=\".ops/.devbin\"",
+      "export PATH=\"$PATH:$DEV_BIN_PATH\"",
+      "alias docker podman"
+    ],
+    "scripts": {
+      "test": [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
+    }
+  }
+}

@@ -1,0 +1,38 @@
+# Development Containerfile for Staccato Web (go-app PWA) with hot-reloading via wgo
+# Build context MUST be the repo root so go.work is accessible.
+#
+# Usage (from repo root):
+#   docker build -f src/staccato-toolkit/web/Containerfile.dev -t staccato-web:dev .
+#   docker run -it -v $(pwd)/src/staccato-toolkit/web:/workspace/src/staccato-toolkit/web:Z -p 8081:8081 staccato-web:dev
+
+FROM golang:1.25-alpine
+
+RUN apk add --no-cache ca-certificates git bash
+
+# Install wgo for hot-reloading
+RUN go install github.com/bokwoon95/wgo@latest
+
+WORKDIR /workspace
+
+COPY go.work go.work.sum ./
+
+# Copy all workspace modules (go.work requires all listed modules to be present)
+COPY src/ops/workloads/ ./src/ops/workloads/
+COPY src/staccato-toolkit/cli/ ./src/staccato-toolkit/cli/
+COPY src/staccato-toolkit/core/ ./src/staccato-toolkit/core/
+COPY src/staccato-toolkit/server/ ./src/staccato-toolkit/server/
+COPY src/staccato-toolkit/tui/ ./src/staccato-toolkit/tui/
+COPY src/staccato-toolkit/web/ ./src/staccato-toolkit/web/
+
+WORKDIR /workspace/src/staccato-toolkit/web
+
+# Pre-download dependencies
+RUN go mod download
+
+# Create web directory for WASM output
+RUN mkdir -p web && cp /usr/local/go/lib/wasm/wasm_exec.js ./web/wasm_exec.js
+
+EXPOSE 8081
+
+# wgo will handle the initial build and hot-reloading
+ENTRYPOINT ["wgo", "run", "-config", ".wgo.yaml", "./tmp/staccato-web"]

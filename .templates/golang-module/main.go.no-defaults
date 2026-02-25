@@ -1,0 +1,10 @@
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	// Your service logic here
+	fmt.Println("${SERVICE_NAME} started successfully")
+}

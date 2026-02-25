@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: kube-linter
+  title: KubeLinter
+  description: Static analysis tool that checks Kubernetes YAML files and Helm charts for security and best practice violations.
+  tags:
+    - kubernetes
+    - utility
+    - linting
+    - security
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

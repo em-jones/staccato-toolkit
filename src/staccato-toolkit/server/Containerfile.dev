@@ -1,0 +1,58 @@
+# Development Containerfile for Staccato Server
+# Enables hot-reloading during development with wgo, with optional delve debugger support.
+# Build context MUST be the repo root so go.work is accessible.
+#
+# Usage (from repo root):
+#   docker build -f src/staccato-toolkit/server/Containerfile.dev -t staccato-server:dev .
+#   
+#   Run with hot-reloading:
+#   docker run -it -v $(pwd)/src/staccato-toolkit/server:/workspace/src/staccato-toolkit/server:Z -p 8080:8080 staccato-server:dev
+#
+#   Run with delve debugger (port 2345):
+#   docker run -it -v $(pwd)/src/staccato-toolkit/server:/workspace/src/staccato-toolkit/server:Z -p 8080:8080 -p 2345:2345 -e DEBUG=1 staccato-server:dev
+
+FROM golang:1.25-alpine
+
+WORKDIR /workspace
+
+# Install development tools and delve debugger
+RUN apk add --no-cache git make bash curl ca-certificates && \
+    go install github.com/go-delve/delve/cmd/dlv@latest && \
+    go install github.com/bokwoon95/wgo@latest
+
+# Copy go.work workspace files so Go resolves all workspace modules
+COPY go.work go.work.sum ./
+
+# Copy all workspace modules referenced in go.work
+# (go.work requires all listed modules to be present even if not all are imported)
+COPY src/ops/workloads/ ./src/ops/workloads/
+COPY src/staccato-toolkit/cli/ ./src/staccato-toolkit/cli/
+COPY src/staccato-toolkit/core/ ./src/staccato-toolkit/core/
+COPY src/staccato-toolkit/server/ ./src/staccato-toolkit/server/
+COPY src/staccato-toolkit/tui/ ./src/staccato-toolkit/tui/
+COPY src/staccato-toolkit/web/ ./src/staccato-toolkit/web/
+
+WORKDIR /workspace/src/staccato-toolkit/server
+
+# Pre-download dependencies via the workspace
+RUN go mod download
+
+# Expose API port and delve debugger port
+EXPOSE 8080 2345
+
+# Entrypoint script to handle DEBUG mode
+COPY <<EOF /docker-entrypoint.sh
+#!/bin/sh
+if [ "$DEBUG" = "1" ]; then
+  echo "Starting with Delve debugger on port 2345..."
+  go build -gcflags="all=-N -l" -o ./tmp/staccato-server-debug . && \
+  dlv exec ./tmp/staccato-server-debug --headless --listen=:2345 --api-version=2
+else
+  echo "Starting with wgo hot-reloading..."
+  wgo run -config .wgo.yaml ./tmp/staccato-server
+fi
+EOF
+
+RUN chmod +x /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -1,0 +1,42 @@
+# lychee link checker configuration
+# See: https://lychee.cli.rs/usage/config/
+
+# Timeout for each request (seconds)
+timeout = 20
+
+# Wait time between retries (seconds)
+retry_wait_time = 2
+
+# Maximum number of retries per URL
+max_retries = 2
+
+# Maximum number of concurrent link checks
+max_concurrency = 8
+
+# Exclude patterns - these links will not be checked
+exclude = [
+  # localhost and private network addresses
+  "^https?://localhost",
+  "^https?://127\\.0\\.0\\.1",
+  "^https?://0\\.0\\.0\\.0",
+  "^https?://.*\\.internal",
+
+  # Example and placeholder domains
+  "^https?://example\\.com",
+  "^https?://.*\\.example\\.com",
+
+  # GitHub edit links (require auth)
+  "^https://github\\.com/.*/edit/",
+
+  # Known unreachable or rate-limited
+  "^https?://shields\\.io",
+]
+
+# Exclude paths from being checked as sources
+exclude_path = [
+  "node_modules",
+  ".devbox",
+  ".git",
+  ".vale",
+  "site",
+]

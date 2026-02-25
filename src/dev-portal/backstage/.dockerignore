@@ -1,0 +1,11 @@
+.git
+.yarn/cache
+.yarn/install-state.gz
+node_modules
+packages/*/src
+packages/*/node_modules
+plugins
+*.local.yaml
+
+# Allow the OTel instrumentation file despite packages/*/src exclusion
+!packages/backend/src/instrumentation.js

@@ -1,0 +1,135 @@
+apiVersion: garden.io/v0
+kind: Build
+type: container
+name: backstage-image
+description: "Build Backstage dev image"
+
+include:
+  - Containerfile.dev
+  - package.json
+  - yarn.lock
+  - .yarnrc.yml
+  - .yarn/**/*
+  - packages/**/*
+  - plugins/**/*
+  - tsconfig.json
+  - app-config.yaml
+  - app-config.local.yaml
+
+exclude:
+  - node_modules/**/*
+  - packages/**/node_modules/**/*
+  - packages/**/dist/**/*
+
+buildAtSource: true
+
+spec:
+  dockerfile: Containerfile.dev
+
+---
+apiVersion: garden.io/v0
+kind: Deploy
+type: kubernetes
+name: backstage
+description: "Deploy Backstage dev portal"
+
+dependencies:
+  - build.backstage-image
+  - deploy.ops-environment
+
+spec:
+  namespace: staccato
+
+  # Backstage manifest is defined inline until a dedicated file is added to
+  # src/ops/dev/manifests/backstage/
+  manifests:
+    - apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: backstage
+        namespace: staccato
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: backstage
+        template:
+          metadata:
+            labels:
+              app: backstage
+          spec:
+            containers:
+              - name: backstage
+                image: ${actions.build.backstage-image.outputs.deploymentImageId}
+                imagePullPolicy: IfNotPresent
+                command: ["yarn", "serve"]
+                ports:
+                  - containerPort: 7007
+                    name: backend
+                  - containerPort: 3000
+                    name: frontend
+                  - containerPort: 9464
+                    name: metrics
+                resources:
+                  limits:
+                    memory: "1Gi"
+                    cpu: "500m"
+                  requests:
+                    memory: "512Mi"
+                    cpu: "200m"
+    - apiVersion: v1
+      kind: Service
+      metadata:
+        name: backstage
+        namespace: staccato
+        annotations:
+          prometheus.io/scrape: "true"
+          prometheus.io/port: "7007"
+          prometheus.io/path: "/metrics"
+      spec:
+        selector:
+          app: backstage
+        ports:
+          - name: backend
+            port: 7007
+            targetPort: 7007
+          - name: frontend
+            port: 3000
+            targetPort: 3000
+
+  defaultTarget:
+    kind: Deployment
+    name: backstage
+    containerName: backstage
+
+  sync:
+    paths:
+      # Sync TypeScript source — webpack HMR in yarn serve picks up changes automatically.
+      # node_modules MUST be excluded to avoid overwriting the container's installed deps.
+      - sourcePath: packages
+        containerPath: /workspace/packages
+        mode: one-way-replica
+        exclude:
+          - "*/node_modules/**/*"
+          - "*/dist/**/*"
+      - sourcePath: plugins
+        containerPath: /workspace/plugins
+        mode: one-way-replica
+        exclude:
+          - "*/node_modules/**/*"
+      - sourcePath: app-config.yaml
+        containerPath: /workspace/app-config.yaml
+        mode: one-way-replica
+      - sourcePath: app-config.local.yaml
+        containerPath: /workspace/app-config.local.yaml
+        mode: one-way-safe
+
+  portForwards:
+    - name: frontend
+      resource: Service/backstage
+      targetPort: 3000
+      localPort: 3000
+    - name: backend
+      resource: Service/backstage
+      targetPort: 7007
+      localPort: 7007

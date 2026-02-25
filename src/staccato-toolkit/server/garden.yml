@@ -1,0 +1,95 @@
+apiVersion: garden.io/v0
+kind: Build
+type: container
+name: staccato-server-image
+description: "Build the staccato-server dev image"
+dependencies:
+  - deploy.ops-environment
+source:
+  path: ../../..
+# Include all workspace modules — go.work requires all listed modules to be
+# present in the build context even if not all are directly imported by server.
+include:
+  - go.work
+  - go.work.sum
+  - src/ops/workloads/**/*
+  - src/staccato-toolkit/cli/**/*
+  - src/staccato-toolkit/core/**/*
+  - src/staccato-toolkit/server/**/*
+  - src/staccato-toolkit/tui/**/*
+  - src/staccato-toolkit/web/**/*
+
+spec:
+  dockerfile: src/staccato-toolkit/server/Containerfile.dev
+
+---
+apiVersion: garden.io/v0
+kind: Deploy
+type: kubernetes
+name: staccato-server
+description: "Deploy staccato-server using existing manifests"
+
+dependencies:
+  - build.staccato-server-image
+
+source:
+  path: ../../..
+
+spec:
+  namespace: staccato
+
+  manifestFiles:
+    - src/ops/dev/manifests/staccato-server/deployment.yaml
+    - src/ops/dev/manifests/staccato-server/service.yaml
+    # TODO: Enable ServiceMonitor once prometheus-operator CRDs are installed
+    # - src/ops/dev/manifests/staccato-server/service-monitor.yaml
+
+  # Inject Garden's built image tag; relax security context for Mutagen sync writes
+  patchResources:
+    - name: staccato-server
+      kind: Deployment
+      patch:
+        spec:
+          template:
+            spec:
+              containers:
+                - name: staccato-server
+                  image: ${actions.build.staccato-server-image.outputs.deploymentImageId}
+                  imagePullPolicy: IfNotPresent
+                  securityContext:
+                    readOnlyRootFilesystem: false # required for Mutagen sync
+
+  defaultTarget:
+    kind: Deployment
+    name: staccato-server
+    containerName: staccato-server
+
+  sync:
+    paths:
+      - sourcePath: src/staccato-toolkit/server
+        containerPath: /workspace/src/staccato-toolkit/server
+        mode: one-way-replica
+        defaultOwner: 1000
+        exclude:
+          - staccato-server # don't overwrite the compiled binary
+          - "**/*_test.go"
+      - sourcePath: src/staccato-toolkit/core
+        containerPath: /workspace/src/staccato-toolkit/core
+        mode: one-way-replica
+        defaultOwner: 1000
+    overrides:
+      - command:
+          - watchexec
+          - -r
+          - --exts
+          - go,mod,sum
+          - --
+          - sh
+          - -c
+          - "go build -o /workspace/staccato-server . && /workspace/staccato-server"
+
+  portForwards:
+    - name: http
+      resource: Service/staccato-server
+      targetPort: 8080
+      localPort: 8080

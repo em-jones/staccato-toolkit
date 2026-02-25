@@ -1,0 +1,20 @@
+# Trivy Ignore File
+#
+# This file allows you to suppress specific CVE findings from failing the pipeline.
+# Use this ONLY for documented exceptions with expiry dates.
+#
+# Format:
+#   CVE-YYYY-NNNNN  # Reason for exception | Expires: YYYY-MM-DD
+#
+# Example:
+#   CVE-2023-12345  # No fix available; mitigated by network policy | Expires: 2026-04-01
+#
+# Guidelines:
+# - Every exception MUST have a documented reason and expiry date
+# - Review all exceptions monthly during security rotation
+# - Remove expired exceptions immediately
+# - Prefer fixing/upgrading over ignoring
+#
+# See: https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/
+
+# --- Exceptions below this line ---

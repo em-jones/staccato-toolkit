@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: grafana
+  title: Grafana
+  description: Open-source analytics and monitoring platform for visualizing metrics, logs, and traces from multiple data sources.
+  tags:
+    - observability
+    - infrastructure
+    - monitoring
+    - visualization
+spec:
+  type: infrastructure
+  owner: platform-team
+  system: developer-platform

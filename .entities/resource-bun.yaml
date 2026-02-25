@@ -1,0 +1,13 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: bun
+  title: bun
+  description: Utility tool managed via devbox
+  tags:
+    - devbox
+    - cli
+    - utility
+spec:
+  type: utility
+  owner: platform-team

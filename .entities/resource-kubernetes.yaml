@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: kubernetes
+  title: Kubernetes
+  description: Container orchestration platform for automating deployment, scaling, and management of containerized applications.
+  tags:
+    - kubernetes
+    - infrastructure
+    - orchestration
+spec:
+  type: infrastructure
+  owner: platform-team
+  system: developer-platform

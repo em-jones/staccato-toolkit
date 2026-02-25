@@ -1,0 +1,31 @@
+apiVersion: garden.io/v2
+kind: Project
+name: staccato
+defaultEnvironment: local
+environments:
+  - name: local
+    defaultNamespace: staccato
+providers:
+  - name: local-kubernetes
+    buildMode: cluster-buildkit
+    environments: [local]
+    context: kind-staccato-dev
+    setupIngressController: traefik
+    deploymentRegistry:
+      hostname: harbor-core.harbor.svc.cluster.local
+      namespace: staccato
+      insecure: true
+# Use .gitignore as the project-wide ignore file.
+# Replaces the deprecated dotIgnoreFiles (array) field removed in Cedar 0.14.
+dotIgnoreFile: .gitignore
+scan:
+  exclude:
+    - node_modules/**/*
+    - .git/**/*
+    - build/**/*
+    - .devbox/**/*
+    - .todos/**/*
+    - .garden/**/*
+    - .entities/**/*
+    - .sidecar/**/*
+    - .opencode/**/*

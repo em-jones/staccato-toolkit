@@ -1,0 +1,3686 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: st-workloads
+  namespace: vela-system
+  annotations:
+    app.oam.dev/description: >-
+      Bootstraps the GitOps infrastructure: applies the flux-operator, Harbor (OCI registry + credential init), and a FluxInstance so Flux controllers are running and the Harbor registry is available for OCI artifact storage.
+spec:
+  # Bootstrap ordering:
+  #   Phase 0 (apply-object): flux-system Namespace — must precede Phase 1 to avoid
+  #            pre-dispatch dry-run failures on namespaced objects.
+  #   Phase 1 (k8s-objects):  flux-operator RBAC + Deployment.
+  #            Prereq: CRDs in resources/ applied before addon install via:
+  #              kubectl apply -f addons/st-workloads/resources/
+  #   Phase 2 (k8s-objects):  FluxInstance — flux-operator reconciles to install Flux.
+  #
+  # After this addon runs, Flux controllers are operational. The environment Application
+  # (ops.yaml / runtime.yaml) is applied next — Flux reconciles HelmRelease and ResourceSet
+  # CRs defined there (harbor, capabilities, per-system ResourceSets, etc.).
+  workflow:
+    steps:
+      - name: apply-flux-system-namespace
+        type: apply-object
+        properties:
+          value:
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: flux-system
+              labels:
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/managed-by: kubevela
+                app.kubernetes.io/part-of: st-environment
+      - name: apply-harbor-namespace
+        type: apply-object
+        properties:
+          value:
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: harbor
+              labels:
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/managed-by: kubevela
+                app.kubernetes.io/part-of: st-environment
+      - name: apply-bootstrap-manifests
+        type: apply-component
+        properties:
+          component: bootstrap-manifests # NOTE: generated
+      - name: apply-flux-instance
+        type: apply-component
+        properties:
+          component: flux-instance
+  components:
+    - name: bootstrap-manifests
+      type: k8s-objects
+      properties:
+        objects:
+          - apiVersion: apiextensions.k8s.io/v1
+            kind: CustomResourceDefinition
+            metadata:
+              annotations:
+                controller-gen.kubebuilder.io/version: v0.20.0
+                helm.sh/resource-policy: keep
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+              name: fluxinstances.fluxcd.controlplane.io
+            spec:
+              group: fluxcd.controlplane.io
+              names:
+                kind: FluxInstance
+                listKind: FluxInstanceList
+                plural: fluxinstances
+                singular: fluxinstance
+              scope: Namespaced
+              versions:
+                - additionalPrinterColumns:
+                    - jsonPath: .metadata.creationTimestamp
+                      name: Age
+                      type: date
+                    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+                      name: Ready
+                      type: string
+                    - jsonPath: .status.conditions[?(@.type=="Ready")].message
+                      name: Status
+                      type: string
+                    - jsonPath: .status.lastAttemptedRevision
+                      name: Revision
+                      type: string
+                  name: v1
+                  schema:
+                    openAPIV3Schema:
+                      description: FluxInstance is the Schema for the fluxinstances API
+                      properties:
+                        apiVersion:
+                          description: |-
+                            APIVersion defines the versioned schema of this representation of an object.
+                            Servers should convert recognized schemas to the latest internal value, and
+                            may reject unrecognized values.
+                            More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+                          type: string
+                        kind:
+                          description: |-
+                            Kind is a string value representing the REST resource this object represents.
+                            Servers may infer this from the endpoint the client submits requests to.
+                            Cannot be updated.
+                            In CamelCase.
+                            More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+                          type: string
+                        metadata:
+                          type: object
+                        spec:
+                          description: FluxInstanceSpec defines the desired state of FluxInstance
+                          properties:
+                            cluster:
+                              description: Cluster holds the specification of the Kubernetes cluster.
+                              properties:
+                                domain:
+                                  default: cluster.local
+                                  description: |-
+                                    Domain is the cluster domain used for generating the FQDN of services.
+                                    Defaults to 'cluster.local'.
+                                  type: string
+                                multitenant:
+                                  default: false
+                                  description: Multitenant enables the multitenancy lockdown. Defaults to false.
+                                  type: boolean
+                                multitenantWorkloadIdentity:
+                                  default: false
+                                  description: |-
+                                    MultitenantWorkloadIdentity enables the multitenancy lockdown for
+                                    workload identity. Defaults to false.
+                                  type: boolean
+                                networkPolicy:
+                                  default: true
+                                  description: |-
+                                    NetworkPolicy restricts network access to the current namespace.
+                                    Defaults to true.
+                                  type: boolean
+                                objectLevelWorkloadIdentity:
+                                  description: |-
+                                    ObjectLevelWorkloadIdentity enables the feature gate
+                                    required for object-level workload identity.
+                                    This feature is only available in Flux v2.6.0 and later.
+                                  type: boolean
+                                size:
+                                  description: |-
+                                    Size defines the vertical scaling profile of the Flux controllers.
+                                    The size is used to determine the concurrency and CPU/Memory limits for the Flux controllers.
+                                    Accepted values are: 'small', 'medium' and 'large'.
+                                  enum:
+                                    - small
+                                    - medium
+                                    - large
+                                  type: string
+                                tenantDefaultDecryptionServiceAccount:
+                                  description: |-
+                                    TenantDefaultDecryptionServiceAccount is the name of the service account
+                                    to use as default for kustomize-controller SOPS decryption when the
+                                    multitenant lockdown for workload identity is enabled. Defaults to the
+                                    'default' service account from the tenant namespace.
+                                  type: string
+                                tenantDefaultKubeConfigServiceAccount:
+                                  description: |-
+                                    TenantDefaultKubeConfigServiceAccount is the name of the service account
+                                    to use as default for kustomize-controller and helm-controller remote
+                                    cluster access via spec.kubeConfig.configMapRef when the multitenant
+                                    lockdown for workload identity is enabled. Defaults to the 'default'
+                                    service account from the tenant namespace.
+                                  type: string
+                                tenantDefaultServiceAccount:
+                                  description: |-
+                                    TenantDefaultServiceAccount is the name of the service account
+                                    to use as default when the multitenant lockdown is enabled, for
+                                    kustomize-controller and helm-controller.
+                                    This field will also be used for multitenant workload identity
+                                    lockdown for source-controller, notification-controller,
+                                    image-reflector-controller and image-automation-controller.
+                                    Defaults to the 'default' service account from the tenant namespace.
+                                  type: string
+                                type:
+                                  default: kubernetes
+                                  description: |-
+                                    Type specifies the distro of the Kubernetes cluster.
+                                    Defaults to 'kubernetes'.
+                                  enum:
+                                    - kubernetes
+                                    - openshift
+                                    - aws
+                                    - azure
+                                    - gcp
+                                  type: string
+                              type: object
+                              x-kubernetes-validations:
+                                - message: .objectLevelWorkloadIdentity must be set to true when .multitenantWorkloadIdentity is set to true
+                                  rule: (has(self.objectLevelWorkloadIdentity) && self.objectLevelWorkloadIdentity) || !has(self.multitenantWorkloadIdentity) || !self.multitenantWorkloadIdentity
+                            commonMetadata:
+                              description: |-
+                                CommonMetadata specifies the common labels and annotations that are
+                                applied to all resources. Any existing label or annotation will be
+                                overridden if its key matches a common one.
+                              properties:
+                                annotations:
+                                  additionalProperties:
+                                    type: string
+                                  description: Annotations to be added to the object's metadata.
+                                  type: object
+                                labels:
+                                  additionalProperties:
+                                    type: string
+                                  description: Labels to be added to the object's metadata.
+                                  type: object
+                              type: object
+                            components:
+                              description: |-
+                                Components is the list of controllers to install.
+                                Defaults to the core Flux controllers:
+                                  - source-controller
+                                  - kustomize-controller
+                                  - helm-controller
+                                  - notification-controller
+                              items:
+                                description: Component is the name of a controller to install.
+                                enum:
+                                  - source-controller
+                                  - kustomize-controller
+                                  - helm-controller
+                                  - notification-controller
+                                  - image-reflector-controller
+                                  - image-automation-controller
+                                  - source-watcher
+                                type: string
+                              type: array
+                            distribution:
+                              description: Distribution specifies the version and container registry to pull images from.
+                              properties:
+                                artifact:
+                                  description: |-
+                                    Artifact is the URL to the OCI artifact containing
+                                    the latest Kubernetes manifests for the distribution,
+                                    e.g. 'oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests:latest'.
+                                  pattern: ^oci://.*$
+                                  type: string
+                                artifactPullSecret:
+                                  description: |-
+                                    ArtifactPullSecret is the name of the Kubernetes secret
+                                    to use for pulling the Kubernetes manifests for the distribution specified in the Artifact field.
+                                  type: string
+                                imagePullSecret:
+                                  description: |-
+                                    ImagePullSecret is the name of the Kubernetes secret
+                                    to use for pulling images.
+                                  type: string
+                                registry:
+                                  description: |-
+                                    Registry address to pull the distribution images from
+                                    e.g. 'ghcr.io/fluxcd'.
+                                  type: string
+                                variant:
+                                  description: |-
+                                    Variant specifies the Flux distribution flavor stored
+                                    in the registry.
+                                  enum:
+                                    - upstream-alpine
+                                    - enterprise-alpine
+                                    - enterprise-distroless
+                                    - enterprise-distroless-fips
+                                  type: string
+                                version:
+                                  description: Version semver expression e.g. '2.x', '2.3.x'.
+                                  type: string
+                              required:
+                                - registry
+                                - version
+                              type: object
+                            kustomize:
+                              description: |-
+                                Kustomize holds a set of patches that can be applied to the
+                                Flux installation, to customize the way Flux operates.
+                              properties:
+                                patches:
+                                  description: |-
+                                    Strategic merge and JSON patches, defined as inline YAML objects,
+                                    capable of targeting objects based on kind, label and annotation selectors.
+                                  items:
+                                    description: |-
+                                      Patch contains an inline StrategicMerge or JSON6902 patch, and the target the patch should
+                                      be applied to.
+                                    properties:
+                                      patch:
+                                        description: |-
+                                          Patch contains an inline StrategicMerge patch or an inline JSON6902 patch with
+                                          an array of operation objects.
+                                        type: string
+                                      target:
+                                        description: Target points to the resources that the patch document should be applied to.
+                                        properties:
+                                          annotationSelector:
+                                            description: |-
+                                              AnnotationSelector is a string that follows the label selection expression
+                                              https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api
+                                              It matches with the resource annotations.
+                                            type: string
+                                          group:
+                                            description: |-
+                                              Group is the API group to select resources from.
+                                              Together with Version and Kind it is capable of unambiguously identifying and/or selecting resources.
+                                              https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+                                            type: string
+                                          kind:
+                                            description: |-
+                                              Kind of the API Group to select resources from.
+                                              Together with Group and Version it is capable of unambiguously
+                                              identifying and/or selecting resources.
+                                              https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+                                            type: string
+                                          labelSelector:
+                                            description: |-
+                                              LabelSelector is a string that follows the label selection expression
+                                              https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#api
+                                              It matches with the resource labels.
+                                            type: string
+                                          name:
+                                            description: Name to match resources with.
+                                            type: string
+                                          namespace:
+                                            description: Namespace to select resources from.
+                                            type: string
+                                          version:
+                                            description: |-
+                                              Version of the API Group to select resources from.
+                                              Together with Group and Kind it is capable of unambiguously identifying and/or selecting resources.
+                                              https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/api-group.md
+                                            type: string
+                                        type: object
+                                    required:
+                                      - patch
+                                    type: object
+                                  type: array
+                              type: object
+                            migrateResources:
+                              default: true
+                              description: |-
+                                MigrateResources instructs the controller to migrate the Flux custom resources
+                                from the previous version to the latest API version specified in the CRD.
+                                Defaults to true.
+                              type: boolean
+                            sharding:
+                              description: Sharding holds the specification of the sharding configuration.
+                              properties:
+                                key:
+                                  default: sharding.fluxcd.io/key
+                                  description: Key is the label key used to shard the resources.
+                                  type: string
+                                shards:
+                                  description: Shards is the list of shard names.
+                                  items:
+                                    type: string
+                                  minItems: 1
+                                  type: array
+                                storage:
+                                  description: |-
+                                    Storage defines if the source-controller shards
+                                    should use an emptyDir or a persistent volume claim for storage.
+                                    Accepted values are 'ephemeral' or 'persistent', defaults to 'ephemeral'.
+                                    For 'persistent' to take effect, the '.spec.storage' field must be set.
+                                  enum:
+                                    - ephemeral
+                                    - persistent
+                                  type: string
+                              required:
+                                - shards
+                              type: object
+                            storage:
+                              description: |-
+                                Storage holds the specification of the source-controller
+                                persistent volume claim.
+                              properties:
+                                class:
+                                  description: Class is the storage class to use for the PVC.
+                                  type: string
+                                size:
+                                  description: Size is the size of the PVC.
+                                  type: string
+                              required:
+                                - class
+                                - size
+                              type: object
+                            sync:
+                              description: |-
+                                Sync specifies the source for the cluster sync operation.
+                                When set, a Flux source (GitRepository, OCIRepository or Bucket)
+                                and Flux Kustomization are created to sync the cluster state
+                                with the source repository.
+                              properties:
+                                interval:
+                                  default: 1m
+                                  description: Interval is the time between syncs.
+                                  pattern: ^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$
+                                  type: string
+                                kind:
+                                  description: Kind is the kind of the source.
+                                  enum:
+                                    - OCIRepository
+                                    - GitRepository
+                                    - Bucket
+                                  type: string
+                                name:
+                                  description: |-
+                                    Name is the name of the Flux source and kustomization resources.
+                                    When not specified, the name is set to the namespace name of the FluxInstance.
+                                  maxLength: 63
+                                  type: string
+                                  x-kubernetes-validations:
+                                    - message: Sync name is immutable
+                                      rule: self == oldSelf
+                                path:
+                                  description: |-
+                                    Path is the path to the source directory containing
+                                    the kustomize overlay or plain Kubernetes manifests.
+                                  type: string
+                                provider:
+                                  description: |-
+                                    Provider specifies OIDC provider for source authentication.
+                                    For OCIRepository and Bucket the provider can be set to 'aws', 'azure' or 'gcp'.
+                                    for GitRepository the accepted value can be set to 'azure' or 'github'.
+                                    To disable OIDC authentication the provider can be set to 'generic' or left empty.
+                                  enum:
+                                    - generic
+                                    - aws
+                                    - azure
+                                    - gcp
+                                    - github
+                                  type: string
+                                pullSecret:
+                                  description: |-
+                                    PullSecret specifies the Kubernetes Secret containing the
+                                    authentication credentials for the source.
+                                    For Git over HTTP/S sources, the secret must contain username and password fields.
+                                    For Git over SSH sources, the secret must contain known_hosts and identity fields.
+                                    For OCI sources, the secret must be of type kubernetes.io/dockerconfigjson.
+                                    For Bucket sources, the secret must contain accesskey and secretkey fields.
+                                  type: string
+                                ref:
+                                  description: |-
+                                    Ref is the source reference, can be a Git ref name e.g. 'refs/heads/main',
+                                    an OCI tag e.g. 'latest' or a bucket name e.g. 'flux'.
+                                  type: string
+                                url:
+                                  description: |-
+                                    URL is the source URL, can be a Git repository HTTP/S or SSH address,
+                                    an OCI repository address or a Bucket endpoint.
+                                  type: string
+                              required:
+                                - kind
+                                - path
+                                - ref
+                                - url
+                              type: object
+                            wait:
+                              default: true
+                              description: |-
+                                Wait instructs the controller to check the health of all the reconciled
+                                resources. Defaults to true.
+                              type: boolean
+                          required:
+                            - distribution
+                          type: object
+                        status:
+                          description: FluxInstanceStatus defines the observed state of FluxInstance
+                          properties:
+                            components:
+                              description: Components contains the container images used by the components.
+                              items:
+                                description: ComponentImage represents a container image used by a component.
+                                properties:
+                                  digest:
+                                    description: Digest of the container image.
+                                    type: string
+                                  name:
+                                    description: Name of the component.
+                                    type: string
+                                  repository:
+                                    description: Repository address of the container image.
+                                    type: string
+                                  tag:
+                                    description: Tag of the container image.
+                                    type: string
+                                required:
+                                  - name
+                                  - repository
+                                  - tag
+                                type: object
+                              type: array
+                            conditions:
+                              description: Conditions contains the readiness conditions of the object.
+                              items:
+                                description: Condition contains details for one aspect of the current state of this API Resource.
+                                properties:
+                                  lastTransitionTime:
+                                    description: |-
+                                      lastTransitionTime is the last time the condition transitioned from one status to another.
+                                      This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                                    format: date-time
+                                    type: string
+                                  message:
+                                    description: |-
+                                      message is a human readable message indicating details about the transition.
+                                      This may be an empty string.
+                                    maxLength: 32768
+                                    type: string
+                                  observedGeneration:
+                                    description: |-
+                                      observedGeneration represents the .metadata.generation that the condition was set based upon.
+                                      For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                                      with respect to the current state of the instance.
+                                    format: int64
+                                    minimum: 0
+                                    type: integer
+                                  reason:
+                                    description: |-
+                                      reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                                      Producers of specific condition types may define expected values and meanings for this field,
+                                      and whether the values are considered a guaranteed API.
+                                      The value should be a CamelCase string.
+                                      This field may not be empty.
+                                    maxLength: 1024
+                                    minLength: 1
+                                    pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                                    type: string
+                                  status:
+                                    description: status of the condition, one of True, False, Unknown.
+                                    enum:
+                                      - "True"
+                                      - "False"
+                                      - Unknown
+                                    type: string
+                                  type:
+                                    description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                                    maxLength: 316
+                                    pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                                    type: string
+                                required:
+                                  - lastTransitionTime
+                                  - message
+                                  - reason
+                                  - status
+                                  - type
+                                type: object
+                              type: array
+                            history:
+                              description: |-
+                                History contains the reconciliation history of the FluxInstance
+                                as a list of snapshots ordered by the last reconciled time.
+                              items:
+                                description: |-
+                                  Snapshot represents a point-in-time record of a group of resources reconciliation,
+                                  including timing information, status, and a unique digest identifier.
+                                properties:
+                                  digest:
+                                    description: Digest is the checksum in the format `<algo>:<hex>` of the resources in this snapshot.
+                                    type: string
+                                  firstReconciled:
+                                    description: FirstReconciled is the time when this revision was first reconciled to the cluster.
+                                    format: date-time
+                                    type: string
+                                  lastReconciled:
+                                    description: LastReconciled is the time when this revision was last reconciled to the cluster.
+                                    format: date-time
+                                    type: string
+                                  lastReconciledDuration:
+                                    description: LastReconciledDuration is time it took to reconcile the resources in this revision.
+                                    type: string
+                                  lastReconciledStatus:
+                                    description: LastReconciledStatus is the status of the last reconciliation.
+                                    type: string
+                                  metadata:
+                                    additionalProperties:
+                                      type: string
+                                    description: Metadata contains additional information about the snapshot.
+                                    type: object
+                                  totalReconciliations:
+                                    description: TotalReconciliations is the total number of reconciliations that have occurred for this snapshot.
+                                    format: int64
+                                    type: integer
+                                required:
+                                  - digest
+                                  - firstReconciled
+                                  - lastReconciled
+                                  - lastReconciledDuration
+                                  - lastReconciledStatus
+                                  - totalReconciliations
+                                type: object
+                              type: array
+                            inventory:
+                              description: |-
+                                Inventory contains a list of Kubernetes resource object references
+                                last applied on the cluster.
+                              properties:
+                                entries:
+                                  description: Entries of Kubernetes resource object references.
+                                  items:
+                                    description: ResourceRef contains the information necessary to locate a resource within a cluster.
+                                    properties:
+                                      id:
+                                        description: |-
+                                          ID is the string representation of the Kubernetes resource object's metadata,
+                                          in the format '<namespace>_<name>_<group>_<kind>'.
+                                        type: string
+                                      v:
+                                        description: Version is the API version of the Kubernetes resource object's kind.
+                                        type: string
+                                    required:
+                                      - id
+                                      - v
+                                    type: object
+                                  type: array
+                              required:
+                                - entries
+                              type: object
+                            lastAppliedRevision:
+                              description: |-
+                                LastAppliedRevision is the version and digest of the
+                                distribution config that was last reconcile.
+                              type: string
+                            lastArtifactRevision:
+                              description: |-
+                                LastArtifactRevision is the digest of the last pulled
+                                distribution artifact.
+                              type: string
+                            lastAttemptedRevision:
+                              description: |-
+                                LastAttemptedRevision is the version and digest of the
+                                distribution config that was last attempted to reconcile.
+                              type: string
+                            lastHandledForceAt:
+                              description: |-
+                                LastHandledForceAt holds the value of the most recent
+                                force request value, so a change of the annotation value
+                                can be detected.
+                              type: string
+                            lastHandledReconcileAt:
+                              description: |-
+                                LastHandledReconcileAt holds the value of the most recent
+                                reconcile request value, so a change of the annotation value
+                                can be detected.
+                              type: string
+                          type: object
+                      type: object
+                      x-kubernetes-validations:
+                        - message: the only accepted name for a FluxInstance is 'flux'
+                          rule: self.metadata.name == 'flux'
+                  served: true
+                  storage: true
+                  subresources:
+                    status: {}
+          - apiVersion: apiextensions.k8s.io/v1
+            kind: CustomResourceDefinition
+            metadata:
+              annotations:
+                controller-gen.kubebuilder.io/version: v0.20.0
+                helm.sh/resource-policy: keep
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+              name: fluxreports.fluxcd.controlplane.io
+            spec:
+              group: fluxcd.controlplane.io
+              names:
+                kind: FluxReport
+                listKind: FluxReportList
+                plural: fluxreports
+                singular: fluxreport
+              scope: Namespaced
+              versions:
+                - additionalPrinterColumns:
+                    - jsonPath: .spec.distribution.entitlement
+                      name: Entitlement
+                      priority: 10
+                      type: string
+                    - jsonPath: .metadata.creationTimestamp
+                      name: Age
+                      type: date
+                    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+                      name: Ready
+                      type: string
+                    - jsonPath: .status.conditions[?(@.type=="Ready")].message
+                      name: Status
+                      type: string
+                    - jsonPath: .status.conditions[?(@.type=="Ready")].lastTransitionTime
+                      name: LastUpdated
+                      type: string
+                  name: v1
+                  schema:
+                    openAPIV3Schema:
+                      description: FluxReport is the Schema for the fluxreports API.
+                      properties:
+                        apiVersion:
+                          description: |-
+                            APIVersion defines the versioned schema of this representation of an object.
+                            Servers should convert recognized schemas to the latest internal value, and
+                            may reject unrecognized values.
+                            More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+                          type: string
+                        kind:
+                          description: |-
+                            Kind is a string value representing the REST resource this object represents.
+                            Servers may infer this from the endpoint the client submits requests to.
+                            Cannot be updated.
+                            In CamelCase.
+                            More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+                          type: string
+                        metadata:
+                          type: object
+                        spec:
+                          description: FluxReportSpec defines the observed state of a Flux installation.
+                          properties:
+                            cluster:
+                              description: Cluster is the version information of the Kubernetes cluster.
+                              properties:
+                                nodes:
+                                  description: Nodes is the number of nodes in the Kubernetes cluster.
+                                  type: integer
+                                platform:
+                                  description: Platform is the os/arch of the Kubernetes control plane.
+                                  type: string
+                                serverVersion:
+                                  description: ServerVersion is the version of the Kubernetes API server.
+                                  type: string
+                              required:
+                                - platform
+                                - serverVersion
+                              type: object
+                            components:
+                              description: ComponentsStatus is the status of the Flux controller deployments.
+                              items:
+                                description: FluxComponentStatus defines the observed state of a Flux component.
+                                properties:
+                                  image:
+                                    description: Image is the container image of the Flux component.
+                                    type: string
+                                  name:
+                                    description: Name is the name of the Flux component.
+                                    type: string
+                                  ready:
+                                    description: Ready is the readiness status of the Flux component.
+                                    type: boolean
+                                  status:
+                                    description: |-
+                                      Status is a human-readable message indicating details
+                                      about the Flux component observed state.
+                                    type: string
+                                required:
+                                  - image
+                                  - name
+                                  - ready
+                                  - status
+                                type: object
+                              type: array
+                            distribution:
+                              description: Distribution is the version information of the Flux installation.
+                              properties:
+                                entitlement:
+                                  description: Entitlement is the entitlement verification status.
+                                  type: string
+                                managedBy:
+                                  description: ManagedBy is the name of the operator managing the Flux instance.
+                                  type: string
+                                status:
+                                  description: |-
+                                    Status is a human-readable message indicating details
+                                    about the distribution observed state.
+                                  type: string
+                                version:
+                                  description: Version is the version of the Flux instance.
+                                  type: string
+                              required:
+                                - entitlement
+                                - status
+                              type: object
+                            operator:
+                              description: Operator is the version information of the Flux Operator.
+                              properties:
+                                apiVersion:
+                                  description: APIVersion is the API version of the Flux Operator.
+                                  type: string
+                                platform:
+                                  description: Platform is the os/arch of Flux Operator.
+                                  type: string
+                                version:
+                                  description: Version is the version number of Flux Operator.
+                                  type: string
+                              required:
+                                - apiVersion
+                                - platform
+                                - version
+                              type: object
+                            reconcilers:
+                              description: |-
+                                ReconcilersStatus is the list of Flux reconcilers and
+                                their statistics grouped by API kind.
+                              items:
+                                description: FluxReconcilerStatus defines the observed state of a Flux reconciler.
+                                properties:
+                                  apiVersion:
+                                    description: APIVersion is the API version of the Flux resource.
+                                    type: string
+                                  kind:
+                                    description: Kind is the kind of the Flux resource.
+                                    type: string
+                                  stats:
+                                    description: Stats is the reconcile statics of the Flux resource kind.
+                                    properties:
+                                      failing:
+                                        description: |-
+                                          Failing is the number of reconciled
+                                          resources in the Failing state and not Suspended.
+                                        type: integer
+                                      running:
+                                        description: |-
+                                          Running is the number of reconciled
+                                          resources in the Running state.
+                                        type: integer
+                                      suspended:
+                                        description: |-
+                                          Suspended is the number of reconciled
+                                          resources in the Suspended state.
+                                        type: integer
+                                      totalSize:
+                                        description: TotalSize is the total size of the artifacts in storage.
+                                        type: string
+                                    required:
+                                      - failing
+                                      - running
+                                      - suspended
+                                    type: object
+                                required:
+                                  - apiVersion
+                                  - kind
+                                type: object
+                              type: array
+                            sync:
+                              description: |-
+                                SyncStatus is the status of the cluster sync
+                                Source and Kustomization resources.
+                              properties:
+                                id:
+                                  description: ID is the identifier of the sync.
+                                  type: string
+                                path:
+                                  description: Path is the kustomize path of the sync.
+                                  type: string
+                                ready:
+                                  description: Ready is the readiness status of the sync.
+                                  type: boolean
+                                source:
+                                  description: Source is the URL of the source repository.
+                                  type: string
+                                status:
+                                  description: |-
+                                    Status is a human-readable message indicating details
+                                    about the sync observed state.
+                                  type: string
+                              required:
+                                - id
+                                - ready
+                                - status
+                              type: object
+                          required:
+                            - distribution
+                          type: object
+                        status:
+                          description: FluxReportStatus defines the readiness of a FluxReport.
+                          properties:
+                            conditions:
+                              description: Conditions contains the readiness conditions of the object.
+                              items:
+                                description: Condition contains details for one aspect of the current state of this API Resource.
+                                properties:
+                                  lastTransitionTime:
+                                    description: |-
+                                      lastTransitionTime is the last time the condition transitioned from one status to another.
+                                      This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                                    format: date-time
+                                    type: string
+                                  message:
+                                    description: |-
+                                      message is a human readable message indicating details about the transition.
+                                      This may be an empty string.
+                                    maxLength: 32768
+                                    type: string
+                                  observedGeneration:
+                                    description: |-
+                                      observedGeneration represents the .metadata.generation that the condition was set based upon.
+                                      For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                                      with respect to the current state of the instance.
+                                    format: int64
+                                    minimum: 0
+                                    type: integer
+                                  reason:
+                                    description: |-
+                                      reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                                      Producers of specific condition types may define expected values and meanings for this field,
+                                      and whether the values are considered a guaranteed API.
+                                      The value should be a CamelCase string.
+                                      This field may not be empty.
+                                    maxLength: 1024
+                                    minLength: 1
+                                    pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                                    type: string
+                                  status:
+                                    description: status of the condition, one of True, False, Unknown.
+                                    enum:
+                                      - "True"
+                                      - "False"
+                                      - Unknown
+                                    type: string
+                                  type:
+                                    description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                                    maxLength: 316
+                                    pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                                    type: string
+                                required:
+                                  - lastTransitionTime
+                                  - message
+                                  - reason
+                                  - status
+                                  - type
+                                type: object
+                              type: array
+                            lastHandledReconcileAt:
+                              description: |-
+                                LastHandledReconcileAt holds the value of the most recent
+                                reconcile request value, so a change of the annotation value
+                                can be detected.
+                              type: string
+                          type: object
+                      type: object
+                      x-kubernetes-validations:
+                        - message: the only accepted name for a FluxReport is 'flux'
+                          rule: self.metadata.name == 'flux'
+                  served: true
+                  storage: true
+                  subresources:
+                    status: {}
+          - apiVersion: apiextensions.k8s.io/v1
+            kind: CustomResourceDefinition
+            metadata:
+              annotations:
+                controller-gen.kubebuilder.io/version: v0.20.0
+                helm.sh/resource-policy: keep
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+              name: resourcesetinputproviders.fluxcd.controlplane.io
+            spec:
+              group: fluxcd.controlplane.io
+              names:
+                kind: ResourceSetInputProvider
+                listKind: ResourceSetInputProviderList
+                plural: resourcesetinputproviders
+                shortNames:
+                  - rsip
+                singular: resourcesetinputprovider
+              scope: Namespaced
+              versions:
+                - additionalPrinterColumns:
+                    - jsonPath: .metadata.creationTimestamp
+                      name: Age
+                      type: date
+                    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+                      name: Ready
+                      type: string
+                    - jsonPath: .status.conditions[?(@.type=="Ready")].message
+                      name: Status
+                      type: string
+                  name: v1
+                  schema:
+                    openAPIV3Schema:
+                      description: ResourceSetInputProvider is the Schema for the ResourceSetInputProviders API.
+                      properties:
+                        apiVersion:
+                          description: |-
+                            APIVersion defines the versioned schema of this representation of an object.
+                            Servers should convert recognized schemas to the latest internal value, and
+                            may reject unrecognized values.
+                            More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+                          type: string
+                        kind:
+                          description: |-
+                            Kind is a string value representing the REST resource this object represents.
+                            Servers may infer this from the endpoint the client submits requests to.
+                            Cannot be updated.
+                            In CamelCase.
+                            More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+                          type: string
+                        metadata:
+                          type: object
+                        spec:
+                          description: ResourceSetInputProviderSpec defines the desired state of ResourceSetInputProvider
+                          properties:
+                            certSecretRef:
+                              description: |-
+                                CertSecretRef specifies the Kubernetes Secret containing either or both of
+
+                                - a PEM-encoded CA certificate (`ca.crt`)
+                                - a PEM-encoded client certificate (`tls.crt`) and private key (`tls.key`)
+
+                                When connecting to a Git, OCI, or ExternalService provider that uses self-signed certificates,
+                                the CA certificate must be set in the Secret under the 'ca.crt' key to establish the trust relationship.
+                                When connecting to a provider that supports client certificates (mTLS), the client certificate
+                                and private key must be set in the Secret under the 'tls.crt' and 'tls.key' keys, respectively.
+                              properties:
+                                name:
+                                  description: Name of the referent.
+                                  type: string
+                              required:
+                                - name
+                              type: object
+                            defaultValues:
+                              additionalProperties:
+                                x-kubernetes-preserve-unknown-fields: true
+                              description: |-
+                                DefaultValues contains the default values for the inputs.
+                                These values are used to populate the inputs when the provider
+                                response does not contain them.
+                              type: object
+                            filter:
+                              description: Filter defines the filter to apply to the input provider response.
+                              properties:
+                                excludeBranch:
+                                  description: |-
+                                    ExcludeBranch specifies the regular expression to filter the branches
+                                    that the input provider should exclude.
+                                  type: string
+                                excludeEnvironment:
+                                  description: |-
+                                    ExcludeEnvironment specifies the regular expression to filter the environments
+                                    that the input provider should exclude.
+                                  type: string
+                                excludeTag:
+                                  description: |-
+                                    ExcludeTag specifies the regular expression to filter the tags
+                                    that the input provider should exclude.
+                                  type: string
+                                includeBranch:
+                                  description: |-
+                                    IncludeBranch specifies the regular expression to filter the branches
+                                    that the input provider should include.
+                                  type: string
+                                includeEnvironment:
+                                  description: |-
+                                    IncludeEnvironment specifies the regular expression to filter the environments
+                                    that the input provider should include.
+                                  type: string
+                                includeTag:
+                                  description: |-
+                                    IncludeTag specifies the regular expression to filter the tags
+                                    that the input provider should include.
+                                  type: string
+                                labels:
+                                  description: Labels specifies the list of labels to filter the input provider response.
+                                  items:
+                                    type: string
+                                  type: array
+                                limit:
+                                  default: 100
+                                  description: |-
+                                    Limit specifies the maximum number of input sets to return.
+                                    When not set, the default limit is 100.
+                                  type: integer
+                                semver:
+                                  description: |-
+                                    Semver specifies a semantic version range to filter and sort the tags.
+                                    If this field is not specified, the tags will be sorted in reverse
+                                    alphabetical order.
+                                    Supported only for tags at the moment.
+                                  type: string
+                              type: object
+                            insecure:
+                              description: |-
+                                Insecure allows connecting to an ExternalService or OCIArtifactTag provider
+                                over plain HTTP without TLS. When not set, the URL must use HTTPS.
+                              type: boolean
+                            schedule:
+                              description: Schedule defines the schedules for the input provider to run.
+                              items:
+                                description: Schedule defines a schedule for something to run.
+                                properties:
+                                  cron:
+                                    description: Cron specifies the cron expression for the schedule.
+                                    type: string
+                                  timeZone:
+                                    default: UTC
+                                    description: TimeZone specifies the time zone for the cron schedule. Defaults to UTC.
+                                    type: string
+                                  window:
+                                    default: 0s
+                                    description: |-
+                                      Window defines the time window during which the execution is allowed.
+                                      Defaults to 0s, meaning no window is applied.
+                                    pattern: ^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$
+                                    type: string
+                                required:
+                                  - cron
+                                type: object
+                              type: array
+                            secretRef:
+                              description: |-
+                                SecretRef specifies the Kubernetes Secret containing the credentials
+                                to access the input provider.
+                                When connecting to a Git provider, the secret must contain the keys
+                                'username' and 'password', and the password should be a personal access token
+                                that grants read-only access to the repository.
+                                When connecting to an OCI provider, the secret must contain a Kubernetes
+                                Image Pull Secret, as if created by `kubectl create secret docker-registry`.
+                                When connecting to an ExternalService provider, the secret must contain either
+                                a 'token' key for bearer token authentication, or 'username' and 'password'
+                                keys for basic authentication.
+                              properties:
+                                name:
+                                  description: Name of the referent.
+                                  type: string
+                              required:
+                                - name
+                              type: object
+                            serviceAccountName:
+                              description: |-
+                                ServiceAccountName specifies the name of the Kubernetes ServiceAccount
+                                used for authentication with AWS, Azure or GCP services through
+                                workload identity federation features. If not specified, the
+                                authentication for these cloud providers will use the ServiceAccount
+                                of the operator (or any other environment authentication configuration).
+                              type: string
+                            skip:
+                              description: Skip defines whether we need to skip input provider response updates.
+                              properties:
+                                labels:
+                                  description: |-
+                                    Labels specifies list of labels to skip input provider response when any of the label conditions matched.
+                                    When prefixed with !, input provider response will be skipped if it does not have this label.
+                                  items:
+                                    type: string
+                                  type: array
+                              type: object
+                            type:
+                              description: Type specifies the type of the input provider.
+                              enum:
+                                - Static
+                                - GitHubBranch
+                                - GitHubTag
+                                - GitHubPullRequest
+                                - GitLabBranch
+                                - GitLabTag
+                                - GitLabMergeRequest
+                                - GitLabEnvironment
+                                - AzureDevOpsBranch
+                                - AzureDevOpsTag
+                                - AzureDevOpsPullRequest
+                                - GiteaBranch
+                                - GiteaTag
+                                - GiteaPullRequest
+                                - OCIArtifactTag
+                                - ACRArtifactTag
+                                - ECRArtifactTag
+                                - GARArtifactTag
+                                - ExternalService
+                              type: string
+                            url:
+                              description: |-
+                                URL specifies the HTTP/S or OCI address of the input provider API.
+                                When connecting to a Git provider, the URL should point to the repository address.
+                                When connecting to an OCI provider, the URL should point to the OCI repository address.
+                              pattern: ^((http|https|oci)://.*){0,1}$
+                              type: string
+                          required:
+                            - type
+                          type: object
+                          x-kubernetes-validations:
+                            - message: spec.url must be empty when spec.type is 'Static'
+                              rule: self.type != 'Static' || !has(self.url)
+                            - message: spec.url must not be empty when spec.type is not 'Static'
+                              rule: self.type == 'Static' || has(self.url)
+                            - message: spec.url must start with 'http://' or 'https://' when spec.type is a Git provider
+                              rule: '!self.type.startsWith(''Git'') || self.url.startsWith(''http'')'
+                            - message: spec.url must start with 'http://' or 'https://' when spec.type is a Git provider
+                              rule: '!self.type.startsWith(''AzureDevOps'') || self.url.startsWith(''http'')'
+                            - message: spec.url must start with 'oci://' when spec.type is an OCI provider
+                              rule: '!self.type.endsWith(''ArtifactTag'') || self.url.startsWith(''oci'')'
+                            - message: spec.url must start with 'http://' or 'https://' when spec.type is 'ExternalService'
+                              rule: self.type != 'ExternalService' || self.url.startsWith('http')
+                            - message: spec.insecure can only be set when spec.type is 'ExternalService' or 'OCIArtifactTag'
+                              rule: '!has(self.insecure) || !self.insecure || self.type == ''ExternalService'' || self.type == ''OCIArtifactTag'''
+                            - message: spec.url must use 'https://' unless spec.insecure is true
+                              rule: self.type != 'ExternalService' || !self.url.startsWith('http://') || (has(self.insecure) && self.insecure)
+                            - message: cannot specify spec.serviceAccountName when spec.type is not one of AzureDevOps* or *ArtifactTag
+                              rule: '!has(self.serviceAccountName) || self.type.startsWith(''AzureDevOps'') || self.type.endsWith(''ArtifactTag'')'
+                            - message: cannot specify spec.certSecretRef when spec.type is one of Static, AzureDevOps*, ACRArtifactTag, ECRArtifactTag or GARArtifactTag
+                              rule: '!has(self.certSecretRef) || !(self.url == ''Static'' || self.type.startsWith(''AzureDevOps'') || (self.type.endsWith(''ArtifactTag'') && self.type != ''OCIArtifactTag''))'
+                            - message: cannot specify spec.secretRef when spec.type is one of Static, ACRArtifactTag, ECRArtifactTag or GARArtifactTag
+                              rule: '!has(self.secretRef) || !(self.url == ''Static'' || (self.type.endsWith(''ArtifactTag'') && self.type != ''OCIArtifactTag''))'
+                        status:
+                          description: ResourceSetInputProviderStatus defines the observed state of ResourceSetInputProvider.
+                          properties:
+                            conditions:
+                              description: Conditions contains the readiness conditions of the object.
+                              items:
+                                description: Condition contains details for one aspect of the current state of this API Resource.
+                                properties:
+                                  lastTransitionTime:
+                                    description: |-
+                                      lastTransitionTime is the last time the condition transitioned from one status to another.
+                                      This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                                    format: date-time
+                                    type: string
+                                  message:
+                                    description: |-
+                                      message is a human readable message indicating details about the transition.
+                                      This may be an empty string.
+                                    maxLength: 32768
+                                    type: string
+                                  observedGeneration:
+                                    description: |-
+                                      observedGeneration represents the .metadata.generation that the condition was set based upon.
+                                      For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                                      with respect to the current state of the instance.
+                                    format: int64
+                                    minimum: 0
+                                    type: integer
+                                  reason:
+                                    description: |-
+                                      reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                                      Producers of specific condition types may define expected values and meanings for this field,
+                                      and whether the values are considered a guaranteed API.
+                                      The value should be a CamelCase string.
+                                      This field may not be empty.
+                                    maxLength: 1024
+                                    minLength: 1
+                                    pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                                    type: string
+                                  status:
+                                    description: status of the condition, one of True, False, Unknown.
+                                    enum:
+                                      - "True"
+                                      - "False"
+                                      - Unknown
+                                    type: string
+                                  type:
+                                    description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                                    maxLength: 316
+                                    pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                                    type: string
+                                required:
+                                  - lastTransitionTime
+                                  - message
+                                  - reason
+                                  - status
+                                  - type
+                                type: object
+                              type: array
+                            exportedInputs:
+                              description: ExportedInputs contains the list of inputs exported by the provider.
+                              items:
+                                additionalProperties:
+                                  x-kubernetes-preserve-unknown-fields: true
+                                description: ResourceSetInput defines the key-value pairs of the ResourceSet input.
+                                type: object
+                              type: array
+                            lastExportedRevision:
+                              description: |-
+                                LastExportedRevision is the digest of the
+                                inputs that were last reconcile.
+                              type: string
+                            lastHandledForceAt:
+                              description: |-
+                                LastHandledForceAt holds the value of the most recent
+                                force request value, so a change of the annotation value
+                                can be detected.
+                              type: string
+                            lastHandledReconcileAt:
+                              description: |-
+                                LastHandledReconcileAt holds the value of the most recent
+                                reconcile request value, so a change of the annotation value
+                                can be detected.
+                              type: string
+                            nextSchedule:
+                              description: NextSchedule is the next schedule when the input provider will run.
+                              properties:
+                                cron:
+                                  description: Cron specifies the cron expression for the schedule.
+                                  type: string
+                                timeZone:
+                                  default: UTC
+                                  description: TimeZone specifies the time zone for the cron schedule. Defaults to UTC.
+                                  type: string
+                                when:
+                                  description: When is the next time the schedule will run.
+                                  format: date-time
+                                  type: string
+                                window:
+                                  default: 0s
+                                  description: |-
+                                    Window defines the time window during which the execution is allowed.
+                                    Defaults to 0s, meaning no window is applied.
+                                  pattern: ^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$
+                                  type: string
+                              required:
+                                - cron
+                                - when
+                              type: object
+                          type: object
+                      type: object
+                  served: true
+                  storage: true
+                  subresources:
+                    status: {}
+          - apiVersion: apiextensions.k8s.io/v1
+            kind: CustomResourceDefinition
+            metadata:
+              annotations:
+                controller-gen.kubebuilder.io/version: v0.20.0
+                helm.sh/resource-policy: keep
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+              name: resourcesets.fluxcd.controlplane.io
+            spec:
+              group: fluxcd.controlplane.io
+              names:
+                kind: ResourceSet
+                listKind: ResourceSetList
+                plural: resourcesets
+                shortNames:
+                  - rset
+                singular: resourceset
+              scope: Namespaced
+              versions:
+                - additionalPrinterColumns:
+                    - jsonPath: .metadata.creationTimestamp
+                      name: Age
+                      type: date
+                    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+                      name: Ready
+                      type: string
+                    - jsonPath: .status.conditions[?(@.type=="Ready")].message
+                      name: Status
+                      type: string
+                  name: v1
+                  schema:
+                    openAPIV3Schema:
+                      description: ResourceSet is the Schema for the ResourceSets API.
+                      properties:
+                        apiVersion:
+                          description: |-
+                            APIVersion defines the versioned schema of this representation of an object.
+                            Servers should convert recognized schemas to the latest internal value, and
+                            may reject unrecognized values.
+                            More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+                          type: string
+                        kind:
+                          description: |-
+                            Kind is a string value representing the REST resource this object represents.
+                            Servers may infer this from the endpoint the client submits requests to.
+                            Cannot be updated.
+                            In CamelCase.
+                            More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+                          type: string
+                        metadata:
+                          type: object
+                        spec:
+                          description: ResourceSetSpec defines the desired state of ResourceSet
+                          properties:
+                            commonMetadata:
+                              description: |-
+                                CommonMetadata specifies the common labels and annotations that are
+                                applied to all resources. Any existing label or annotation will be
+                                overridden if its key matches a common one.
+                              properties:
+                                annotations:
+                                  additionalProperties:
+                                    type: string
+                                  description: Annotations to be added to the object's metadata.
+                                  type: object
+                                labels:
+                                  additionalProperties:
+                                    type: string
+                                  description: Labels to be added to the object's metadata.
+                                  type: object
+                              type: object
+                            dependsOn:
+                              description: |-
+                                DependsOn specifies the list of Kubernetes resources that must
+                                exist on the cluster before the reconciliation process starts.
+                              items:
+                                description: Dependency defines a ResourceSet dependency on a Kubernetes resource.
+                                properties:
+                                  apiVersion:
+                                    description: APIVersion of the resource to depend on.
+                                    type: string
+                                  kind:
+                                    description: Kind of the resource to depend on.
+                                    type: string
+                                  name:
+                                    description: Name of the resource to depend on.
+                                    type: string
+                                  namespace:
+                                    description: Namespace of the resource to depend on.
+                                    type: string
+                                  ready:
+                                    description: Ready checks if the resource Ready status condition is true.
+                                    type: boolean
+                                  readyExpr:
+                                    description: |-
+                                      ReadyExpr checks if the resource satisfies the given CEL expression.
+                                      The expression replaces the default readiness check and
+                                      is only evaluated if Ready is set to 'true'.
+                                    type: string
+                                required:
+                                  - apiVersion
+                                  - kind
+                                  - name
+                                type: object
+                              type: array
+                            inputStrategy:
+                              description: |-
+                                InputStrategy defines how the inputs are combined when multiple
+                                input provider objects are used. Defaults to flattening all inputs
+                                from all providers into a single list of input sets.
+                              properties:
+                                name:
+                                  description: |-
+                                    Name defines how the inputs are combined when multiple
+                                    input provider objects are used. Supported values are:
+                                    - Flatten: all inputs sets from all input provider objects are
+                                      flattened into a single list of input sets.
+                                    - Permute: all inputs sets from all input provider objects are
+                                      combined using a Cartesian product, resulting in a list of input sets
+                                      that contains every possible combination of input values.
+                                      For example, if provider A has inputs [{x: 1}, {x: 2}] and provider B has
+                                      inputs [{y: "a"}, {y: "b"}], the resulting input sets will be:
+                                      [{x: 1, y: "a"}, {x: 1, y: "b"}, {x: 2, y: "a"}, {x: 2, y: "b"}].
+                                      This strategy can lead to a large number of input sets and should be
+                                      used with caution. Users should use filtering features from
+                                      ResourceSetInputProvider to limit the amount of exported inputs.
+                                  enum:
+                                    - Flatten
+                                    - Permute
+                                  type: string
+                              required:
+                                - name
+                              type: object
+                            inputs:
+                              description: Inputs contains the list of ResourceSet inputs.
+                              items:
+                                additionalProperties:
+                                  x-kubernetes-preserve-unknown-fields: true
+                                description: ResourceSetInput defines the key-value pairs of the ResourceSet input.
+                                type: object
+                              type: array
+                            inputsFrom:
+                              description: |-
+                                InputsFrom contains the list of references to input providers.
+                                When set, the inputs are fetched from the providers and concatenated
+                                with the in-line inputs defined in the ResourceSet.
+                              items:
+                                description: |-
+                                  InputProviderReference defines a reference to an input provider resource
+                                  in the same namespace as the ResourceSet.
+                                properties:
+                                  apiVersion:
+                                    description: |-
+                                      APIVersion of the input provider resource.
+                                      When not set, the APIVersion of the ResourceSet is used.
+                                    enum:
+                                      - fluxcd.controlplane.io/v1
+                                    type: string
+                                  kind:
+                                    description: Kind of the input provider resource.
+                                    enum:
+                                      - ResourceSetInputProvider
+                                    type: string
+                                  name:
+                                    description: |-
+                                      Name of the input provider resource. Cannot be set
+                                      when the Selector field is set.
+                                    type: string
+                                  selector:
+                                    description: |-
+                                      Selector is a label selector to filter the input provider resources
+                                      as an alternative to the Name field.
+                                    properties:
+                                      matchExpressions:
+                                        description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                                        items:
+                                          description: |-
+                                            A label selector requirement is a selector that contains values, a key, and an operator that
+                                            relates the key and values.
+                                          properties:
+                                            key:
+                                              description: key is the label key that the selector applies to.
+                                              type: string
+                                            operator:
+                                              description: |-
+                                                operator represents a key's relationship to a set of values.
+                                                Valid operators are In, NotIn, Exists and DoesNotExist.
+                                              type: string
+                                            values:
+                                              description: |-
+                                                values is an array of string values. If the operator is In or NotIn,
+                                                the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                                the values array must be empty. This array is replaced during a strategic
+                                                merge patch.
+                                              items:
+                                                type: string
+                                              type: array
+                                              x-kubernetes-list-type: atomic
+                                          required:
+                                            - key
+                                            - operator
+                                          type: object
+                                        type: array
+                                        x-kubernetes-list-type: atomic
+                                      matchLabels:
+                                        additionalProperties:
+                                          type: string
+                                        description: |-
+                                          matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                                          map is equivalent to an element of matchExpressions, whose key field is "key", the
+                                          operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                        type: object
+                                    type: object
+                                    x-kubernetes-map-type: atomic
+                                type: object
+                                x-kubernetes-validations:
+                                  - message: at least one of name or selector must be set for input provider references
+                                    rule: has(self.name) || has(self.selector)
+                                  - message: cannot set both name and selector for input provider references
+                                    rule: '!has(self.name) || !has(self.selector)'
+                              type: array
+                            resources:
+                              description: Resources contains the list of Kubernetes resources to reconcile.
+                              items:
+                                x-kubernetes-preserve-unknown-fields: true
+                              type: array
+                            resourcesTemplate:
+                              description: |-
+                                ResourcesTemplate is a Go template that generates the list of
+                                Kubernetes resources to reconcile. The template is rendered
+                                as multi-document YAML, the resources should be separated by '---'.
+                                When both Resources and ResourcesTemplate are set, the resulting
+                                objects are merged and deduplicated, with the ones from Resources taking precedence.
+                              type: string
+                            serviceAccountName:
+                              description: |-
+                                The name of the Kubernetes service account to impersonate
+                                when reconciling the generated resources.
+                              type: string
+                            wait:
+                              description: |-
+                                Wait instructs the controller to check the health
+                                of all the reconciled resources.
+                              type: boolean
+                          type: object
+                        status:
+                          description: ResourceSetStatus defines the observed state of ResourceSet.
+                          properties:
+                            conditions:
+                              description: Conditions contains the readiness conditions of the object.
+                              items:
+                                description: Condition contains details for one aspect of the current state of this API Resource.
+                                properties:
+                                  lastTransitionTime:
+                                    description: |-
+                                      lastTransitionTime is the last time the condition transitioned from one status to another.
+                                      This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                                    format: date-time
+                                    type: string
+                                  message:
+                                    description: |-
+                                      message is a human readable message indicating details about the transition.
+                                      This may be an empty string.
+                                    maxLength: 32768
+                                    type: string
+                                  observedGeneration:
+                                    description: |-
+                                      observedGeneration represents the .metadata.generation that the condition was set based upon.
+                                      For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                                      with respect to the current state of the instance.
+                                    format: int64
+                                    minimum: 0
+                                    type: integer
+                                  reason:
+                                    description: |-
+                                      reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                                      Producers of specific condition types may define expected values and meanings for this field,
+                                      and whether the values are considered a guaranteed API.
+                                      The value should be a CamelCase string.
+                                      This field may not be empty.
+                                    maxLength: 1024
+                                    minLength: 1
+                                    pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                                    type: string
+                                  status:
+                                    description: status of the condition, one of True, False, Unknown.
+                                    enum:
+                                      - "True"
+                                      - "False"
+                                      - Unknown
+                                    type: string
+                                  type:
+                                    description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                                    maxLength: 316
+                                    pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                                    type: string
+                                required:
+                                  - lastTransitionTime
+                                  - message
+                                  - reason
+                                  - status
+                                  - type
+                                type: object
+                              type: array
+                            history:
+                              description: |-
+                                History contains the reconciliation history of the ResourceSet
+                                as a list of snapshots ordered by the last reconciled time.
+                              items:
+                                description: |-
+                                  Snapshot represents a point-in-time record of a group of resources reconciliation,
+                                  including timing information, status, and a unique digest identifier.
+                                properties:
+                                  digest:
+                                    description: Digest is the checksum in the format `<algo>:<hex>` of the resources in this snapshot.
+                                    type: string
+                                  firstReconciled:
+                                    description: FirstReconciled is the time when this revision was first reconciled to the cluster.
+                                    format: date-time
+                                    type: string
+                                  lastReconciled:
+                                    description: LastReconciled is the time when this revision was last reconciled to the cluster.
+                                    format: date-time
+                                    type: string
+                                  lastReconciledDuration:
+                                    description: LastReconciledDuration is time it took to reconcile the resources in this revision.
+                                    type: string
+                                  lastReconciledStatus:
+                                    description: LastReconciledStatus is the status of the last reconciliation.
+                                    type: string
+                                  metadata:
+                                    additionalProperties:
+                                      type: string
+                                    description: Metadata contains additional information about the snapshot.
+                                    type: object
+                                  totalReconciliations:
+                                    description: TotalReconciliations is the total number of reconciliations that have occurred for this snapshot.
+                                    format: int64
+                                    type: integer
+                                required:
+                                  - digest
+                                  - firstReconciled
+                                  - lastReconciled
+                                  - lastReconciledDuration
+                                  - lastReconciledStatus
+                                  - totalReconciliations
+                                type: object
+                              type: array
+                            inventory:
+                              description: |-
+                                Inventory contains a list of Kubernetes resource object references
+                                last applied on the cluster.
+                              properties:
+                                entries:
+                                  description: Entries of Kubernetes resource object references.
+                                  items:
+                                    description: ResourceRef contains the information necessary to locate a resource within a cluster.
+                                    properties:
+                                      id:
+                                        description: |-
+                                          ID is the string representation of the Kubernetes resource object's metadata,
+                                          in the format '<namespace>_<name>_<group>_<kind>'.
+                                        type: string
+                                      v:
+                                        description: Version is the API version of the Kubernetes resource object's kind.
+                                        type: string
+                                    required:
+                                      - id
+                                      - v
+                                    type: object
+                                  type: array
+                              required:
+                                - entries
+                              type: object
+                            lastAppliedRevision:
+                              description: |-
+                                LastAppliedRevision is the digest of the
+                                generated resources that were last reconcile.
+                              type: string
+                            lastHandledReconcileAt:
+                              description: |-
+                                LastHandledReconcileAt holds the value of the most recent
+                                reconcile request value, so a change of the annotation value
+                                can be detected.
+                              type: string
+                          type: object
+                      type: object
+                  served: true
+                  storage: true
+                  subresources:
+                    status: {}
+          - apiVersion: v1
+            automountServiceAccountToken: true
+            kind: ServiceAccount
+            metadata:
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+              name: release-name-flux-operator
+              namespace: flux-system
+          - apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRole
+            metadata:
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+              name: flux-web-admin
+            rules:
+              - apiGroups:
+                  - '*'
+                resources:
+                  - '*'
+                verbs:
+                  - get
+                  - list
+                  - watch
+              - apiGroups:
+                  - fluxcd.controlplane.io
+                  - source.toolkit.fluxcd.io
+                  - source.extensions.fluxcd.io
+                  - kustomize.toolkit.fluxcd.io
+                  - helm.toolkit.fluxcd.io
+                  - image.toolkit.fluxcd.io
+                  - notification.toolkit.fluxcd.io
+                resources:
+                  - '*'
+                verbs:
+                  - patch
+                  - reconcile
+                  - suspend
+                  - resume
+                  - download
+              - apiGroups:
+                  - apps
+                resources:
+                  - deployments
+                  - statefulsets
+                  - daemonsets
+                verbs:
+                  - patch
+                  - restart
+              - apiGroups:
+                  - batch
+                resources:
+                  - cronjobs
+                  - jobs
+                verbs:
+                  - create
+                  - restart
+              - apiGroups:
+                  - ""
+                resources:
+                  - pods
+                verbs:
+                  - delete
+          - apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRole
+            metadata:
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+              name: flux-web-user
+            rules:
+              - apiGroups:
+                  - '*'
+                resources:
+                  - '*'
+                verbs:
+                  - get
+                  - list
+                  - watch
+          - apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRole
+            metadata:
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+                rbac.authorization.k8s.io/aggregate-to-admin: "true"
+                rbac.authorization.k8s.io/aggregate-to-edit: "true"
+              name: release-name-flux-operator-edit
+            rules:
+              - apiGroups:
+                  - fluxcd.controlplane.io
+                resources:
+                  - resourcesets
+                  - resourcesetinputproviders
+                verbs:
+                  - create
+                  - delete
+                  - deletecollection
+                  - patch
+                  - update
+          - apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRole
+            metadata:
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+                rbac.authorization.k8s.io/aggregate-to-admin: "true"
+                rbac.authorization.k8s.io/aggregate-to-edit: "true"
+                rbac.authorization.k8s.io/aggregate-to-view: "true"
+              name: release-name-flux-operator-view
+            rules:
+              - apiGroups:
+                  - fluxcd.controlplane.io
+                resources:
+                  - resourcesets
+                  - resourcesetinputproviders
+                verbs:
+                  - get
+                  - list
+                  - watch
+          - apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRoleBinding
+            metadata:
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+              name: release-name-flux-operator
+            roleRef:
+              apiGroup: rbac.authorization.k8s.io
+              kind: ClusterRole
+              name: cluster-admin
+            subjects:
+              - kind: ServiceAccount
+                name: release-name-flux-operator
+                namespace: flux-system
+          - apiVersion: v1
+            data:
+              _REDIS_URL_CORE: redis://harbor-redis:6379/0?idle_timeout_seconds=30
+              _REDIS_URL_REG: redis://harbor-redis:6379/2?idle_timeout_seconds=30
+              CHART_CACHE_DRIVER: redis
+              CONFIG_PATH: /etc/core/app.conf
+              CORE_LOCAL_URL: http://127.0.0.1:8080
+              CORE_URL: http://harbor-core:80
+              DATABASE_TYPE: postgresql
+              EXT_ENDPOINT: http://harbor-core.harbor.svc.cluster.local
+              HTTP_PROXY: ""
+              HTTPS_PROXY: ""
+              JOBSERVICE_URL: http://harbor-jobservice
+              LOG_LEVEL: info
+              NO_PROXY: harbor-core,harbor-jobservice,harbor-database,harbor-registry,harbor-portal,harbor-trivy,harbor-exporter,127.0.0.1,localhost,.local,.internal
+              PERMITTED_REGISTRY_TYPES_FOR_PROXY_CACHE: docker-hub,harbor,azure-acr,ali-acr,aws-ecr,google-gcr,docker-registry,github-ghcr,jfrog-artifactory
+              PORT: "8080"
+              PORTAL_URL: http://harbor-portal
+              POSTGRESQL_DATABASE: registry
+              POSTGRESQL_HOST: harbor-database
+              POSTGRESQL_MAX_IDLE_CONNS: "100"
+              POSTGRESQL_MAX_OPEN_CONNS: "900"
+              POSTGRESQL_PORT: "5432"
+              POSTGRESQL_SSLMODE: disable
+              POSTGRESQL_USERNAME: postgres
+              QUOTA_UPDATE_PROVIDER: db
+              REGISTRY_CONTROLLER_URL: http://harbor-registry:8080
+              REGISTRY_CREDENTIAL_USERNAME: harbor_registry_user
+              REGISTRY_STORAGE_PROVIDER_NAME: filesystem
+              REGISTRY_URL: http://harbor-registry:5000
+              REPLICATION_ADAPTER_WHITELIST: ali-acr,aws-ecr,azure-acr,docker-hub,docker-registry,github-ghcr,google-gcr,harbor,huawei-SWR,jfrog-artifactory,tencent-tcr,volcengine-cr
+              TOKEN_SERVICE_URL: http://harbor-core:80/service/token
+              TRIVY_ADAPTER_URL: http://harbor-trivy:8080
+              WITH_TRIVY: "true"
+              app.conf: |
+                appname = Harbor
+                runmode = prod
+                enablegzip = true
+
+                [prod]
+                httpport = 8080
+            kind: ConfigMap
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-core
+              namespace: harbor
+          - apiVersion: v1
+            data:
+              config.yml: |
+                #Server listening port
+                protocol: "http"
+                port: 8080
+                worker_pool:
+                  workers: 10
+                  backend: "redis"
+                  redis_pool:
+                    redis_url: "redis://harbor-redis:6379/1"
+                    namespace: "harbor_job_service_namespace"
+                    idle_timeout_second: 3600
+                job_loggers:
+                  - name: "FILE"
+                    level: INFO
+                    settings: # Customized settings of logger
+                      base_dir: "/var/log/jobs"
+                    sweeper:
+                      duration: 14 #days
+                      settings: # Customized settings of sweeper
+                        work_dir: "/var/log/jobs"
+                metric:
+                  enabled: false
+                  path: /metrics
+                  port: 8001
+                #Loggers for the job service
+                loggers:
+                  - name: "STD_OUTPUT"
+                    level: INFO
+                reaper:
+                  # the max time to wait for a task to finish, if unfinished after max_update_hours, the task will be mark as error, but the task will continue to run, default value is 24
+                  max_update_hours: 24
+                  # the max time for execution in running state without new task created
+                  max_dangling_hours: 168
+            kind: ConfigMap
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-jobservice
+              namespace: harbor
+          - apiVersion: v1
+            data:
+              CORE_URL: http://harbor-core:80
+              HTTP_PROXY: ""
+              HTTPS_PROXY: ""
+              JOBSERVICE_WEBHOOK_JOB_HTTP_CLIENT_TIMEOUT: "3"
+              JOBSERVICE_WEBHOOK_JOB_MAX_RETRY: "3"
+              LOG_LEVEL: info
+              NO_PROXY: harbor-core,harbor-jobservice,harbor-database,harbor-registry,harbor-portal,harbor-trivy,harbor-exporter,127.0.0.1,localhost,.local,.internal
+              REGISTRY_CONTROLLER_URL: http://harbor-registry:8080
+              REGISTRY_CREDENTIAL_USERNAME: harbor_registry_user
+              REGISTRY_URL: http://harbor-registry:5000
+              TOKEN_SERVICE_URL: http://harbor-core:80/service/token
+            kind: ConfigMap
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-jobservice-env
+              namespace: harbor
+          - apiVersion: v1
+            data:
+              nginx.conf: |
+                worker_processes auto;
+                pid /tmp/nginx.pid;
+
+                events {
+                  worker_connections 3096;
+                  use epoll;
+                  multi_accept on;
+                }
+
+                http {
+                  client_body_temp_path /tmp/client_body_temp;
+                  proxy_temp_path /tmp/proxy_temp;
+                  fastcgi_temp_path /tmp/fastcgi_temp;
+                  uwsgi_temp_path /tmp/uwsgi_temp;
+                  scgi_temp_path /tmp/scgi_temp;
+                  tcp_nodelay on;
+
+                  # this is necessary for us to be able to disable request buffering in all cases
+                  proxy_http_version 1.1;
+
+                  upstream core {
+                    server "harbor-core:80";
+                  }
+
+                  upstream portal {
+                    server harbor-portal:80;
+                  }
+
+                  log_format timed_combined '[$time_local]:$remote_addr - '
+                    '"$request" $status $body_bytes_sent '
+                    '"$http_referer" "$http_user_agent" '
+                    '$request_time $upstream_response_time $pipe';
+
+                  access_log /dev/stdout timed_combined;
+
+                  map $http_x_forwarded_proto $x_forwarded_proto {
+                    default $http_x_forwarded_proto;
+                    ""      $scheme;
+                  }
+
+                  server {
+                    listen 8080;
+                    listen [::]:8080;
+                    server_tokens off;
+                    # disable any limits to avoid HTTP 413 for large image uploads
+                    client_max_body_size 0;
+
+                    # Add extra headers
+                    add_header X-Frame-Options DENY;
+                    add_header Content-Security-Policy "frame-ancestors 'none'";
+
+                    location / {
+                      proxy_pass http://portal/;
+                      proxy_set_header Host $host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $x_forwarded_proto;
+
+                      proxy_buffering off;
+                      proxy_request_buffering off;
+                    }
+
+                    location /api/ {
+                      proxy_pass http://core/api/;
+                      proxy_set_header Host $host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $x_forwarded_proto;
+
+                      proxy_buffering off;
+                      proxy_request_buffering off;
+                    }
+
+                    location /c/ {
+                      proxy_pass http://core/c/;
+                      proxy_set_header Host $host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $x_forwarded_proto;
+
+                      proxy_buffering off;
+                      proxy_request_buffering off;
+                    }
+
+                    location /v1/ {
+                      return 404;
+                    }
+
+                    location /v2/ {
+                      proxy_pass http://core/v2/;
+                      proxy_set_header Host $http_host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $x_forwarded_proto;
+                      proxy_buffering off;
+                      proxy_request_buffering off;
+                      proxy_send_timeout 900;
+                      proxy_read_timeout 900;
+                    }
+
+                    location /service/ {
+                      proxy_pass http://core/service/;
+                      proxy_set_header Host $host;
+                      proxy_set_header X-Real-IP $remote_addr;
+                      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto $x_forwarded_proto;
+
+                      proxy_buffering off;
+                      proxy_request_buffering off;
+                    }
+
+                  location /service/notifications {
+                      return 404;
+                    }
+                  }
+                }
+            kind: ConfigMap
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-nginx
+              namespace: harbor
+          - apiVersion: v1
+            data:
+              nginx.conf: |
+                worker_processes auto;
+                pid /tmp/nginx.pid;
+                events {
+                    worker_connections  1024;
+                }
+                http {
+                    client_body_temp_path /tmp/client_body_temp;
+                    proxy_temp_path /tmp/proxy_temp;
+                    fastcgi_temp_path /tmp/fastcgi_temp;
+                    uwsgi_temp_path /tmp/uwsgi_temp;
+                    scgi_temp_path /tmp/scgi_temp;
+                    server {
+                        listen 8080;
+                        listen [::]:8080;
+                        server_name  localhost;
+                        root   /usr/share/nginx/html;
+                        index  index.html index.htm;
+                        include /etc/nginx/mime.types;
+                        gzip on;
+                        gzip_min_length 1000;
+                        gzip_proxied expired no-cache no-store private auth;
+                        gzip_types text/plain text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+                        location /devcenter-api-2.0 {
+                            try_files $uri $uri/ /swagger-ui-index.html;
+                        }
+                        location / {
+                            try_files $uri $uri/ /index.html;
+                        }
+                        location = /index.html {
+                            add_header Cache-Control "no-store, no-cache, must-revalidate";
+                        }
+                    }
+                }
+            kind: ConfigMap
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-portal
+              namespace: harbor
+          - apiVersion: v1
+            data:
+              config.yml: |
+                version: 0.1
+                log:
+                  level: info
+                  fields:
+                    service: registry
+                storage:
+                  filesystem:
+                    rootdirectory: /storage
+                  cache:
+                    layerinfo: redis
+                  maintenance:
+                    uploadpurging:
+                      enabled: true
+                      age: 168h
+                      interval: 24h
+                      dryrun: false
+                  delete:
+                    enabled: true
+                  redirect:
+                    disable: false
+                redis:
+                  addr: harbor-redis:6379
+                  db: 2
+                  readtimeout: 10s
+                  writetimeout: 10s
+                  dialtimeout: 10s
+                  enableTLS: false
+                  pool:
+                    maxidle: 100
+                    maxactive: 500
+                    idletimeout: 60s
+                http:
+                  addr: :5000
+                  relativeurls: false
+                  # set via environment variable
+                  # secret: placeholder
+                  debug:
+                    addr: localhost:5001
+                auth:
+                  htpasswd:
+                    realm: harbor-registry-basic-realm
+                    path: /etc/registry/passwd
+                validation:
+                  disabled: true
+                compatibility:
+                  schema1:
+                    enabled: true
+              ctl-config.yml: |
+                ---
+                protocol: "http"
+                port: 8080
+                log_level: info
+                registry_config: "/etc/registry/config.yml"
+            kind: ConfigMap
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-registry
+              namespace: harbor
+          - apiVersion: v1
+            data: null
+            kind: ConfigMap
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-registryctl
+              namespace: harbor
+          - apiVersion: v1
+            data:
+              CSRF_KEY: T1dnTFdxRWRyR255UmtnMDJtNXV3dUxPaUpPUzRHN2M=
+              HARBOR_ADMIN_PASSWORD: SGFyYm9yMTIzNDU=
+              POSTGRESQL_PASSWORD: Y2hhbmdlaXQ=
+              REGISTRY_CREDENTIAL_PASSWORD: aGFyYm9yX3JlZ2lzdHJ5X3Bhc3N3b3Jk
+              secret: YUNzOUtlQ1JFT3JKZGdYaQ==
+              secretKey: bm90LWEtc2VjdXJlLWtleQ==
+              tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURIekNDQWdlZ0F3SUJBZ0lRTjBySTlIYkFETWN6c1NJRWpJY3B6VEFOQmdrcWhraUc5dzBCQVFzRkFEQWEKTVJnd0ZnWURWUVFERXc5b1lYSmliM0l0ZEc5clpXNHRZMkV3SGhjTk1qWXdNekE1TWpFd05EUXdXaGNOTWpjdwpNekE1TWpFd05EUXdXakFhTVJnd0ZnWURWUVFERXc5b1lYSmliM0l0ZEc5clpXNHRZMkV3Z2dFaU1BMEdDU3FHClNJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUNlQzVqZVlaRmh5R21uK1U5QnJHVS8yVGZUVGtPcExUNWYKNklUdVk1R1dVeTg1a3V6NlRsd3B5QmJFbFBvUGtSbisxL0Rpa3lLbXQzRUxET2dJdGJIeGVaSHNsb3VMYmFTZgppS0xFVGFTb3NaZU9ENUozNG1ZWkk3WFM2V3BXSHhveUZBOFRZeVlmekFLeVVmc0VPeFUxOEFXL2FNMlNsQVpHCnJJQ0JLZURUOGJYYktUVEtqVmpaMm5XWVFSRU9WRDFiTEZSaWpwSk9pbGZtaVFvRzl3VTI3K1ovK0pSRGlUVHgKYlFYUElacHBQbFlWZE96d2RzejR0NzBVSXRlWHdYcFR6WmNuVzREQzZoVmorbXhGM1RqQ2MxMDFKaXF4czJtbAp3YzRvK2kwcjNJZEduWFVKTHdVTEpTOGpCWjR4Mm0ybEV4aTlURCtNZzZ5L0VzRmZEYzgxQWdNQkFBR2pZVEJmCk1BNEdBMVVkRHdFQi93UUVBd0lDcERBZEJnTlZIU1VFRmpBVUJnZ3JCZ0VGQlFjREFRWUlLd1lCQlFVSEF3SXcKRHdZRFZSMFRBUUgvQkFVd0F3RUIvekFkQmdOVkhRNEVGZ1FVL0Zzbmw4OTFaT0hrOHo0VjdjR0Y4ekoyb3pVdwpEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBSjNJcDJFK251Z3VyaE9ENnJLaGdmT1kvMUVjSkY2aStGbmxoWHF6CkZqNXR4Z3JCVzRRdTI0ZXpwR2dlOFdjTElPMmRmc2djMTc3SlFRQ1BiUUkvTFp3TUkyVDVOSlBhQUVZS011bFAKWGlFTHVUTVlpOXR6aW9mQmRGckZHS3VXMlIvVlkzdlZyNUMwNDdUcC9rbFJWWnhZMGdtQ1YrK1ZQNkhKWnduSApSMkhKWFdQZDJQTU5uMExJZ3ZwOVVSaXRUeVB0Mjh1dWRXN0ZaWVFoUHBsMEs4UnhsSTJSNFNaYU5ybG5jN2JlClVWM01zTW1EZndnN2loa1d2dWdzK0pTdTdrc2s3SHExR05ad1lkK2ZhWHh4eHlZMGJXRWgyZnB2ZUx6ZmZDTSsKV2NXV3AvUlEzVHEzQW9YMGlLRWUyaXhORnJOZldPVXpJNFA5SmljdzRMUW9XdUE9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+              tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBbmd1WTNtR1JZY2hwcC9sUFFheGxQOWszMDA1RHFTMCtYK2lFN21PUmxsTXZPWkxzCitrNWNLY2dXeEpUNkQ1RVovdGZ3NHBNaXByZHhDd3pvQ0xXeDhYbVI3SmFMaTIya240aWl4RTJrcUxHWGpnK1MKZCtKbUdTTzEwdWxxVmg4YU1oUVBFMk1tSDh3Q3NsSDdCRHNWTmZBRnYyak5rcFFHUnF5QWdTbmcwL0cxMnlrMAp5bzFZMmRwMW1FRVJEbFE5V3l4VVlvNlNUb3BYNW9rS0J2Y0ZOdS9tZi9pVVE0azA4VzBGenlHYWFUNVdGWFRzCjhIYk0rTGU5RkNMWGw4RjZVODJYSjF1QXd1b1ZZL3BzUmQwNHduTmROU1lxc2JOcHBjSE9LUG90Szl5SFJwMTEKQ1M4RkN5VXZJd1dlTWRwdHBSTVl2VXcvaklPc3Z4TEJYdzNQTlFJREFRQUJBb0lCQUJxU29wcEpWMU5VaWdjMwpFTTllK0FzYkw1cTBud1d6MkxmeGRXQkxsMi9wL3BlMGoybXFnUzU1T1BMR2hhRFdhY09DZFRyek9ERkZ5Smp1CkM1bGpTMDdwZk5LRm9XTEpCWlBaT2x5OUhVRkwwc3FNN2JpQWRXQW1zK3lKV0Zxd2tndjNlVzF1RHp2clpreXIKSWdSZEZyemg1V1dBYm9nRm9XU0NubnlaR1BjcGVoblpBMlhla0xHUUY2UHRsTXZaNUhWQUxLQU5PRS8wcm1sbApxVFk1dFIwcUlBdTNVUHBzVTR3OWNGUTI0dE1ubVZVOXM4OVZQNnNOTTRaejVIUWNhU0Ixd0w1ZHFQd0MzL3paCmt0eFRsSERhbFNNV2tteXlUdDc0K0d4eVozd0xiVjNFVEhESnlTS2taMkc5WjY3ODlMUWpvM0NmeFBlL2FvZ24KVUZBcHp1VUNnWUVBdzFGa3NSWGc5T3FYb1RMd0JHelN1eFp0cENuSms0ZlZuUUEwNGtRRVZKVWFZcjU4Tm1FQwpKKzBZRVJrWUZsWVIyTGtGMFV3K3czK1N5UWkxMzdnU2hNejBYWDhCbUthazA5dndWYlFSODRaZis0QVFwK1BxClR0MUZ3VVA4VVJHd0JIUCsyTEo4YWRDaDE4bVZTWVVSakhwcEJJYzJYMlkyS2E2Z2ZsckgzRnNDZ1lFQXp5VzUKdEtMbXZOSE9uWkQ5SGNvcmtIWFlDYnRSTEJsU1BSSDFObmhyY2ZRZVRDbjBVdUR3em1wRzNSMWszWmJTdFNWeApEdTZ6aEtzd3ZmZVpPb0U1REZJbzZJYlJNcXZsMFFXMjkvbDRpMmtIdmdxV05TZCtLcE1sYmhjSjVWYWdqRjNvCkl4WHhjOHI3NnZkSk9IQXQ0UHFFdXcvTEUzdE5TOStqWTB5R0Y2OENnWUVBcUlCZ3FQR2lHRWtHdFRmM255bXYKQjE1TENwUk9aZXVLMng2aGdRNkMyZUdrV01uUzZTcjVyQzQ4VkF2ZEh1LzBCNDlmdUhmWnNka3ViaWNJbU0vNQprZjRyVnpuSnk4TUFjaEhObm5KeUJqRElQM1gxYUpJVXd5TGNHZWFvRjl4MWlQSDFTMGQ0VStWOHFtZ3JWYmpxCk1kSXRKWTNzMTVLYmFZeFF3NUZYMlA4Q2dZQko0VHlnamxFWkd3TkQ4MGd6YmIybjRqL1JDTHZrckl0R09MZHEKVy95R1FmamtWVHBNck9sMTFUVzgreFRVYTB4dlN4Rk5zQmphd211NTlTcnpVTTlWODUrZmZ5WHhtcGwydVVFTwpwQzA0RzVlbFVnVk1vKzg5cEFsL2dEd0pUYUlwTGZ6ek5vcE5NQ0kxSlVrNkZkaG5HekpudlRSQ21JRnpCQ296CjZrRVJCUUtCZ0F2bHVyWW13MVNOdG1BOUlBNXM3aUlPMHVXUVpaeDBiUnhLalowQ2lXUnE2cWVtZnZoWDdwUzUKTFBWVHNHRjl4YXBiY3VacjhxdWtVeU5CSkRNcUc3NDFpOXc3VE41Q28vUWpkTzlnM2dTWkZNaVBBZFVWYzBSbApWQjlMWEhib3k5eVBpQ1M0aWFOdHdNeGZkNXlHalUzUCtNZER1MmNUR01yaDJRcENEOXA2Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+            kind: Secret
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-core
+              namespace: harbor
+            type: Opaque
+          - apiVersion: v1
+            data:
+              POSTGRES_PASSWORD: Y2hhbmdlaXQ=
+            kind: Secret
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-database
+              namespace: harbor
+            type: Opaque
+          - apiVersion: v1
+            data:
+              JOBSERVICE_SECRET: WFQxWXhSdE1QQlA2dTFZdw==
+              REGISTRY_CREDENTIAL_PASSWORD: aGFyYm9yX3JlZ2lzdHJ5X3Bhc3N3b3Jk
+            kind: Secret
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-jobservice
+              namespace: harbor
+            type: Opaque
+          - apiVersion: v1
+            data:
+              REGISTRY_HTTP_SECRET: cVhPWXl4c3A4THZRd1daRA==
+              REGISTRY_REDIS_PASSWORD: ""
+            kind: Secret
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-registry
+              namespace: harbor
+            type: Opaque
+          - apiVersion: v1
+            data:
+              REGISTRY_HTPASSWD: aGFyYm9yX3JlZ2lzdHJ5X3VzZXI6JDJhJDEwJGpuVDhNS25qLzdpWlRKS3BJVXBFRy5JM3ptRDc3WWNFQnRBOEdEUXdWRXhCVVJNZUMuUTZp
+            kind: Secret
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-registry-htpasswd
+              namespace: harbor
+            type: Opaque
+          - apiVersion: v1
+            data: null
+            kind: Secret
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-registryctl
+              namespace: harbor
+            type: Opaque
+          - apiVersion: v1
+            data:
+              gitHubToken: ""
+              redisURL: cmVkaXM6Ly9oYXJib3ItcmVkaXM6NjM3OS81P2lkbGVfdGltZW91dF9zZWNvbmRzPTMw
+            kind: Secret
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-trivy
+              namespace: harbor
+            type: Opaque
+          - apiVersion: v1
+            kind: Service
+            metadata:
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+              name: release-name-flux-operator
+              namespace: flux-system
+            spec:
+              ports:
+                - name: http
+                  port: 8080
+                  protocol: TCP
+                  targetPort: http-metrics
+                - name: http-web
+                  port: 9080
+                  protocol: TCP
+                  targetPort: http-web
+              selector:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/name: flux-operator
+          - apiVersion: v1
+            kind: Service
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor
+              namespace: harbor
+            spec:
+              ports:
+                - name: http
+                  port: 80
+                  targetPort: 8080
+              selector:
+                app: harbor
+                component: nginx
+                release: harbor
+              type: ClusterIP
+          - apiVersion: v1
+            kind: Service
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-core
+              namespace: harbor
+            spec:
+              ports:
+                - name: http-web
+                  port: 80
+                  targetPort: 8080
+              selector:
+                app: harbor
+                component: core
+                release: harbor
+          - apiVersion: v1
+            kind: Service
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-database
+              namespace: harbor
+            spec:
+              ports:
+                - port: 5432
+              selector:
+                app: harbor
+                component: database
+                release: harbor
+          - apiVersion: v1
+            kind: Service
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-jobservice
+              namespace: harbor
+            spec:
+              ports:
+                - name: http-jobservice
+                  port: 80
+                  targetPort: 8080
+              selector:
+                app: harbor
+                component: jobservice
+                release: harbor
+          - apiVersion: v1
+            kind: Service
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-portal
+              namespace: harbor
+            spec:
+              ports:
+                - port: 80
+                  targetPort: 8080
+              selector:
+                app: harbor
+                component: portal
+                release: harbor
+          - apiVersion: v1
+            kind: Service
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-redis
+              namespace: harbor
+            spec:
+              ports:
+                - port: 6379
+              selector:
+                app: harbor
+                component: redis
+                release: harbor
+          - apiVersion: v1
+            kind: Service
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-registry
+              namespace: harbor
+            spec:
+              ports:
+                - name: http-registry
+                  port: 5000
+                - name: http-controller
+                  port: 8080
+              selector:
+                app: harbor
+                component: registry
+                release: harbor
+          - apiVersion: v1
+            kind: Service
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                heritage: Helm
+                release: harbor
+              name: harbor-trivy
+              namespace: harbor
+            spec:
+              ports:
+                - name: http-trivy
+                  port: 8080
+                  protocol: TCP
+              selector:
+                app: harbor
+                component: trivy
+                release: harbor
+          - apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+              name: release-name-flux-operator
+              namespace: flux-system
+            spec:
+              selector:
+                matchLabels:
+                  app.kubernetes.io/instance: release-name
+                  app.kubernetes.io/name: flux-operator
+              template:
+                metadata:
+                  annotations:
+                    prometheus.io/path: /metrics
+                    prometheus.io/port: "8080"
+                    prometheus.io/scrape: "true"
+                  labels:
+                    app.kubernetes.io/instance: release-name
+                    app.kubernetes.io/managed-by: Helm
+                    app.kubernetes.io/name: flux-operator
+                    app.kubernetes.io/version: v0.43.0
+                    helm.sh/chart: flux-operator-0.43.0
+                spec:
+                  affinity:
+                    nodeAffinity:
+                      requiredDuringSchedulingIgnoredDuringExecution:
+                        nodeSelectorTerms:
+                          - matchExpressions:
+                              - key: kubernetes.io/os
+                                operator: In
+                                values:
+                                  - linux
+                  containers:
+                    - args:
+                        - --log-level=info
+                      env:
+                        - name: RUNTIME_NAMESPACE
+                          valueFrom:
+                            fieldRef:
+                              fieldPath: metadata.namespace
+                        - name: REPORTING_INTERVAL
+                          value: 5m
+                        - name: WEB_SERVER_PORT
+                          value: "9080"
+                      image: ghcr.io/controlplaneio-fluxcd/flux-operator:v0.43.0
+                      imagePullPolicy: IfNotPresent
+                      livenessProbe:
+                        httpGet:
+                          path: /healthz
+                          port: 8081
+                        initialDelaySeconds: 15
+                        periodSeconds: 20
+                      name: manager
+                      ports:
+                        - containerPort: 8080
+                          name: http-metrics
+                          protocol: TCP
+                        - containerPort: 8081
+                          name: http
+                          protocol: TCP
+                        - containerPort: 9080
+                          name: http-web
+                          protocol: TCP
+                      readinessProbe:
+                        httpGet:
+                          path: /readyz
+                          port: 8081
+                        initialDelaySeconds: 5
+                        periodSeconds: 10
+                      resources:
+                        limits:
+                          cpu: 2000m
+                          memory: 1Gi
+                        requests:
+                          cpu: 100m
+                          memory: 64Mi
+                      securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                          drop:
+                            - ALL
+                        readOnlyRootFilesystem: true
+                        runAsNonRoot: true
+                        seccompProfile:
+                          type: RuntimeDefault
+                      volumeMounts:
+                        - mountPath: /tmp
+                          name: temp
+                  serviceAccountName: release-name-flux-operator
+                  volumes:
+                    - emptyDir: {}
+                      name: temp
+          - apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/component: core
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                component: core
+                heritage: Helm
+                release: harbor
+              name: harbor-core
+              namespace: harbor
+            spec:
+              replicas: 1
+              revisionHistoryLimit: 10
+              selector:
+                matchLabels:
+                  app: harbor
+                  component: core
+                  release: harbor
+              template:
+                metadata:
+                  annotations:
+                    checksum/configmap: 88d36bd5768c0cee781396047808ca3eb80e9c309719ae9474e1d42a7b38ce9d
+                    checksum/secret: 3025a758356f507db938179112df9354b07fc3d91414f1745f16981dc9a106c4
+                    checksum/secret-jobservice: c9933502972da72b4012eee28aaa160440946cadf86550f51bf880e434c910cd
+                  labels:
+                    app: harbor
+                    app.kubernetes.io/component: core
+                    app.kubernetes.io/instance: harbor
+                    app.kubernetes.io/managed-by: Helm
+                    app.kubernetes.io/name: harbor
+                    app.kubernetes.io/part-of: harbor
+                    app.kubernetes.io/version: 2.14.2
+                    chart: harbor
+                    component: core
+                    heritage: Helm
+                    release: harbor
+                spec:
+                  automountServiceAccountToken: false
+                  containers:
+                    - env:
+                        - name: CORE_SECRET
+                          valueFrom:
+                            secretKeyRef:
+                              key: secret
+                              name: harbor-core
+                        - name: JOBSERVICE_SECRET
+                          valueFrom:
+                            secretKeyRef:
+                              key: JOBSERVICE_SECRET
+                              name: harbor-jobservice
+                      envFrom:
+                        - configMapRef:
+                            name: harbor-core
+                        - secretRef:
+                            name: harbor-core
+                      image: goharbor/harbor-core:v2.14.2
+                      imagePullPolicy: IfNotPresent
+                      livenessProbe:
+                        failureThreshold: 2
+                        httpGet:
+                          path: /api/v2.0/ping
+                          port: 8080
+                          scheme: HTTP
+                        periodSeconds: 10
+                      name: core
+                      ports:
+                        - containerPort: 8080
+                      readinessProbe:
+                        failureThreshold: 2
+                        httpGet:
+                          path: /api/v2.0/ping
+                          port: 8080
+                          scheme: HTTP
+                        periodSeconds: 10
+                      securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                          drop:
+                            - ALL
+                        privileged: false
+                        runAsNonRoot: true
+                        seccompProfile:
+                          type: RuntimeDefault
+                      startupProbe:
+                        failureThreshold: 360
+                        httpGet:
+                          path: /api/v2.0/ping
+                          port: 8080
+                          scheme: HTTP
+                        initialDelaySeconds: 10
+                        periodSeconds: 10
+                      volumeMounts:
+                        - mountPath: /etc/core/app.conf
+                          name: config
+                          subPath: app.conf
+                        - mountPath: /etc/core/key
+                          name: secret-key
+                          subPath: key
+                        - mountPath: /etc/core/private_key.pem
+                          name: token-service-private-key
+                          subPath: tls.key
+                        - mountPath: /etc/core/token
+                          name: psc
+                  securityContext:
+                    fsGroup: 10000
+                    runAsUser: 10000
+                  terminationGracePeriodSeconds: 120
+                  volumes:
+                    - configMap:
+                        items:
+                          - key: app.conf
+                            path: app.conf
+                        name: harbor-core
+                      name: config
+                    - name: secret-key
+                      secret:
+                        items:
+                          - key: secretKey
+                            path: key
+                        secretName: harbor-core
+                    - name: token-service-private-key
+                      secret:
+                        secretName: harbor-core
+                    - emptyDir: {}
+                      name: psc
+          - apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/component: jobservice
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                component: jobservice
+                heritage: Helm
+                release: harbor
+              name: harbor-jobservice
+              namespace: harbor
+            spec:
+              replicas: 1
+              revisionHistoryLimit: 10
+              selector:
+                matchLabels:
+                  app: harbor
+                  component: jobservice
+                  release: harbor
+              strategy:
+                type: RollingUpdate
+              template:
+                metadata:
+                  annotations:
+                    checksum/configmap: d97ed98c4f1a6a67a9e3beb515866b76bdc366f85a505c6630ab8b715a1d3596
+                    checksum/configmap-env: 75613fb585c5d54506092929c28b7ab86212a69b20882acd118ae0780a1c48de
+                    checksum/secret: 4429256ccd1badfbe083afed5d4dfee2cb704b3b384e9596c1b90b81c7c5b126
+                    checksum/secret-core: ffefa65519dbfce67545c243271c8c7e1d942c3587ed01d40bb3513f8e9ee946
+                  labels:
+                    app: harbor
+                    app.kubernetes.io/component: jobservice
+                    app.kubernetes.io/instance: harbor
+                    app.kubernetes.io/managed-by: Helm
+                    app.kubernetes.io/name: harbor
+                    app.kubernetes.io/part-of: harbor
+                    app.kubernetes.io/version: 2.14.2
+                    chart: harbor
+                    component: jobservice
+                    heritage: Helm
+                    release: harbor
+                spec:
+                  automountServiceAccountToken: false
+                  containers:
+                    - env:
+                        - name: CORE_SECRET
+                          valueFrom:
+                            secretKeyRef:
+                              key: secret
+                              name: harbor-core
+                      envFrom:
+                        - configMapRef:
+                            name: harbor-jobservice-env
+                        - secretRef:
+                            name: harbor-jobservice
+                      image: goharbor/harbor-jobservice:v2.14.2
+                      imagePullPolicy: IfNotPresent
+                      livenessProbe:
+                        httpGet:
+                          path: /api/v1/stats
+                          port: 8080
+                          scheme: HTTP
+                        initialDelaySeconds: 300
+                        periodSeconds: 10
+                      name: jobservice
+                      ports:
+                        - containerPort: 8080
+                      readinessProbe:
+                        httpGet:
+                          path: /api/v1/stats
+                          port: 8080
+                          scheme: HTTP
+                        initialDelaySeconds: 20
+                        periodSeconds: 10
+                      securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                          drop:
+                            - ALL
+                        privileged: false
+                        runAsNonRoot: true
+                        seccompProfile:
+                          type: RuntimeDefault
+                      volumeMounts:
+                        - mountPath: /etc/jobservice/config.yml
+                          name: jobservice-config
+                          subPath: config.yml
+                        - mountPath: /var/log/jobs
+                          name: job-logs
+                          subPath: null
+                  securityContext:
+                    fsGroup: 10000
+                    runAsUser: 10000
+                  terminationGracePeriodSeconds: 120
+                  volumes:
+                    - configMap:
+                        name: harbor-jobservice
+                      name: jobservice-config
+                    - emptyDir: {}
+                      name: job-logs
+          - apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/component: nginx
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                component: nginx
+                heritage: Helm
+                release: harbor
+              name: harbor-nginx
+              namespace: harbor
+            spec:
+              replicas: 1
+              revisionHistoryLimit: 10
+              selector:
+                matchLabels:
+                  app: harbor
+                  component: nginx
+                  release: harbor
+              template:
+                metadata:
+                  annotations:
+                    checksum/configmap: 002f96767b3f203be4c31d35874966a9db6acfb52454e1e23ece89c9b0bb3cbc
+                  labels:
+                    app: harbor
+                    app.kubernetes.io/component: nginx
+                    app.kubernetes.io/instance: harbor
+                    app.kubernetes.io/managed-by: Helm
+                    app.kubernetes.io/name: harbor
+                    app.kubernetes.io/part-of: harbor
+                    app.kubernetes.io/version: 2.14.2
+                    chart: harbor
+                    component: nginx
+                    heritage: Helm
+                    release: harbor
+                spec:
+                  automountServiceAccountToken: false
+                  containers:
+                    - image: goharbor/nginx-photon:v2.14.2
+                      imagePullPolicy: IfNotPresent
+                      livenessProbe:
+                        httpGet:
+                          path: /
+                          port: 8080
+                          scheme: HTTP
+                        initialDelaySeconds: 300
+                        periodSeconds: 10
+                      name: nginx
+                      ports:
+                        - containerPort: 8080
+                      readinessProbe:
+                        httpGet:
+                          path: /
+                          port: 8080
+                          scheme: HTTP
+                        initialDelaySeconds: 1
+                        periodSeconds: 10
+                      securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                          drop:
+                            - ALL
+                        privileged: false
+                        runAsNonRoot: true
+                        seccompProfile:
+                          type: RuntimeDefault
+                      volumeMounts:
+                        - mountPath: /etc/nginx/nginx.conf
+                          name: config
+                          subPath: nginx.conf
+                  securityContext:
+                    fsGroup: 10000
+                    runAsUser: 10000
+                  volumes:
+                    - configMap:
+                        name: harbor-nginx
+                      name: config
+          - apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/component: portal
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                component: portal
+                heritage: Helm
+                release: harbor
+              name: harbor-portal
+              namespace: harbor
+            spec:
+              replicas: 1
+              revisionHistoryLimit: 10
+              selector:
+                matchLabels:
+                  app: harbor
+                  component: portal
+                  release: harbor
+              template:
+                metadata:
+                  annotations:
+                    checksum/configmap: 3116c25ec08d4ae341400f32b81231b9823250f143ad2ee48bfc179a9fc0319f
+                  labels:
+                    app: harbor
+                    app.kubernetes.io/component: portal
+                    app.kubernetes.io/instance: harbor
+                    app.kubernetes.io/managed-by: Helm
+                    app.kubernetes.io/name: harbor
+                    app.kubernetes.io/part-of: harbor
+                    app.kubernetes.io/version: 2.14.2
+                    chart: harbor
+                    component: portal
+                    heritage: Helm
+                    release: harbor
+                spec:
+                  automountServiceAccountToken: false
+                  containers:
+                    - image: goharbor/harbor-portal:v2.14.2
+                      imagePullPolicy: IfNotPresent
+                      livenessProbe:
+                        httpGet:
+                          path: /
+                          port: 8080
+                          scheme: HTTP
+                        initialDelaySeconds: 300
+                        periodSeconds: 10
+                      name: portal
+                      ports:
+                        - containerPort: 8080
+                      readinessProbe:
+                        httpGet:
+                          path: /
+                          port: 8080
+                          scheme: HTTP
+                        initialDelaySeconds: 1
+                        periodSeconds: 10
+                      securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                          drop:
+                            - ALL
+                        privileged: false
+                        runAsNonRoot: true
+                        seccompProfile:
+                          type: RuntimeDefault
+                      volumeMounts:
+                        - mountPath: /etc/nginx/nginx.conf
+                          name: portal-config
+                          subPath: nginx.conf
+                  securityContext:
+                    fsGroup: 10000
+                    runAsUser: 10000
+                  volumes:
+                    - configMap:
+                        name: harbor-portal
+                      name: portal-config
+          - apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/component: registry
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                component: registry
+                heritage: Helm
+                release: harbor
+              name: harbor-registry
+              namespace: harbor
+            spec:
+              replicas: 1
+              revisionHistoryLimit: 10
+              selector:
+                matchLabels:
+                  app: harbor
+                  component: registry
+                  release: harbor
+              strategy:
+                type: RollingUpdate
+              template:
+                metadata:
+                  annotations:
+                    checksum/configmap: 99cd8e88533e7632c94ee7344dc6d765bfa578232d8b242c8cb6756fe441556f
+                    checksum/secret: af4547efa4beae050691f95c7d48d369743774cd7484df1cee54987d158e1bc6
+                    checksum/secret-core: e1568b144d4897a2a614223882c82df2a75b2c6c13e9f0dabd924178b399cb50
+                    checksum/secret-jobservice: 40760489cd2fd9a069695684a5fe1152e1106810695c51104c5ad628e0b26be4
+                  labels:
+                    app: harbor
+                    app.kubernetes.io/component: registry
+                    app.kubernetes.io/instance: harbor
+                    app.kubernetes.io/managed-by: Helm
+                    app.kubernetes.io/name: harbor
+                    app.kubernetes.io/part-of: harbor
+                    app.kubernetes.io/version: 2.14.2
+                    chart: harbor
+                    component: registry
+                    heritage: Helm
+                    release: harbor
+                spec:
+                  automountServiceAccountToken: false
+                  containers:
+                    - env: null
+                      envFrom:
+                        - secretRef:
+                            name: harbor-registry
+                      image: goharbor/registry-photon:v2.14.2
+                      imagePullPolicy: IfNotPresent
+                      livenessProbe:
+                        httpGet:
+                          path: /
+                          port: 5000
+                          scheme: HTTP
+                        initialDelaySeconds: 300
+                        periodSeconds: 10
+                      name: registry
+                      ports:
+                        - containerPort: 5000
+                        - containerPort: 5001
+                      readinessProbe:
+                        httpGet:
+                          path: /
+                          port: 5000
+                          scheme: HTTP
+                        initialDelaySeconds: 1
+                        periodSeconds: 10
+                      securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                          drop:
+                            - ALL
+                        privileged: false
+                        runAsNonRoot: true
+                        seccompProfile:
+                          type: RuntimeDefault
+                      volumeMounts:
+                        - mountPath: /storage
+                          name: registry-data
+                          subPath: null
+                        - mountPath: /etc/registry/passwd
+                          name: registry-htpasswd
+                          subPath: passwd
+                        - mountPath: /etc/registry/config.yml
+                          name: registry-config
+                          subPath: config.yml
+                    - env:
+                        - name: CORE_SECRET
+                          valueFrom:
+                            secretKeyRef:
+                              key: secret
+                              name: harbor-core
+                        - name: JOBSERVICE_SECRET
+                          valueFrom:
+                            secretKeyRef:
+                              key: JOBSERVICE_SECRET
+                              name: harbor-jobservice
+                      envFrom:
+                        - configMapRef:
+                            name: harbor-registryctl
+                        - secretRef:
+                            name: harbor-registry
+                        - secretRef:
+                            name: harbor-registryctl
+                      image: goharbor/harbor-registryctl:v2.14.2
+                      imagePullPolicy: IfNotPresent
+                      livenessProbe:
+                        httpGet:
+                          path: /api/health
+                          port: 8080
+                          scheme: HTTP
+                        initialDelaySeconds: 300
+                        periodSeconds: 10
+                      name: registryctl
+                      ports:
+                        - containerPort: 8080
+                      readinessProbe:
+                        httpGet:
+                          path: /api/health
+                          port: 8080
+                          scheme: HTTP
+                        initialDelaySeconds: 1
+                        periodSeconds: 10
+                      securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                          drop:
+                            - ALL
+                        privileged: false
+                        runAsNonRoot: true
+                        seccompProfile:
+                          type: RuntimeDefault
+                      volumeMounts:
+                        - mountPath: /storage
+                          name: registry-data
+                          subPath: null
+                        - mountPath: /etc/registry/config.yml
+                          name: registry-config
+                          subPath: config.yml
+                        - mountPath: /etc/registryctl/config.yml
+                          name: registry-config
+                          subPath: ctl-config.yml
+                  securityContext:
+                    fsGroup: 10000
+                    fsGroupChangePolicy: OnRootMismatch
+                    runAsUser: 10000
+                  terminationGracePeriodSeconds: 120
+                  volumes:
+                    - name: registry-htpasswd
+                      secret:
+                        items:
+                          - key: REGISTRY_HTPASSWD
+                            path: passwd
+                        secretName: harbor-registry-htpasswd
+                    - configMap:
+                        name: harbor-registry
+                      name: registry-config
+                    - emptyDir: {}
+                      name: registry-data
+          - apiVersion: apps/v1
+            kind: StatefulSet
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/component: database
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                component: database
+                heritage: Helm
+                release: harbor
+              name: harbor-database
+              namespace: harbor
+            spec:
+              replicas: 1
+              selector:
+                matchLabels:
+                  app: harbor
+                  component: database
+                  release: harbor
+              serviceName: harbor-database
+              template:
+                metadata:
+                  annotations:
+                    checksum/secret: 2ebb055318c7b1864f248d77baaa23bea5ce141dce3892c3b8305335075bcd08
+                  labels:
+                    app: harbor
+                    app.kubernetes.io/component: database
+                    app.kubernetes.io/instance: harbor
+                    app.kubernetes.io/managed-by: Helm
+                    app.kubernetes.io/name: harbor
+                    app.kubernetes.io/part-of: harbor
+                    app.kubernetes.io/version: 2.14.2
+                    chart: harbor
+                    component: database
+                    heritage: Helm
+                    release: harbor
+                spec:
+                  automountServiceAccountToken: false
+                  containers:
+                    - env:
+                        - name: PGDATA
+                          value: /var/lib/postgresql/data/pgdata
+                      envFrom:
+                        - secretRef:
+                            name: harbor-database
+                      image: goharbor/harbor-db:v2.14.2
+                      imagePullPolicy: IfNotPresent
+                      livenessProbe:
+                        exec:
+                          command:
+                            - /docker-healthcheck.sh
+                        initialDelaySeconds: 300
+                        periodSeconds: 10
+                        timeoutSeconds: 1
+                      name: database
+                      readinessProbe:
+                        exec:
+                          command:
+                            - /docker-healthcheck.sh
+                        initialDelaySeconds: 1
+                        periodSeconds: 10
+                        timeoutSeconds: 1
+                      securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                          drop:
+                            - ALL
+                        privileged: false
+                        runAsNonRoot: true
+                        seccompProfile:
+                          type: RuntimeDefault
+                      volumeMounts:
+                        - mountPath: /var/lib/postgresql/data
+                          name: database-data
+                          subPath: null
+                        - mountPath: /dev/shm
+                          name: shm-volume
+                  initContainers:
+                    - args:
+                        - -c
+                        - chmod -R 700 /var/lib/postgresql/data/pgdata || true
+                      command:
+                        - /bin/sh
+                      image: goharbor/harbor-db:v2.14.2
+                      imagePullPolicy: IfNotPresent
+                      name: data-permissions-ensurer
+                      securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                          drop:
+                            - ALL
+                        privileged: false
+                        runAsNonRoot: true
+                        seccompProfile:
+                          type: RuntimeDefault
+                      volumeMounts:
+                        - mountPath: /var/lib/postgresql/data
+                          name: database-data
+                          subPath: null
+                  securityContext:
+                    fsGroup: 999
+                    runAsUser: 999
+                  terminationGracePeriodSeconds: 120
+                  volumes:
+                    - emptyDir:
+                        medium: Memory
+                        sizeLimit: 512Mi
+                      name: shm-volume
+                    - emptyDir: {}
+                      name: database-data
+          - apiVersion: apps/v1
+            kind: StatefulSet
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/component: redis
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                component: redis
+                heritage: Helm
+                release: harbor
+              name: harbor-redis
+              namespace: harbor
+            spec:
+              replicas: 1
+              selector:
+                matchLabels:
+                  app: harbor
+                  component: redis
+                  release: harbor
+              serviceName: harbor-redis
+              template:
+                metadata:
+                  labels:
+                    app: harbor
+                    app.kubernetes.io/component: redis
+                    app.kubernetes.io/instance: harbor
+                    app.kubernetes.io/managed-by: Helm
+                    app.kubernetes.io/name: harbor
+                    app.kubernetes.io/part-of: harbor
+                    app.kubernetes.io/version: 2.14.2
+                    chart: harbor
+                    component: redis
+                    heritage: Helm
+                    release: harbor
+                spec:
+                  automountServiceAccountToken: false
+                  containers:
+                    - image: goharbor/redis-photon:v2.14.2
+                      imagePullPolicy: IfNotPresent
+                      livenessProbe:
+                        initialDelaySeconds: 300
+                        periodSeconds: 10
+                        tcpSocket:
+                          port: 6379
+                      name: redis
+                      readinessProbe:
+                        initialDelaySeconds: 1
+                        periodSeconds: 10
+                        tcpSocket:
+                          port: 6379
+                      securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                          drop:
+                            - ALL
+                        privileged: false
+                        runAsNonRoot: true
+                        seccompProfile:
+                          type: RuntimeDefault
+                      volumeMounts:
+                        - mountPath: /var/lib/redis
+                          name: data
+                          subPath: null
+                  securityContext:
+                    fsGroup: 999
+                    runAsUser: 999
+                  terminationGracePeriodSeconds: 120
+                  volumes:
+                    - emptyDir: {}
+                      name: data
+          - apiVersion: apps/v1
+            kind: StatefulSet
+            metadata:
+              labels:
+                app: harbor
+                app.kubernetes.io/component: trivy
+                app.kubernetes.io/instance: harbor
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: harbor
+                app.kubernetes.io/part-of: harbor
+                app.kubernetes.io/version: 2.14.2
+                chart: harbor
+                component: trivy
+                heritage: Helm
+                release: harbor
+              name: harbor-trivy
+              namespace: harbor
+            spec:
+              replicas: 1
+              selector:
+                matchLabels:
+                  app: harbor
+                  component: trivy
+                  release: harbor
+              serviceName: harbor-trivy
+              template:
+                metadata:
+                  annotations:
+                    checksum/secret: 43a68aaf73f915e1a439ffd372d1e902937844716ee36410cdf96cbb4ab6f7a3
+                  labels:
+                    app: harbor
+                    app.kubernetes.io/component: trivy
+                    app.kubernetes.io/instance: harbor
+                    app.kubernetes.io/managed-by: Helm
+                    app.kubernetes.io/name: harbor
+                    app.kubernetes.io/part-of: harbor
+                    app.kubernetes.io/version: 2.14.2
+                    chart: harbor
+                    component: trivy
+                    heritage: Helm
+                    release: harbor
+                spec:
+                  automountServiceAccountToken: false
+                  containers:
+                    - env:
+                        - name: HTTP_PROXY
+                          value: ""
+                        - name: HTTPS_PROXY
+                          value: ""
+                        - name: NO_PROXY
+                          value: harbor-core,harbor-jobservice,harbor-database,harbor-registry,harbor-portal,harbor-trivy,harbor-exporter,127.0.0.1,localhost,.local,.internal
+                        - name: SCANNER_LOG_LEVEL
+                          value: info
+                        - name: SCANNER_TRIVY_CACHE_DIR
+                          value: /home/scanner/.cache/trivy
+                        - name: SCANNER_TRIVY_REPORTS_DIR
+                          value: /home/scanner/.cache/reports
+                        - name: SCANNER_TRIVY_DEBUG_MODE
+                          value: "false"
+                        - name: SCANNER_TRIVY_VULN_TYPE
+                          value: os,library
+                        - name: SCANNER_TRIVY_TIMEOUT
+                          value: 5m0s
+                        - name: SCANNER_TRIVY_GITHUB_TOKEN
+                          valueFrom:
+                            secretKeyRef:
+                              key: gitHubToken
+                              name: harbor-trivy
+                        - name: SCANNER_TRIVY_SEVERITY
+                          value: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+                        - name: SCANNER_TRIVY_IGNORE_UNFIXED
+                          value: "false"
+                        - name: SCANNER_TRIVY_SKIP_UPDATE
+                          value: "false"
+                        - name: SCANNER_TRIVY_SKIP_JAVA_DB_UPDATE
+                          value: "false"
+                        - name: SCANNER_TRIVY_DB_REPOSITORY
+                          value: mirror.gcr.io/aquasec/trivy-db,ghcr.io/aquasecurity/trivy-db
+                        - name: SCANNER_TRIVY_JAVA_DB_REPOSITORY
+                          value: mirror.gcr.io/aquasec/trivy-java-db,ghcr.io/aquasecurity/trivy-java-db
+                        - name: SCANNER_TRIVY_OFFLINE_SCAN
+                          value: "false"
+                        - name: SCANNER_TRIVY_SECURITY_CHECKS
+                          value: vuln
+                        - name: SCANNER_TRIVY_INSECURE
+                          value: "false"
+                        - name: SCANNER_API_SERVER_ADDR
+                          value: :8080
+                        - name: SCANNER_REDIS_URL
+                          valueFrom:
+                            secretKeyRef:
+                              key: redisURL
+                              name: harbor-trivy
+                        - name: SCANNER_STORE_REDIS_URL
+                          valueFrom:
+                            secretKeyRef:
+                              key: redisURL
+                              name: harbor-trivy
+                        - name: SCANNER_JOB_QUEUE_REDIS_URL
+                          valueFrom:
+                            secretKeyRef:
+                              key: redisURL
+                              name: harbor-trivy
+                      image: goharbor/trivy-adapter-photon:v2.14.2
+                      imagePullPolicy: IfNotPresent
+                      livenessProbe:
+                        failureThreshold: 10
+                        httpGet:
+                          path: /probe/healthy
+                          port: api-server
+                          scheme: HTTP
+                        initialDelaySeconds: 5
+                        periodSeconds: 10
+                        successThreshold: 1
+                      name: trivy
+                      ports:
+                        - containerPort: 8080
+                          name: api-server
+                      readinessProbe:
+                        failureThreshold: 3
+                        httpGet:
+                          path: /probe/ready
+                          port: api-server
+                          scheme: HTTP
+                        initialDelaySeconds: 5
+                        periodSeconds: 10
+                        successThreshold: 1
+                      resources:
+                        limits:
+                          cpu: 1
+                          memory: 1Gi
+                        requests:
+                          cpu: 200m
+                          memory: 512Mi
+                      securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                          drop:
+                            - ALL
+                        privileged: false
+                        runAsNonRoot: true
+                        seccompProfile:
+                          type: RuntimeDefault
+                      volumeMounts:
+                        - mountPath: /home/scanner/.cache
+                          name: data
+                          readOnly: false
+                          subPath: null
+                  securityContext:
+                    fsGroup: 10000
+                    runAsUser: 10000
+                  volumes:
+                    - emptyDir: {}
+                      name: data
+          - apiVersion: networking.k8s.io/v1
+            kind: NetworkPolicy
+            metadata:
+              labels:
+                app.kubernetes.io/instance: release-name
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: flux-operator
+                app.kubernetes.io/version: v0.43.0
+                helm.sh/chart: flux-operator-0.43.0
+              name: release-name-flux-operator-web
+              namespace: flux-system
+            spec:
+              ingress:
+                - from:
+                    - namespaceSelector: {}
+                  ports:
+                    - port: 9080
+                      protocol: TCP
+              podSelector:
+                matchLabels:
+                  app.kubernetes.io/instance: release-name
+                  app.kubernetes.io/name: flux-operator
+              policyTypes:
+                - Ingress
+    - name: flux-instance
+      type: k8s-objects
+      properties:
+        objects:
+          - apiVersion: fluxcd.controlplane.io/v1
+            kind: FluxInstance
+            metadata:
+              name: flux
+              namespace: flux-system
+              annotations:
+                fluxcd.controlplane.io/reconcileEvery: "1m"
+                fluxcd.controlplane.io/reconcileTimeout: "3m"
+            spec:
+              distribution:
+                version: "2.x"
+                registry: "ghcr.io/fluxcd"
+                artifact: "oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests"
+              components:
+                - source-controller
+                - kustomize-controller
+                - helm-controller
+                - notification-controller
+              cluster:
+                type: kubernetes
+                multitenant: false
+                networkPolicy: true
+                domain: "cluster.local"

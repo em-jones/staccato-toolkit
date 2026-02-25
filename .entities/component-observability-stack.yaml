@@ -1,0 +1,23 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: observability-stack
+  title: Observability Stack
+  description: >
+    Platform observability infrastructure: Prometheus (metrics), Grafana Loki (logging),
+    Grafana Tempo (distributed tracing), and Grafana (unified UI). Instrumented via the
+    OpenTelemetry SDK and OpenTelemetry Collector.
+  annotations:
+    backstage.io/techdocs-ref: dir:src/ops/observability
+  tags:
+    - observability
+    - metrics
+    - logging
+    - tracing
+    - opentelemetry
+    - platform
+spec:
+  type: service
+  lifecycle: experimental
+  owner: platform-architects
+  system: staccato-toolkit

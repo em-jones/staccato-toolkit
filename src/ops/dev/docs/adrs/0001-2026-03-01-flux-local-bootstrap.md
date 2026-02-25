@@ -1,0 +1,1 @@
+../../../../../openspec/changes/archive/2026-03-01-flux-local-bootstrap/design.md

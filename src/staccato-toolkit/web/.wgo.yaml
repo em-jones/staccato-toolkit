@@ -1,0 +1,21 @@
+# wgo configuration for Staccato Web PWA
+# Watches for changes and rebuilds WASM binary + native server
+
+buildDir: ./tmp
+cmd: sh -c 'GOOS=js GOARCH=wasm go build -o web/app.wasm . && CGO_ENABLED=0 GOOS=linux go build -o ./tmp/staccato-web .'
+env:
+  - GOOS=linux
+  - GOARCH=amd64
+include:
+  - "**/*.go"
+  - "**/*.tpl"
+  - "**/*.tmpl"
+  - "**/*.html"
+exclude:
+  - "**/*_test.go"
+  - "**/testdata/**"
+  - "**/vendor/**"
+  - "**/tmp/**"
+  - "**/*.mod"
+  - "**/*.sum"
+delay: 100ms

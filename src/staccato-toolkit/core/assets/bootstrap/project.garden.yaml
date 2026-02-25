@@ -1,0 +1,39 @@
+apiVersion: garden.io/v2
+kind: Project
+name: staccato
+defaultEnvironment: local
+environments:
+  - name: local
+    defaultNamespace: staccato
+providers:
+  - name: local-kubernetes
+    environments: [local]
+    context: kind-staccato-dev
+    setupIngressController: traefik
+
+# Use .gitignore as the project-wide ignore file.
+# Replaces the deprecated dotIgnoreFiles (array) field removed in Cedar 0.14.
+dotIgnoreFile: .gitignore
+
+scan:
+  # Garden auto-discovers all garden.yml files under the repo root.
+  # The paths below are excluded from scanning to avoid noise or conflicts:
+  #   - node_modules: JS/TS package trees (Backstage, plugins)
+  #   - .git: version-control internals
+  #   - build: compiled output directories
+  #   - .devbox: nix/devbox environment binaries
+  #   - .todos: td task-management local database
+  #   - .garden: Garden's own cache and state directory
+  #   - .entities: catalog entity YAMLs (not Garden actions)
+  #   - .sidecar: internal tooling helpers
+  #   - .opencode: AI agent skills and rules
+  exclude:
+    - node_modules/**/*
+    - .git/**/*
+    - build/**/*
+    - .devbox/**/*
+    - .todos/**/*
+    - .garden/**/*
+    - .entities/**/*
+    - .sidecar/**/*
+    - .opencode/**/*

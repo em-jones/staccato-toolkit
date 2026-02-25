@@ -1,0 +1,35 @@
+apiVersion: garden.io/v0
+kind: Run
+type: exec
+name: build-staccato-toolkit
+spec:
+  command:
+    - vela
+    - install
+---
+apiVersion: garden.io/v0
+kind: Run
+type: exec
+name: control-plane-sync
+source:
+  path: ../../
+include:
+  - ./src/staccato-toolkit/control-plane-orch/assets/kubevela/addons/st-workloads/**/*.cue
+  - ./src/staccato-toolkit/control-plane-orch/assets/kubevela/addons/st-workloads/template.yaml
+spec:
+  command:
+    - vela
+    - addon
+    - enable
+    - ./src/staccato-toolkit/control-plane-orch/assets/kubevela/addons/st-workloads
+    - -s
+---
+apiVersion: garden.io/v0
+kind: Deploy
+type: kubernetes
+name: ops-environment
+dependencies:
+  - run.control-plane-sync
+spec:
+  manifestFiles:
+    - ./ops/*.yaml

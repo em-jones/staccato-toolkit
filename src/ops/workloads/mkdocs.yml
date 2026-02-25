@@ -1,0 +1,19 @@
+site_name: Platform Workloads
+site_description: Dagger CI/CD pipeline module for the Staccato Toolkit
+
+docs_dir: docs
+site_dir: site
+
+nav:
+  - Home: index.md
+  - Architecture Decisions: architecture-decisions.md
+  - Task Authoring Guide: task-authoring-guide.md
+
+theme:
+  name: material
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true

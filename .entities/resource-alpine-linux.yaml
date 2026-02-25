@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: alpine-linux
+  title: Alpine Linux
+  description: Lightweight Linux distribution designed for security and resource efficiency, commonly used as a minimal container base image.
+  tags:
+    - containers
+    - infrastructure
+    - base-image
+spec:
+  type: infrastructure
+  owner: platform-team
+  system: developer-platform

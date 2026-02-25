@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: go-testing
+  title: Go testing
+  description: Built-in testing package for Go providing unit testing, benchmarking, and example-based testing capabilities.
+  tags:
+    - testing
+    - library
+    - go
+spec:
+  type: library
+  owner: platform-team
+  system: developer-platform

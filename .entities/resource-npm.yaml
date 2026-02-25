@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: npm
+  title: npm
+  description: Package manager for JavaScript and Node.js providing dependency management, script execution, and registry access.
+  tags:
+    - utility
+    - package-manager
+    - nodejs
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

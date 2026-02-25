@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: jest
+  title: Jest
+  description: JavaScript testing framework with built-in mocking, assertions, and code coverage for unit and integration tests.
+  tags:
+    - testing
+    - node-library
+    - javascript
+spec:
+  type: node-library
+  owner: platform-team
+  system: developer-platform

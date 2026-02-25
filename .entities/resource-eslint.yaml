@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: eslint
+  title: ESLint
+  description: Pluggable JavaScript and TypeScript linter for identifying and fixing code quality issues and enforcing coding standards.
+  tags:
+    - code-quality
+    - node-library
+    - linting
+spec:
+  type: node-library
+  owner: platform-team
+  system: developer-platform

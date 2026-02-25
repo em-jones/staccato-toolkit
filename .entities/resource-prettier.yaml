@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: prettier
+  title: Prettier
+  description: Opinionated code formatter that enforces consistent style across JavaScript, TypeScript, and other supported languages.
+  tags:
+    - code-quality
+    - node-library
+    - formatting
+spec:
+  type: node-library
+  owner: platform-team
+  system: developer-platform

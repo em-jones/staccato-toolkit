@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+  "packages": [
+    "kubevela@1.10.7",
+    "github:em-jones/staccato-toolkit",
+    "kind@0.31.0",
+    "podman@5.8.0",
+    "seaweedfs@latest"
+  ],
+  "env": {
+    "CONTAINERS_CONF":            "./.st/containers",
+    "CONTAINERS_REGISTRIES_CONF": "./.st/containers"
+  },
+  "shell": {
+    "init_hook": [
+      "echo 'Welcome to devbox!' > /dev/null"
+    ],
+    "scripts": {
+      "test": [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
+    }
+  }
+}

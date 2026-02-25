@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: techdocs
+  title: TechDocs
+  description: Technical documentation system providing MkDocs-based documentation rendering for all components
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - documentation
+    - techdocs
+    - mkdocs
+spec:
+  type: library
+  lifecycle: production
+  owner: platform-team
+  system: developer-platform

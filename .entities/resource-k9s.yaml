@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: k9s
+  title: K9s
+  description: Terminal-based UI for managing and observing Kubernetes clusters with real-time resource monitoring and interaction.
+  tags:
+    - kubernetes
+    - utility
+    - cli
+    - monitoring
+spec:
+  type: utility
+  owner: platform-team
+  system: developer-platform

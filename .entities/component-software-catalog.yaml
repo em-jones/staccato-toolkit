@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: software-catalog
+  title: Software Catalog
+  description: Central registry of software components, systems, resources, and their relationships
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - catalog
+    - inventory
+    - metadata
+spec:
+  type: library
+  lifecycle: production
+  owner: platform-team
+  system: developer-platform
