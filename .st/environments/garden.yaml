@@ -1,35 +1,32 @@
 apiVersion: garden.io/v0
-kind: Run
-type: exec
-name: build-staccato-toolkit
-spec:
-  command:
-    - vela
-    - install
----
-apiVersion: garden.io/v0
-kind: Run
-type: exec
-name: control-plane-sync
+kind: Deploy
+type: helm
+name: st-control-plane
+description: >
+  Install KubeVela core + st-workloads addon (Harbor, flux-operator, Reflector,
+  harbor-oci-credentials) via the st-workloads-bootstrap Helm chart.
 source:
   path: ../../
 include:
-  - ./src/staccato-toolkit/control-plane-orch/assets/kubevela/addons/st-workloads/**/*.cue
-  - ./src/staccato-toolkit/control-plane-orch/assets/kubevela/addons/st-workloads/template.yaml
+  - charts/st-workloads-bootstrap/**/*
+  - src/staccato-toolkit/control-plane-orch/assets/kubevela/addons/st-workloads/**/*.cue
+  - src/staccato-toolkit/control-plane-orch/assets/kubevela/addons/st-workloads/template.yaml
 spec:
-  command:
-    - vela
-    - addon
-    - enable
-    - ./src/staccato-toolkit/control-plane-orch/assets/kubevela/addons/st-workloads
-    - -s
+  releaseName: st-workloads-bootstrap
+  namespace: vela-system
+  chart:
+    path: charts/st-workloads-bootstrap
+  values:
+    harbor:
+      adminPassword: ${var.harborAdminPassword || "Harbor12345"}
+  timeout: 600
 ---
 apiVersion: garden.io/v0
 kind: Deploy
 type: kubernetes
 name: ops-environment
 dependencies:
-  - run.control-plane-sync
+  - deploy.control-plane-sync
 spec:
   manifestFiles:
     - ./ops/*.yaml

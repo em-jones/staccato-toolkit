@@ -39,17 +39,17 @@ flowchart TD
 
     subgraph OAM["ops-environment Application — OAM Workflow  ④"]
 
-        W1["Workflow Phase 1 — flux-operator + Harbor
+        W1["Workflow Phase 1 — flux-operator + Reflector + Harbor
         ─────────────────────────────
-        Namespaces: flux-system, harbor
+        Namespaces: flux-system, reflector, harbor
         Static manifests (kustomize build --enable-helm):
           flux-operator CRDs + RBAC + Deployment v0.43.0
+          Reflector controller v10.0.16
           Harbor chart v1.18.2 (clusterIP, no TLS)
-          harbor-core initContainer → creates:
-            harbor-admin-credentials (harbor ns)
-            harbor-oci-credentials   (flux-system ns)
+          harbor-oci-credentials Secret (flux-system ns)
+            → reflector auto-mirrors into all namespaces
         → flux-operator Deployment running
-        → Harbor pods running + credentials secrets created"]
+        → Harbor pods running + Harbor OCI secret available"]
         --> W2
 
         W2["Workflow Phase 2 — FluxInstance
@@ -120,8 +120,8 @@ flowchart TD
 | ②         | Install KubeVela                  | `kustomize build \| kubectl apply`                                               | ①                              |
 | ③         | Install st-workloads Addon        | `vela addon enable ./addons/st-workloads`                                        | ②                              |
 | ④         | Apply ops-environment Application | `kubectl apply -f ops-environment-app.yaml`                                      | ③                              |
-| ④ W1      | flux-operator + Harbor            | OAM Workflow Phase 1 — static manifests (kustomize rendered, committed)          | ④                              |
-| ④ W1 init | harbor-core initContainer         | Creates `harbor-admin-credentials` + `harbor-oci-credentials`                    | W1 (harbor-core pod startup)   |
+| ④ W1      | flux-operator + Reflector + Harbor | OAM Workflow Phase 1 — static manifests (kustomize rendered, committed)         | ④                              |
+| ④ W1 auth | Declarative Harbor OCI secret      | Creates `harbor-oci-credentials` in `flux-system` and reflects it cluster-wide  | W1                             |
 | ④ W2      | FluxInstance                      | OAM Workflow Phase 2 — OCI source wired to Harbor                                | W1                             |
 | **⑤a**    | **render-and-push**               | `staccato bootstrap render-and-push` — renders charts, pushes OCI to Harbor      | W1 (Harbor ready)              |
 | **⑤b**    | **Garden build** (dev only)       | `garden build backstage staccato-server`                                         | W1 (Harbor) — parallel with ⑤a |

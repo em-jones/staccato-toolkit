@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# render.sh — Build flux-operator and Harbor manifests from src/kustomization.yaml and
+# render.sh — Build flux-operator, Harbor, and Reflector manifests from src/kustomization.yaml and
 # splice them into template.yaml as the bootstrap-manifests objects array.
 #
 # Usage (run from addon root):
@@ -7,10 +7,12 @@
 #
 # To upgrade flux-operator: bump its version in src/kustomization.yaml, then re-run.
 # To upgrade Harbor:        bump its version in src/kustomization.yaml, then re-run.
+# To upgrade Reflector:     bump its version in src/kustomization.yaml, then re-run.
 #
-# Both charts are rendered in a single kustomize build pass. The resulting objects
-# (flux-operator CRDs/RBAC/Deployment + Harbor Deployment/Services/etc. + credential
-# RBAC) are spliced into spec.components[0].properties.objects in template.yaml.
+# All charts are rendered in a single kustomize build pass. The resulting objects
+# (flux-operator CRDs/RBAC/Deployment + Reflector controller + Harbor
+# Deployment/Services/etc.) are spliced into spec.components[0].properties.objects in
+# template.yaml.
 set -euo pipefail
 
 ADDON_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -18,7 +20,7 @@ TEMPLATE="$ADDON_DIR/template.yaml"
 OBJECTS_TMP="$(mktemp /tmp/st-workloads-objects.XXXXXX.yaml)"
 trap 'rm -f "$OBJECTS_TMP"' EXIT
 
-echo "→ Building manifests from src/kustomization.yaml (flux-operator + Harbor)"
+echo "→ Building manifests from src/kustomization.yaml (flux-operator + Reflector + Harbor)"
 kustomize build "$ADDON_DIR/src" --enable-helm \
   | yq eval-all '[select(. != null)]' - \
   > "$OBJECTS_TMP"

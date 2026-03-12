@@ -5,12 +5,13 @@ metadata:
   namespace: vela-system
   annotations:
     app.oam.dev/description: >-
-      Bootstraps the GitOps infrastructure: applies the flux-operator, Harbor (OCI registry + credential init), and a FluxInstance so Flux controllers are running and the Harbor registry is available for OCI artifact storage.
+      Bootstraps the GitOps infrastructure: applies the flux-operator, Reflector, Harbor, and a FluxInstance so Flux controllers are running, Harbor is available for OCI artifact storage, and Harbor client credentials are mirrored into every namespace.
 spec:
   # Bootstrap ordering:
-  #   Phase 0 (apply-object): flux-system Namespace — must precede Phase 1 to avoid
-  #            pre-dispatch dry-run failures on namespaced objects.
-  #   Phase 1 (k8s-objects):  flux-operator RBAC + Deployment.
+  #   Phase 0 (apply-object): bootstrap namespaces (flux-system, harbor, reflector) —
+  #            must precede Phase 1 to avoid pre-dispatch dry-run failures on
+  #            namespaced objects.
+  #   Phase 1 (k8s-objects):  flux-operator RBAC + Deployment, Reflector, Harbor.
   #            Prereq: CRDs in resources/ applied before addon install via:
   #              kubectl apply -f addons/st-workloads/resources/
   #   Phase 2 (k8s-objects):  FluxInstance — flux-operator reconciles to install Flux.
@@ -42,6 +43,18 @@ spec:
               name: harbor
               labels:
                 app.kubernetes.io/name: harbor
+                app.kubernetes.io/managed-by: kubevela
+                app.kubernetes.io/part-of: st-environment
+      - name: apply-reflector-namespace
+        type: apply-object
+        properties:
+          value:
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: reflector
+              labels:
+                app.kubernetes.io/name: reflector
                 app.kubernetes.io/managed-by: kubevela
                 app.kubernetes.io/part-of: st-environment
       - name: apply-bootstrap-manifests
@@ -1733,6 +1746,43 @@ spec:
                 helm.sh/chart: flux-operator-0.43.0
               name: release-name-flux-operator
               namespace: flux-system
+          - apiVersion: v1
+            kind: ServiceAccount
+            metadata:
+              labels:
+                app.kubernetes.io/instance: reflector
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: reflector
+                app.kubernetes.io/version: 10.0.16
+                helm.sh/chart: reflector-10.0.16
+              name: reflector
+              namespace: reflector
+          - apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRole
+            metadata:
+              labels:
+                app.kubernetes.io/instance: reflector
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: reflector
+                app.kubernetes.io/version: 10.0.16
+                helm.sh/chart: reflector-10.0.16
+              name: reflector
+              namespace: reflector
+            rules:
+              - apiGroups:
+                  - ""
+                resources:
+                  - configmaps
+                  - secrets
+                verbs:
+                  - '*'
+              - apiGroups:
+                  - ""
+                resources:
+                  - namespaces
+                verbs:
+                  - watch
+                  - list
           - apiVersion: rbac.authorization.k8s.io/v1
             kind: ClusterRole
             metadata:
@@ -1857,6 +1907,25 @@ spec:
                   - get
                   - list
                   - watch
+          - apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRoleBinding
+            metadata:
+              labels:
+                app.kubernetes.io/instance: reflector
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: reflector
+                app.kubernetes.io/version: 10.0.16
+                helm.sh/chart: reflector-10.0.16
+              name: reflector
+              namespace: reflector
+            roleRef:
+              apiGroup: rbac.authorization.k8s.io
+              kind: ClusterRole
+              name: reflector
+            subjects:
+              - kind: ServiceAccount
+                name: reflector
+                namespace: reflector
           - apiVersion: rbac.authorization.k8s.io/v1
             kind: ClusterRoleBinding
             metadata:
@@ -2277,14 +2346,27 @@ spec:
               namespace: harbor
           - apiVersion: v1
             data:
-              CSRF_KEY: T1dnTFdxRWRyR255UmtnMDJtNXV3dUxPaUpPUzRHN2M=
+              .dockerconfigjson: eyJleHBlcmltZW50YWwiOiJlbmFibGVkIiwiYXV0aHMiOnsiaGFyYm9yLWNvcmUuaGFyYm9yLnN2Yy5jbHVzdGVyLmxvY2FsIjp7InVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6IkhhcmJvcjEyMzQ1IiwiYXV0aCI6IllXUnRhVzQ2U0dGeVltOXlNVEl6TkRVPSJ9LCJoYXJib3ItY29yZS5oYXJib3Iuc3ZjLmNsdXN0ZXIubG9jYWw6ODAiOnsidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkIjoiSGFyYm9yMTIzNDUiLCJhdXRoIjoiWVdSdGFXNDZTR0Z5WW05eU1USXpORFU9In19LCJjcmVkSGVscGVycyI6e319
+            kind: Secret
+            metadata:
+              annotations:
+                reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+                reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: ""
+                reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+                reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: ""
+              name: harbor-oci-credentials
+              namespace: flux-system
+            type: kubernetes.io/dockerconfigjson
+          - apiVersion: v1
+            data:
+              CSRF_KEY: U3h0V3J1cDFmNWp4VXhDM0xKbzE0VEFqSmtFU2Znb1A=
               HARBOR_ADMIN_PASSWORD: SGFyYm9yMTIzNDU=
               POSTGRESQL_PASSWORD: Y2hhbmdlaXQ=
               REGISTRY_CREDENTIAL_PASSWORD: aGFyYm9yX3JlZ2lzdHJ5X3Bhc3N3b3Jk
-              secret: YUNzOUtlQ1JFT3JKZGdYaQ==
+              secret: TzJSaERtY1FBWUo0OW1BSg==
               secretKey: bm90LWEtc2VjdXJlLWtleQ==
-              tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURIekNDQWdlZ0F3SUJBZ0lRTjBySTlIYkFETWN6c1NJRWpJY3B6VEFOQmdrcWhraUc5dzBCQVFzRkFEQWEKTVJnd0ZnWURWUVFERXc5b1lYSmliM0l0ZEc5clpXNHRZMkV3SGhjTk1qWXdNekE1TWpFd05EUXdXaGNOTWpjdwpNekE1TWpFd05EUXdXakFhTVJnd0ZnWURWUVFERXc5b1lYSmliM0l0ZEc5clpXNHRZMkV3Z2dFaU1BMEdDU3FHClNJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUNlQzVqZVlaRmh5R21uK1U5QnJHVS8yVGZUVGtPcExUNWYKNklUdVk1R1dVeTg1a3V6NlRsd3B5QmJFbFBvUGtSbisxL0Rpa3lLbXQzRUxET2dJdGJIeGVaSHNsb3VMYmFTZgppS0xFVGFTb3NaZU9ENUozNG1ZWkk3WFM2V3BXSHhveUZBOFRZeVlmekFLeVVmc0VPeFUxOEFXL2FNMlNsQVpHCnJJQ0JLZURUOGJYYktUVEtqVmpaMm5XWVFSRU9WRDFiTEZSaWpwSk9pbGZtaVFvRzl3VTI3K1ovK0pSRGlUVHgKYlFYUElacHBQbFlWZE96d2RzejR0NzBVSXRlWHdYcFR6WmNuVzREQzZoVmorbXhGM1RqQ2MxMDFKaXF4czJtbAp3YzRvK2kwcjNJZEduWFVKTHdVTEpTOGpCWjR4Mm0ybEV4aTlURCtNZzZ5L0VzRmZEYzgxQWdNQkFBR2pZVEJmCk1BNEdBMVVkRHdFQi93UUVBd0lDcERBZEJnTlZIU1VFRmpBVUJnZ3JCZ0VGQlFjREFRWUlLd1lCQlFVSEF3SXcKRHdZRFZSMFRBUUgvQkFVd0F3RUIvekFkQmdOVkhRNEVGZ1FVL0Zzbmw4OTFaT0hrOHo0VjdjR0Y4ekoyb3pVdwpEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBSjNJcDJFK251Z3VyaE9ENnJLaGdmT1kvMUVjSkY2aStGbmxoWHF6CkZqNXR4Z3JCVzRRdTI0ZXpwR2dlOFdjTElPMmRmc2djMTc3SlFRQ1BiUUkvTFp3TUkyVDVOSlBhQUVZS011bFAKWGlFTHVUTVlpOXR6aW9mQmRGckZHS3VXMlIvVlkzdlZyNUMwNDdUcC9rbFJWWnhZMGdtQ1YrK1ZQNkhKWnduSApSMkhKWFdQZDJQTU5uMExJZ3ZwOVVSaXRUeVB0Mjh1dWRXN0ZaWVFoUHBsMEs4UnhsSTJSNFNaYU5ybG5jN2JlClVWM01zTW1EZndnN2loa1d2dWdzK0pTdTdrc2s3SHExR05ad1lkK2ZhWHh4eHlZMGJXRWgyZnB2ZUx6ZmZDTSsKV2NXV3AvUlEzVHEzQW9YMGlLRWUyaXhORnJOZldPVXpJNFA5SmljdzRMUW9XdUE9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
-              tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBbmd1WTNtR1JZY2hwcC9sUFFheGxQOWszMDA1RHFTMCtYK2lFN21PUmxsTXZPWkxzCitrNWNLY2dXeEpUNkQ1RVovdGZ3NHBNaXByZHhDd3pvQ0xXeDhYbVI3SmFMaTIya240aWl4RTJrcUxHWGpnK1MKZCtKbUdTTzEwdWxxVmg4YU1oUVBFMk1tSDh3Q3NsSDdCRHNWTmZBRnYyak5rcFFHUnF5QWdTbmcwL0cxMnlrMAp5bzFZMmRwMW1FRVJEbFE5V3l4VVlvNlNUb3BYNW9rS0J2Y0ZOdS9tZi9pVVE0azA4VzBGenlHYWFUNVdGWFRzCjhIYk0rTGU5RkNMWGw4RjZVODJYSjF1QXd1b1ZZL3BzUmQwNHduTmROU1lxc2JOcHBjSE9LUG90Szl5SFJwMTEKQ1M4RkN5VXZJd1dlTWRwdHBSTVl2VXcvaklPc3Z4TEJYdzNQTlFJREFRQUJBb0lCQUJxU29wcEpWMU5VaWdjMwpFTTllK0FzYkw1cTBud1d6MkxmeGRXQkxsMi9wL3BlMGoybXFnUzU1T1BMR2hhRFdhY09DZFRyek9ERkZ5Smp1CkM1bGpTMDdwZk5LRm9XTEpCWlBaT2x5OUhVRkwwc3FNN2JpQWRXQW1zK3lKV0Zxd2tndjNlVzF1RHp2clpreXIKSWdSZEZyemg1V1dBYm9nRm9XU0NubnlaR1BjcGVoblpBMlhla0xHUUY2UHRsTXZaNUhWQUxLQU5PRS8wcm1sbApxVFk1dFIwcUlBdTNVUHBzVTR3OWNGUTI0dE1ubVZVOXM4OVZQNnNOTTRaejVIUWNhU0Ixd0w1ZHFQd0MzL3paCmt0eFRsSERhbFNNV2tteXlUdDc0K0d4eVozd0xiVjNFVEhESnlTS2taMkc5WjY3ODlMUWpvM0NmeFBlL2FvZ24KVUZBcHp1VUNnWUVBdzFGa3NSWGc5T3FYb1RMd0JHelN1eFp0cENuSms0ZlZuUUEwNGtRRVZKVWFZcjU4Tm1FQwpKKzBZRVJrWUZsWVIyTGtGMFV3K3czK1N5UWkxMzdnU2hNejBYWDhCbUthazA5dndWYlFSODRaZis0QVFwK1BxClR0MUZ3VVA4VVJHd0JIUCsyTEo4YWRDaDE4bVZTWVVSakhwcEJJYzJYMlkyS2E2Z2ZsckgzRnNDZ1lFQXp5VzUKdEtMbXZOSE9uWkQ5SGNvcmtIWFlDYnRSTEJsU1BSSDFObmhyY2ZRZVRDbjBVdUR3em1wRzNSMWszWmJTdFNWeApEdTZ6aEtzd3ZmZVpPb0U1REZJbzZJYlJNcXZsMFFXMjkvbDRpMmtIdmdxV05TZCtLcE1sYmhjSjVWYWdqRjNvCkl4WHhjOHI3NnZkSk9IQXQ0UHFFdXcvTEUzdE5TOStqWTB5R0Y2OENnWUVBcUlCZ3FQR2lHRWtHdFRmM255bXYKQjE1TENwUk9aZXVLMng2aGdRNkMyZUdrV01uUzZTcjVyQzQ4VkF2ZEh1LzBCNDlmdUhmWnNka3ViaWNJbU0vNQprZjRyVnpuSnk4TUFjaEhObm5KeUJqRElQM1gxYUpJVXd5TGNHZWFvRjl4MWlQSDFTMGQ0VStWOHFtZ3JWYmpxCk1kSXRKWTNzMTVLYmFZeFF3NUZYMlA4Q2dZQko0VHlnamxFWkd3TkQ4MGd6YmIybjRqL1JDTHZrckl0R09MZHEKVy95R1FmamtWVHBNck9sMTFUVzgreFRVYTB4dlN4Rk5zQmphd211NTlTcnpVTTlWODUrZmZ5WHhtcGwydVVFTwpwQzA0RzVlbFVnVk1vKzg5cEFsL2dEd0pUYUlwTGZ6ek5vcE5NQ0kxSlVrNkZkaG5HekpudlRSQ21JRnpCQ296CjZrRVJCUUtCZ0F2bHVyWW13MVNOdG1BOUlBNXM3aUlPMHVXUVpaeDBiUnhLalowQ2lXUnE2cWVtZnZoWDdwUzUKTFBWVHNHRjl4YXBiY3VacjhxdWtVeU5CSkRNcUc3NDFpOXc3VE41Q28vUWpkTzlnM2dTWkZNaVBBZFVWYzBSbApWQjlMWEhib3k5eVBpQ1M0aWFOdHdNeGZkNXlHalUzUCtNZER1MmNUR01yaDJRcENEOXA2Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+              tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURJRENDQWdpZ0F3SUJBZ0lSQU9kdGVSU0x1MHp6dGltZlBBSXlwVEl3RFFZSktvWklodmNOQVFFTEJRQXcKR2pFWU1CWUdBMVVFQXhNUGFHRnlZbTl5TFhSdmEyVnVMV05oTUI0WERUSTJNRE14TURFMU1qSXlNbG9YRFRJMwpNRE14TURFMU1qSXlNbG93R2pFWU1CWUdBMVVFQXhNUGFHRnlZbTl5TFhSdmEyVnVMV05oTUlJQklqQU5CZ2txCmhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBbzJzL2p2YU1UQXJ6OVZnZlBJUERaeml4czQzVU5oRHkKUjJzYjR0SXNXM3NJM3NDWkZTYktiNU9mRFBFNWtxOUtmRlpLZG55OVJQc3JUVnZsZGRWblV6WnpHYkI2ZFYrWgo2dWRMcmsrUzBCMHJzK0FJY0xWWVhGOVVjTGJISGFwNXFvbG9DTE9WK2Z2SWZ0ekhpaENrWXc1K0k4MDdyMnVzCktwRFdwdEVEM0ZCR3VoTDNiOFFzQ280OWdiM05ESEpDTnNvRGZJd3VPQ2IzeFMvcHU2SXpjN2NvMlNyYlYrM2oKbGMxNG11THN2b0szdk1HVFUxbmlFcTdaSlBWVW1uWk5tR1FMU0F0bUp5UmNnNUtNQUdRSTZYRG9TdS96aUN6VQprWVNOTVA0dStsZG43Z09GRGVZR3Vma1lUMlQ1dFd2ako3L2QxcnNwWGt0WlN2MEZKR2NxSXdJREFRQUJvMkV3Clh6QU9CZ05WSFE4QkFmOEVCQU1DQXFRd0hRWURWUjBsQkJZd0ZBWUlLd1lCQlFVSEF3RUdDQ3NHQVFVRkJ3TUMKTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3SFFZRFZSME9CQllFRkNDQ1B5SWpRZy9vREtDb2FEZHFCeGYxVU96cwpNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUNpSHhja1pCOGczZDZaOHNvdlJWTU5BRmVPd3pBUllJQWtwYnRVCjhhbHYzZXNCYnNmWW5DL3FQZmthL0RXUXZXWEdzRGdCNFBJcWF1Y085WjZHekRiVzQ0THNwbWlRYTNXOGIydmkKTTNneUJYK0Z6bEl2V2E0WTJkdUVmaTZSRDZkZlhZS0tZVitRYTZvS3RHaDdPL3FTaHMyajhESnRROW8waUJxRgpTOGtqYnE0aWhxR3VWaVB3YlBPZ2p5THE0bXcwaUVURkhBY3YyemFIaDBTQU5xdDRpZi9MMUdYdkdJZGtpVEZqCmJ1TE5Bak93RUN2RUlZYXMvekJCSVdXVUNGOEZNWEIrSFRtcEtSS1JwRzdjelVzd2Q1UW5IVmJmYmE3akJGUHEKUUFIUUV6VExZSGhTL2h5cWdhb3c4STZLUkd0TzZwR2VrdktFaDJwZ25oQ01mdk4zCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+              tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBbzJzL2p2YU1UQXJ6OVZnZlBJUERaeml4czQzVU5oRHlSMnNiNHRJc1czc0kzc0NaCkZTYktiNU9mRFBFNWtxOUtmRlpLZG55OVJQc3JUVnZsZGRWblV6WnpHYkI2ZFYrWjZ1ZExyaytTMEIwcnMrQUkKY0xWWVhGOVVjTGJISGFwNXFvbG9DTE9WK2Z2SWZ0ekhpaENrWXc1K0k4MDdyMnVzS3BEV3B0RUQzRkJHdWhMMwpiOFFzQ280OWdiM05ESEpDTnNvRGZJd3VPQ2IzeFMvcHU2SXpjN2NvMlNyYlYrM2psYzE0bXVMc3ZvSzN2TUdUClUxbmlFcTdaSlBWVW1uWk5tR1FMU0F0bUp5UmNnNUtNQUdRSTZYRG9TdS96aUN6VWtZU05NUDR1K2xkbjdnT0YKRGVZR3Vma1lUMlQ1dFd2ako3L2QxcnNwWGt0WlN2MEZKR2NxSXdJREFRQUJBb0lCQUI5OEViNUhCUWUva25vQgo5TjZ4V2l2Z2NlZ3dtcUtpQ0RPM1VLT1dMNktlWlRxWmE4VDErTW1mYk9UTzh2TXVYNUR1QlNHbjdjVkZDUFk2CkRzN3hneHMyb2QxZ3NXODhzSWhmOEtaUVFXNWtPRi9LK1lWUmd3a2srcjFPa2JWRyszTGVUMU5oMmpMVURqQlcKOUFESExRekNwWTNiUkRVTGJ4dXlWUkRGczFNMk8xdkhGSDIvb0xiU3VtU3Jpclo5OUpya1lGbkZJVmVBZG9HWApCMlhvVFZQZHJJaGJYenBpYXJQem1mUFUxdklIV0ZEZlMwdTVPanRZM3VaelUrVndyeFVJbjhCL2ozbW0wMW1DCkNoWkJ3UmduTUx1aE1sdTY2U2N4QVA5VG1HT0FDM1JIam1neGpyTWd0c05lSit6azYyT0dWZWRKMXY2dktFc3cKS3l0aFY3MENnWUVBMFpOVk1YUzJuRWJOQkNNK2hiSVZyL1poWWU4NXZ5eXhHQ1JQSk50SGxYOGFKQlFQVnI2VApZdnRMMWpQYk1Ycmh1aEdTcFFoV2xkcUFtUXRURm9uVFFFM1RMMytLNURMVWhpSXJXbkorNWdETlF3YklsckFqCk00ZGxHU1ppSkdPYXZKTkV4QlBXUE1VR3lWdmM5MTVjN3JzbTRhNEsydnJXUmRpaGJZZjRaQVVDZ1lFQXg1NTAKaVFjay9XbHhGL2ZyQlgvcTA5MHZJd3RaeFY5TS85VjY5WlBwOGZESUNLRzFwOUpERXJKSVZ2WVN3V0UwTmFJRwo2a0lLY2d6K1E5Z3VtUlZXekVGZ2p1RGJHSmVKMERDZEx2a3V0M2x2ckdMbTVpMUhFd01xV09CcWIwV0pwaEQ1Cm1RS1Q3QXVRbUp1cGI3WXBIUnRVNGlJNTZuRjhBcW1MN2ljMEZnY0NnWUJMMDZMZllmc3dUKzJkc2FMTmZNR2MKQ09qekpqc2VrRzBDN3lBemxhTXcwK3dCWWNDckFna1JweHFwUmRubzdTeit4WnpwV1RyNnZUUUtLNjdFV05tMgpTbkkrblVjRGllQ2JKNEhJRitVU0V2Z3hhQ0xyWW85WjlZTCt0b1NMNWYzMmZOSkVuMmpFVkFWQWxadzlaRWI3Cm1YdFg3RURCT2tDTXhQU2pUSzd5Z1FLQmdRQ2ZYVWlLRVJNZDRPMHlCbkl4L05LYisreGkzTy81VzhFY1NmR1YKVjFZaEdtcUlRWm5GOWw0bjhmOUF0Y2w1YTBJRVEydWozNzk1R0JoeVQ0ZThIVVlqWVZwV0Z2dXpvVitidndQdAorVytyZUo2SUVKbG9UK043TVQ3QW44RTVQbG5MSTZndzJOY0JUcVpNdjVGQXB6d2hpYTExcjM5dlJOU05SNUI0ClBBSWdSd0tCZ0V5cmZvT0QyTzhPN0JJSFhXTUJDaFIwN29KTFdjdW9Pbnpua21qQkdhb1pVL0pqbmlWWHFUd1kKd3luREhSZXB2TURMa0RmNWhDR3FTQWhrbGtiQ0hJbmlhcU0rbmFRWWxhWE4xeEJFWmhmZ3g5dHVRTXQ2QTBuWQo4SVNLdEU2aERqNTkxR3YvOGM0d3FNQmdkUkFWUjAweUM2UDBRdEQ4bXlZZE9IbUl6MEYzCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
             kind: Secret
             metadata:
               labels:
@@ -2320,7 +2402,7 @@ spec:
             type: Opaque
           - apiVersion: v1
             data:
-              JOBSERVICE_SECRET: WFQxWXhSdE1QQlA2dTFZdw==
+              JOBSERVICE_SECRET: bDNuMndZRzZ3bGRtUWxQNw==
               REGISTRY_CREDENTIAL_PASSWORD: aGFyYm9yX3JlZ2lzdHJ5X3Bhc3N3b3Jk
             kind: Secret
             metadata:
@@ -2339,7 +2421,7 @@ spec:
             type: Opaque
           - apiVersion: v1
             data:
-              REGISTRY_HTTP_SECRET: cVhPWXl4c3A4THZRd1daRA==
+              REGISTRY_HTTP_SECRET: RVJhZVZsYjZxMjREQmpGTA==
               REGISTRY_REDIS_PASSWORD: ""
             kind: Secret
             metadata:
@@ -2358,7 +2440,7 @@ spec:
             type: Opaque
           - apiVersion: v1
             data:
-              REGISTRY_HTPASSWD: aGFyYm9yX3JlZ2lzdHJ5X3VzZXI6JDJhJDEwJGpuVDhNS25qLzdpWlRKS3BJVXBFRy5JM3ptRDc3WWNFQnRBOEdEUXdWRXhCVVJNZUMuUTZp
+              REGISTRY_HTPASSWD: aGFyYm9yX3JlZ2lzdHJ5X3VzZXI6JDJhJDEwJDNzcmhkMnFjRkhCclFreXRSUmRobk94QnpmamVHL29aQTBQNmFxQjlZNnlONGpTdXh0eVFx
             kind: Secret
             metadata:
               labels:
@@ -2750,8 +2832,8 @@ spec:
                 metadata:
                   annotations:
                     checksum/configmap: 88d36bd5768c0cee781396047808ca3eb80e9c309719ae9474e1d42a7b38ce9d
-                    checksum/secret: 3025a758356f507db938179112df9354b07fc3d91414f1745f16981dc9a106c4
-                    checksum/secret-jobservice: c9933502972da72b4012eee28aaa160440946cadf86550f51bf880e434c910cd
+                    checksum/secret: eb84fe2e2f96601265134103fe512dd74cda49b23c4c4d9f6fd01b4e7f44c60c
+                    checksum/secret-jobservice: 4bf63e431482ef691dffc56e95ea545f6f2be0c1f162c393cd7ccb94f75cf7d6
                   labels:
                     app: harbor
                     app.kubernetes.io/component: core
@@ -2885,8 +2967,8 @@ spec:
                   annotations:
                     checksum/configmap: d97ed98c4f1a6a67a9e3beb515866b76bdc366f85a505c6630ab8b715a1d3596
                     checksum/configmap-env: 75613fb585c5d54506092929c28b7ab86212a69b20882acd118ae0780a1c48de
-                    checksum/secret: 4429256ccd1badfbe083afed5d4dfee2cb704b3b384e9596c1b90b81c7c5b126
-                    checksum/secret-core: ffefa65519dbfce67545c243271c8c7e1d942c3587ed01d40bb3513f8e9ee946
+                    checksum/secret: d6132d4cf709b3b1563765051ef30e3f8bc765b736488a913214a7b568d0efbf
+                    checksum/secret-core: 8d28d67a361c6092e29a5e40010d02f2f910649293e8bf1003dbee3823dfb6de
                   labels:
                     app: harbor
                     app.kubernetes.io/component: jobservice
@@ -3155,9 +3237,9 @@ spec:
                 metadata:
                   annotations:
                     checksum/configmap: 99cd8e88533e7632c94ee7344dc6d765bfa578232d8b242c8cb6756fe441556f
-                    checksum/secret: af4547efa4beae050691f95c7d48d369743774cd7484df1cee54987d158e1bc6
-                    checksum/secret-core: e1568b144d4897a2a614223882c82df2a75b2c6c13e9f0dabd924178b399cb50
-                    checksum/secret-jobservice: 40760489cd2fd9a069695684a5fe1152e1106810695c51104c5ad628e0b26be4
+                    checksum/secret: 80511e7e9991004c6586dcdab6c2772cfac14a4db46d045521fdfcb98eee5706
+                    checksum/secret-core: f41b3d56c390ec6e4eba0b27b25201e04f9e51b746c34a3d7bdeae11f40a6c3a
+                    checksum/secret-jobservice: 459aa59aabe2f25d5ef13fea7d28a3679cddc189fbb22ba3525a424e00226f60
                   labels:
                     app: harbor
                     app.kubernetes.io/component: registry
@@ -3289,6 +3371,80 @@ spec:
                       name: registry-config
                     - emptyDir: {}
                       name: registry-data
+          - apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              labels:
+                app.kubernetes.io/instance: reflector
+                app.kubernetes.io/managed-by: Helm
+                app.kubernetes.io/name: reflector
+                app.kubernetes.io/version: 10.0.16
+                helm.sh/chart: reflector-10.0.16
+              name: reflector
+              namespace: reflector
+            spec:
+              replicas: 1
+              selector:
+                matchLabels:
+                  app.kubernetes.io/instance: reflector
+                  app.kubernetes.io/name: reflector
+              template:
+                metadata:
+                  labels:
+                    app.kubernetes.io/instance: reflector
+                    app.kubernetes.io/name: reflector
+                spec:
+                  containers:
+                    - env:
+                        - name: ES_Serilog__MinimumLevel__Default
+                          value: Information
+                        - name: ES_Reflector__Watcher__Timeout
+                          value: ""
+                        - name: ES_Ignite__KubernetesClient__SkipTlsVerify
+                          value: "false"
+                      image: docker.io/emberstack/kubernetes-reflector:10.0.16
+                      imagePullPolicy: IfNotPresent
+                      livenessProbe:
+                        failureThreshold: 5
+                        httpGet:
+                          path: /health/live
+                          port: http
+                        initialDelaySeconds: 5
+                        periodSeconds: 10
+                        timeoutSeconds: 10
+                      name: reflector
+                      ports:
+                        - containerPort: 8080
+                          name: http
+                          protocol: TCP
+                      readinessProbe:
+                        failureThreshold: 5
+                        httpGet:
+                          path: /health/ready
+                          port: http
+                        initialDelaySeconds: 5
+                        periodSeconds: 10
+                        timeoutSeconds: 10
+                      resources: {}
+                      securityContext:
+                        capabilities:
+                          drop:
+                            - ALL
+                        readOnlyRootFilesystem: true
+                        runAsNonRoot: true
+                        runAsUser: 1000
+                      startupProbe:
+                        failureThreshold: 5
+                        httpGet:
+                          path: /health/ready
+                          port: http
+                        initialDelaySeconds: 5
+                        periodSeconds: 10
+                        timeoutSeconds: 10
+                      volumeMounts: []
+                  securityContext:
+                    fsGroup: 2000
+                  serviceAccountName: reflector
           - apiVersion: apps/v1
             kind: StatefulSet
             metadata:

@@ -16,13 +16,14 @@ func newBootstrapCmd() *cobra.Command {
 		Long: `Bootstrap provisions the full staccato platform control plane onto a prepared kind cluster.
 
 Run 'staccato bootstrap init' to perform the full bootstrap sequence:
-  Phase 3a: Enable the st-workloads KubeVela addon (includes Harbor + flux-operator)
+  Phase 3a: Install KubeVela core + st-workloads addon via the st-workloads-bootstrap Helm chart
+            (deploys Harbor, flux-operator, Reflector, and the harbor-oci-credentials Secret)
   Phase 3b: Render platform chart manifests and push OCI artifact to Harbor
   Phase 3c: Apply the gitops-provider OAM Application
 
 Prerequisites (performed by the cluster provisioner, not this command):
   Phase 1: kind create cluster (kind cluster running)
-  Phase 2: vela install && vela addon enable velaux (KubeVela core installed)`,
+  Phase 2: vela addon enable velaux (KubeVela UI installed)`,
 	}
 
 	cmd.AddCommand(newBootstrapInitCmd())
@@ -34,30 +35,50 @@ Prerequisites (performed by the cluster provisioner, not this command):
 // newBootstrapInitCmd returns the `staccato bootstrap init` command.
 func newBootstrapInitCmd() *cobra.Command {
 	var (
-		stWorkloadsAddon string
-		appManifest      string
-		env              string
-		registryURL      string
+		chart               string
+		helmRelease         string
+		helmNamespace       string
+		harborAdminPassword string
+		appManifest         string
+		env                 string
+		registryURL         string
 	)
 
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Run the full GitOps bootstrap sequence (Phase 3a–3c)",
 		Long: `init runs the three-step GitOps bootstrap sequence:
-  Phase 3a: vela addon enable ./st-workloads  (deploys Harbor + flux-operator + FluxInstance)
-  Phase 3b: staccato bootstrap render-and-push (render chart manifests, push OCI artifact to Harbor)
-  Phase 3c: kubectl apply -f gitops-provider-app.yaml
 
-Harbor credentials are created automatically by the harbor-core initContainer during Phase 3a.
-Wait for harbor-core to be Ready before Phase 3b begins (use --timeout flag or external readiness gate).`,
+  Phase 3a: helm upgrade --install st-workloads-bootstrap <chart>
+            Installs KubeVela core + st-workloads addon (Harbor, flux-operator,
+            Reflector, harbor-oci-credentials) via the st-workloads-bootstrap Helm chart.
+            The chart's post-install Job runs 'vela addon enable' automatically.
+
+  Phase 3b: staccato bootstrap render-and-push
+            Render chart manifests via kustomize, push as OCI artifact to Harbor.
+
+  Phase 3c: kubectl apply -f gitops-provider-app.yaml
+            Apply the gitops-provider OAM Application to activate GitOps reconciliation.
+
+Harbor credentials (harbor-oci-credentials) are shipped declaratively by the addon and
+reflected into all namespaces automatically by Reflector.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runBootstrapInit(cmd, stWorkloadsAddon, appManifest, env, registryURL)
+			return runBootstrapInit(cmd, chart, helmRelease, helmNamespace, harborAdminPassword, appManifest, env, registryURL)
 		},
 	}
 
-	cmd.Flags().StringVar(&stWorkloadsAddon, "st-workloads-addon",
-		"src/staccato-toolkit/control-plane-orch/assets/kubevela/addons/st-workloads",
-		"Path to the st-workloads KubeVela addon directory")
+	cmd.Flags().StringVar(&chart, "chart",
+		"charts/st-workloads-bootstrap",
+		"Path or OCI reference to the st-workloads-bootstrap Helm chart")
+	cmd.Flags().StringVar(&helmRelease, "helm-release",
+		"st-workloads-bootstrap",
+		"Helm release name for the st-workloads-bootstrap chart")
+	cmd.Flags().StringVar(&helmNamespace, "helm-namespace",
+		"vela-system",
+		"Kubernetes namespace to install the Helm release into")
+	cmd.Flags().StringVar(&harborAdminPassword, "harbor-admin-password",
+		"Harbor12345",
+		"Harbor admin password (passed to the chart as harbor.adminPassword)")
 	cmd.Flags().StringVar(&appManifest, "app-manifest", "assets/bootstrap/gitops-provider-app.yaml",
 		"Path to the gitops-provider OAM Application manifest")
 	cmd.Flags().StringVar(&env, "env", "ops",
@@ -69,13 +90,21 @@ Wait for harbor-core to be Ready before Phase 3b begins (use --timeout flag or e
 	return cmd
 }
 
-func runBootstrapInit(cmd *cobra.Command, stWorkloadsAddon, appManifest, env, registryURL string) error {
-	// Phase 3a: Enable st-workloads addon (Harbor + flux-operator + FluxInstance)
-	cmd.Printf("Phase 3a: Enabling st-workloads addon from %s...\n", stWorkloadsAddon)
-	if err := runCmd(cmd, "vela", "addon", "enable", stWorkloadsAddon); err != nil {
-		return fmt.Errorf("phase 3a: vela addon enable st-workloads: %w", err)
+func runBootstrapInit(cmd *cobra.Command, chart, helmRelease, helmNamespace, harborAdminPassword, appManifest, env, registryURL string) error {
+	// Phase 3a: Install KubeVela core + st-workloads addon via Helm chart.
+	// The chart's post-install Job automatically runs `vela addon enable` for the
+	// st-workloads addon (Harbor, flux-operator, Reflector, harbor-oci-credentials).
+	cmd.Printf("Phase 3a: Installing st-workloads-bootstrap chart from %s...\n", chart)
+	if err := runCmd(cmd, "helm", "upgrade", "--install", helmRelease, chart,
+		"--create-namespace",
+		"--namespace", helmNamespace,
+		"--set", fmt.Sprintf("harbor.adminPassword=%s", harborAdminPassword),
+		"--wait",
+		"--timeout", "10m",
+	); err != nil {
+		return fmt.Errorf("phase 3a: helm upgrade --install %s: %w", helmRelease, err)
 	}
-	cmd.Println("Phase 3a: st-workloads addon enabled ✓")
+	cmd.Println("Phase 3a: KubeVela core + st-workloads addon installed ✓")
 
 	// Phase 3b: Render chart manifests and push to Harbor
 	cmd.Println("Phase 3b: Rendering platform manifests and pushing OCI artifact to Harbor...")

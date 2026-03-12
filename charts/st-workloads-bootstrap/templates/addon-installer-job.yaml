@@ -1,0 +1,102 @@
+{{- if .Values.addon.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "st-workloads-bootstrap.fullname" . }}-addon-installer
+  namespace: vela-system
+  labels:
+    {{- include "st-workloads-bootstrap.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  activeDeadlineSeconds: {{ .Values.addon.job.activeDeadlineSeconds }}
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        {{- include "st-workloads-bootstrap.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: addon-installer
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ include "st-workloads-bootstrap.fullname" . }}-addon-installer
+      initContainers:
+        # Wait for KubeVela core controller to become ready before running
+        # vela addon enable. The vela-core Deployment is in vela-system.
+        # NOTE: oamdev/vela-cli does not ship kubectl or curl; use wget against
+        #       the in-cluster Kubernetes API to poll for availableReplicas.
+        - name: wait-for-kubevela
+          image: {{ .Values.addon.job.image }}
+          imagePullPolicy: {{ .Values.addon.job.imagePullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              echo "==> Waiting for KubeVela controller to be ready..."
+              TIMEOUT={{ .Values.addon.job.velaReadyTimeoutSeconds }}
+              ELAPSED=0
+              APISERVER="https://kubernetes.default.svc"
+              TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+              DEPLOY_URL="${APISERVER}/apis/apps/v1/namespaces/vela-system/deployments/st-control-plane-vela-core"
+
+              is_ready() {
+                RESULT=$(wget -qO- --no-check-certificate \
+                  --header "Authorization: Bearer ${TOKEN}" \
+                  "${DEPLOY_URL}" 2>/dev/null) || return 1
+                # JSON format: "availableReplicas": N,  (note the space before colon)
+                AVAILABLE=$(echo "${RESULT}" | grep '"availableReplicas"' | grep -v '"f:' | grep -o '[0-9]*' | head -1)
+                DESIRED=$(echo "${RESULT}" | grep '"replicas"' | grep -v '"f:' | grep -o '[0-9]*' | head -1)
+                [ -n "${AVAILABLE}" ] && [ -n "${DESIRED}" ] && [ "${AVAILABLE}" -ge 1 ] && [ "${AVAILABLE}" = "${DESIRED}" ]
+              }
+
+              until is_ready; do
+                if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
+                  echo "ERROR: KubeVela did not become ready within ${TIMEOUT}s" >&2
+                  exit 1
+                fi
+                echo "  still waiting... (${ELAPSED}s elapsed)"
+                sleep 10
+                ELAPSED=$((ELAPSED + 10))
+              done
+              echo "==> KubeVela controller is ready."
+      containers:
+        - name: addon-installer
+          image: {{ .Values.addon.job.image }}
+          imagePullPolicy: {{ .Values.addon.job.imagePullPolicy }}
+          {{- with .Values.addon.job.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              ADDON_WORK_DIR="/work/st-workloads"
+              BUNDLE="/bundle/st-workloads.tgz"
+
+              echo "==> Extracting addon bundle..."
+              mkdir -p "${ADDON_WORK_DIR}"
+              tar -xzf "${BUNDLE}" -C "${ADDON_WORK_DIR}"
+              echo "    extracted to ${ADDON_WORK_DIR}"
+              ls "${ADDON_WORK_DIR}"
+
+              echo "==> Running: vela addon enable ${ADDON_WORK_DIR} -s"
+              vela addon enable "${ADDON_WORK_DIR}" -s
+
+              echo "==> Addon enable complete."
+          volumeMounts:
+            - name: addon-bundle
+              mountPath: /bundle
+              readOnly: true
+            - name: work
+              mountPath: /work
+      volumes:
+        - name: addon-bundle
+          secret:
+            secretName: {{ .Values.addon.bundleSecretName }}
+        - name: work
+          emptyDir: {}
+{{- end }}

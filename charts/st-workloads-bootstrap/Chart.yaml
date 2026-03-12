@@ -1,0 +1,26 @@
+apiVersion: v2
+name: st-workloads-bootstrap
+description: >
+  Installs KubeVela core and the st-workloads addon, which provisions the
+  GitOps infrastructure (Flux Operator, Reflector, Harbor) into the cluster.
+  A post-install/post-upgrade Job runs `vela addon enable` to activate the
+  addon after KubeVela is ready.
+type: application
+version: 0.1.0
+appVersion: "1.10.7"
+keywords:
+  - kubevela
+  - staccato-toolkit
+  - flux
+  - harbor
+  - reflector
+  - gitops
+sources:
+  - https://github.com/em-jones/openspec-td
+maintainers:
+  - name: staccato-toolkit
+dependencies:
+  - name: vela-core
+    version: "1.10.7"
+    repository: https://kubevela.github.io/charts
+    condition: kubevela.enabled

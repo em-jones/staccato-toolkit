@@ -224,14 +224,10 @@ kubectl create secret generic harbor-admin-credentials \
   -n harbor \
   --from-literal=HARBOR_ADMIN_PASSWORD=<your-password> \
   --from-literal=values.yaml="harborAdminPassword: <your-password>"
-
-# Harbor registry credentials for Flux (dockerconfigjson)
-kubectl create secret docker-registry harbor-oci-credentials \
-  -n flux-system \
-  --docker-server=harbor-core.harbor.svc.cluster.local \
-  --docker-username=admin \
-  --docker-password=<your-password>
 ```
+
+`harbor-oci-credentials` is now rendered by the `st-workloads` addon in `flux-system` and mirrored
+cluster-wide by Reflector; it no longer needs to be created manually.
 
 ### Bootstrap Commands
 
